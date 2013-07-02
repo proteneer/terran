@@ -10,38 +10,45 @@
 
 #include <vector>
 #include "Param.h"
+#include "MathFunctions.h"
 
 // Abstract Expectation Maximization class for Gaussian-like mixture models that 
 // optimize a set of initial parameters given a dataset. Concrete classes reimplement 
-// the E and M step as needed.
+// the E and M step as needed. 
+//
+// Ref 1. Estimating Gaussian Mixture Densities with EM - A Tutorial, Carlo Tomasi
 class EM { 
     public:
         virtual ~EM();
 
-        // Run the EM algorithm
-    	void run(int numSteps);
-
         // Set parameters
-        void setParams(std::vector<Param> &input);
+        void setParams(const std::vector<Param> &input) {
+            params_ = input;
+        }
 
         // Get parameters
-        std::vector<Param> getParams() const;
+        std::vector<Param> getParams() const {
+            return params_;
+        }
 
+        // Get number of data points
         int getDataSize() const {
             return data_.size();
         }
+
+        // Run the EM algorithm
+    	virtual void run(int maxSteps, double tolerance) = 0;
 
         // EM routines
         virtual void EStep() = 0;
         virtual void MStep() = 0;
 
     private:
+
         // The sum over k for each n in p(k|n) should be 1
-        // 
         void testIntegrity() const;
 
-        // An extension, as defined in the paper
-        double qkn(int k, int n) const;
+        virtual double qkn(int k, int n) const;
 
         std::vector<Param> params_;
         const std::vector<double> data_;
