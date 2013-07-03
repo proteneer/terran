@@ -12,8 +12,6 @@ class EMGaussian : EM {
         };
         ~EMGaussian();
 
-        void run(int maxSteps, double tolerance);
-
         void MStep() {
             for(int k=0; k<params_.size(); k++) {
                 // Compute new means

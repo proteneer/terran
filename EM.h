@@ -44,8 +44,37 @@ class EM {
             return data_.size();
         }
 
+        // Compute the likelihood given current parameters
+        double getLikelihood() {
+            double lambda = 0;
+            for(int n=0; n<data_.size(); n++) {
+                double sum = 0;
+                for(int k=0; k<params_.size(); k++) {
+                    sum += qkn(k,n);
+                }
+                lambda += log(sum);
+            }
+            if(lambda < 0) {
+                throw(std::runtime_error("Negative likelihood found! Aborting...\n"));
+            }
+            return lambda;
+        }
+
         // Run the EM algorithm
-    	virtual void run(int maxSteps, double tolerance) = 0;
+        // Returns true executed successfully, false otherwise
+    	bool run(int maxSteps, double tolerance) {
+            int steps = 0;
+            double likelihood = getLikelihood();
+            double likelihoodOld = likelihood;
+            do {
+                likelihoodOld = likelihood;
+                EStep();
+                MStep();   
+                steps++;
+                likelihood = getLikelihood(); 
+            } while(fabs(likelihoodOld - likelihood) > tolerance && steps < maxSteps);
+            return (steps < maxSteps);
+        }
 
         // EM routines
         void EStep() {
