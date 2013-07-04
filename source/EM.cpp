@@ -5,11 +5,22 @@ EM::~EM() {
 
 }
 
+#include <iostream>
+
 EM::EM(const std::vector<double> &data, const std::vector<Param> &params) : 
     data_(data),
     params_(params),
     pikn_(data.size(), std::vector<double>(params.size(),0)) {
 
+    if(data_.size() == 0)
+        throw(std::runtime_error("Cannot initialize EM with empty dataset"));
+
+    for(int i=0; i<params_.size(); i++) {
+        if(params_[i].p <= 0)
+            throw(std::runtime_error("Cannot have p <= 0 in parameters"));
+        if(params_[i].p > 1)
+            throw(std::runtime_error("Cannot have p > 1 in parameters"));
+    }
 }
 
 void EM::setParams(const std::vector<Param> &input) {
@@ -33,17 +44,21 @@ double EM::getLikelihood() const {
         }
         lambda += log(sum);
     }
-    if(lambda < 0) {
-        throw(std::runtime_error("Negative likelihood found! Aborting...\n"));
-    }
     return lambda;
 }
+
+#include <iostream>
+
+using namespace std;
 
 bool EM::run(int maxSteps, double tolerance) {
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld = likelihood;
     do {
+
+        cout << params_[0].p << " " << params_[0].u << " " << params_[0].s << " " << endl;
+
         likelihoodOld = likelihood;
         EStep();
         MStep();   
@@ -52,7 +67,6 @@ bool EM::run(int maxSteps, double tolerance) {
     } while(fabs(likelihoodOld - likelihood) > tolerance && steps < maxSteps);
     return (steps < maxSteps);
 }
-
 
 void EM::EStep() {
     for(int n=0; n<data_.size(); n++) {
@@ -66,7 +80,6 @@ void EM::EStep() {
     }
     testIntegrity();
 }
-
 
 void EM::testIntegrity() const {
     double sum = 0;

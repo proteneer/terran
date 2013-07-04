@@ -31,7 +31,7 @@ class EM {
         // Get number of data points
         int getDataSize() const;
 
-        // Compute the likelihood given current parameters
+        // Compute the log likelihood given current parameters
         double getLikelihood() const;
 
         // Run the EM algorithm

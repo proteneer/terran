@@ -4,7 +4,7 @@
 #include "EM.h"
 
 // Canonical Expectation Maximization of Gaussian Mixture Models
-class EMGaussian : EM {
+class EMGaussian : public EM {
     public:
         EMGaussian(const std::vector<double> &data, const std::vector<Param> &params);
         ~EMGaussian();
