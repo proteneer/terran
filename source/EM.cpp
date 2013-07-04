@@ -19,6 +19,8 @@ EM::EM(const std::vector<double> &data, const std::vector<Param> &params) :
             throw(std::runtime_error("Cannot have p <= 0 in parameters"));
         if(params_[i].p > 1)
             throw(std::runtime_error("Cannot have p > 1 in parameters"));
+        if(params_[i].s <= 0)
+            throw(std::runtime_error("Cannot have s <= 0 in parameters"));
     }
 }
 

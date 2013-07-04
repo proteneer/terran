@@ -56,7 +56,55 @@ void testUnimodalGaussian() {
 }
 
 void testBimodalGaussian() {
-
+    vector<double> data;
+    double u1 = -3.4;
+    double s1 = 1.2;
+    for(int i=0; i<10000; i++) {
+        double x1 = (double)rand()/(double)RAND_MAX;
+        double x2 = (double)rand()/(double)RAND_MAX;
+        double2 z = boxMullerSample(x1, x2, u1, s1);
+        data.push_back(z.x);
+        data.push_back(z.y);
+    }
+    double u2 = 7.4;
+    double s2 = 6.2;
+    for(int i=0; i<20000; i++) {
+        double x1 = (double)rand()/(double)RAND_MAX;
+        double x2 = (double)rand()/(double)RAND_MAX;
+        double2 z = boxMullerSample(x1, x2, u2, s2);
+        data.push_back(z.x);
+        data.push_back(z.y);
+    }
+    vector<Param> params;
+    {
+        Param p;
+        p.p = 0.5;
+        p.u = 6.2;
+        p.s = 8.1;
+        params.push_back(p);
+    }
+    {
+        Param p;
+        p.p = 0.5;
+        p.u = 0;
+        p.s = 2.1;
+        params.push_back(p);
+    }
+    EMGaussian em(data, params);
+    em.run(10000, 0.1);
+    vector<Param> optimizedParams = em.getParams();
+    if(fabs(optimizedParams[0].u - u1) > 0.2 ) {
+        throw(std::runtime_error("testUnimodalGaussian failed, u mismatch"));
+    }
+    if(fabs(optimizedParams[0].s - s1) > 0.2) {
+        throw(std::runtime_error("testUnimodalGaussian failed, s mismatch"));
+    }
+    if(fabs(optimizedParams[1].u - u1) > 0.2 ) {
+        throw(std::runtime_error("testUnimodalGaussian failed, u mismatch"));
+    }
+    if(fabs(optimizedParams[1].s - s1) > 0.2) {
+        throw(std::runtime_error("testUnimodalGaussian failed, s mismatch"));
+    }
 }
 
 void testTrimodalGaussian() {
@@ -67,6 +115,7 @@ void testTrimodalGaussian() {
 int main() {
     try {
         testUnimodalGaussian();
+        testBimodalGaussian();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }
