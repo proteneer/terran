@@ -1,11 +1,10 @@
 #include "EM.h"
 #include "MathFunctions.h"
+#include <iostream>
 
 EM::~EM() {
 
 }
-
-#include <iostream>
 
 EM::EM(const std::vector<double> &data, const std::vector<Param> &params) : 
     data_(data),
@@ -47,18 +46,11 @@ double EM::getLikelihood() const {
     return lambda;
 }
 
-#include <iostream>
-
-using namespace std;
-
 bool EM::run(int maxSteps, double tolerance) {
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld = likelihood;
     do {
-
-        cout << params_[0].p << " " << params_[0].u << " " << params_[0].s << " " << endl;
-
         likelihoodOld = likelihood;
         EStep();
         MStep();   

@@ -31,7 +31,7 @@ void testUnimodalGaussian() {
     vector<double> data;
     double u1 = 12.3;
     double s1 = 4.7;
-    for(int i=0; i<250; i++) {
+    for(int i=0; i<10000; i++) {
         double x1 = (double)rand()/(double)RAND_MAX;
         double x2 = (double)rand()/(double)RAND_MAX;
         double2 z = boxMullerSample(x1, x2, u1, s1);
@@ -44,16 +44,15 @@ void testUnimodalGaussian() {
     p.u = 6.2;
     p.s = 8.1;
     params.push_back(p);
-
     EMGaussian em(data, params);
-
-
-    cout << em.getLikelihood() << endl;
-
-    em.run(5, 1);
-
-    cout << em.getLikelihood() << endl;
-
+    em.run(10000, 0.1);
+    vector<Param> optimizedParams = em.getParams();
+    if(fabs(optimizedParams[0].u - u1) > 0.2) {
+        throw(std::runtime_error("testUnimodalGaussian failed, u mismatch"));
+    }
+    if(fabs(optimizedParams[0].s - s1) > 0.2) {
+        throw(std::runtime_error("testUnimodalGaussian failed, s mismatch"));
+    }
 }
 
 void testBimodalGaussian() {
