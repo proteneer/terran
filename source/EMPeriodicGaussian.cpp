@@ -1,4 +1,5 @@
 #include "EMPeriodicGaussian.h"
+#include <assert.h>
 
 using namespace std;
 
@@ -18,8 +19,6 @@ EMPeriodicGaussian::~EMPeriodicGaussian() {
 
 void EMPeriodicGaussian::MStep() {
 
-
-
 /*
     for(double u=-period_/2; u<period_/2; u+=0.01) {
         cout << u << " " << dldu(u, 0) << endl;
@@ -27,11 +26,29 @@ void EMPeriodicGaussian::MStep() {
 */
 
 
+/*
     for(double s=0; s<6; s+= 0.01) {
         cout << s << " " << dlds(s, 0) << endl;
     }
+  */  
 
-
+    for(int k=0; k<params_.size(); k++) {
+        // bisection root-finding algorithm
+        double ak = 0.01;
+        double bk = period_;
+        double mk;
+        double my;
+        do {
+            assert(dlds(ak, k) > 0 || isnan(dlds(ak, k)));
+            assert(dlds(bk, k) < 0);
+            mk = (ak+bk)/2.0;
+            my = dlds(mk, k);
+            if(my > 0)
+                ak = mk;
+            else
+                bk = mk;
+        } while(fabs(my) > 1e-5);
+    }
 }
 
 double EMPeriodicGaussian::qkn(int k, int n) const {
