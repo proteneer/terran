@@ -1,9 +1,8 @@
 #include "EMPeriodicGaussian.h"
-#include "MathFunctions.h"
 
 using namespace std;
 
-EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<Param> &params, double period = 2*PI, int images = 30) : 
+EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<Param> &params, double period, int images) : 
     EM(data, params), 
     period_(period),
     images_(images) {
@@ -12,6 +11,27 @@ EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<
 
 EMPeriodicGaussian::~EMPeriodicGaussian() {
 
+}
+
+
+#include <iostream>
+
+void EMPeriodicGaussian::MStep() {
+
+
+    for(double u=-period_/2; u<period_/2; u+=0.001) {
+        cout << u << " " << dldu(u, 0) << endl;
+    }
+
+
+}
+
+double EMPeriodicGaussian::qkn(int k, int n) const {
+    double xn = data_[n];
+    double pk = params_[k].p;
+    double uk = params_[k].u;
+    double sk = params_[k].s;
+    return pk*periodicGaussian(uk,sk,xn,images_,period_);
 }
 
 double EMPeriodicGaussian::dldu(double uk, int k) const {

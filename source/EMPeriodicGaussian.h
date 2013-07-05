@@ -2,12 +2,13 @@
 #define EM_PERIODIC_GAUSSIAN_H
 
 #include "EM.h"
+#include "MathFunctions.h"
 
 // Expectation Maximization of Periodic Gaussian Mixture Models
 class EMPeriodicGaussian : public EM {
     public:
         // period and images are initialized by default
-        EMPeriodicGaussian(const std::vector<double> &data, const std::vector<Param> &params, double period, int images);
+        EMPeriodicGaussian(const std::vector<double> &data, const std::vector<Param> &params, double period = 2*PI, int images = 30);
         ~EMPeriodicGaussian();
 
         void MStep();

@@ -1,11 +1,11 @@
 // tests expectation maximization of gaussians for correctness
 
-#include <EMGaussian.h>
 #include <math.h>
 #include <vector>
 #include <iostream>
 
-#define PI 3.14159265358
+#include <EMGaussian.h>
+#include <MathFunctions.h>
 
 using namespace std;
 
