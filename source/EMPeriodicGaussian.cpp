@@ -19,8 +19,16 @@ EMPeriodicGaussian::~EMPeriodicGaussian() {
 void EMPeriodicGaussian::MStep() {
 
 
-    for(double u=-period_/2; u<period_/2; u+=0.001) {
+
+/*
+    for(double u=-period_/2; u<period_/2; u+=0.01) {
         cout << u << " " << dldu(u, 0) << endl;
+    }
+*/
+
+
+    for(double s=0; s<6; s+= 0.01) {
+        cout << s << " " << dlds(s, 0) << endl;
     }
 
 
@@ -60,7 +68,7 @@ double EMPeriodicGaussian::dlds(double sk, int k) const {
         double p1 = 0;
         double p2 = 0;
         double p3 = 0;
-        p1 = -sk*sk + pow((xn-uk),2);
+        p1 = -sk*sk + (xn-uk)*(xn-uk);
 
         double r_sum_g = 0;
         double r_sum_rg = 0;
