@@ -21,9 +21,6 @@ EMPeriodicGaussian::~EMPeriodicGaussian() {
 
 }
 
-
-#include <iostream>
-
 void EMPeriodicGaussian::MStep() {
 
     // Compute new mean
