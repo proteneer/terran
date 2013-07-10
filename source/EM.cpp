@@ -14,13 +14,19 @@ EM::EM(const std::vector<double> &data, const std::vector<Param> &params) :
     if(data_.size() == 0)
         throw(std::runtime_error("Cannot initialize EM with empty dataset"));
 
+    double psum = 0;
+
     for(int i=0; i<params_.size(); i++) {
+        psum += params_[i].p;
         if(params_[i].p <= 0)
             throw(std::runtime_error("Cannot have p <= 0 in parameters"));
         if(params_[i].p > 1)
             throw(std::runtime_error("Cannot have p > 1 in parameters"));
         if(params_[i].s <= 0)
             throw(std::runtime_error("Cannot have s <= 0 in parameters"));
+    }
+    if(psum > 1.0001) {
+        throw(std::runtime_error("Initial probabilities sum to greater than 1"));
     }
 }
 
