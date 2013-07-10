@@ -47,28 +47,31 @@ void testUnimodalGaussian() {
     EMGaussian em(data, params);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
-    if(fabs(optimizedParams[0].u - u1) > 0.2) {
+    if(fabs(optimizedParams[0].u - u1) > 0.1) {
         throw(std::runtime_error("testUnimodalGaussian failed, u mismatch"));
     }
-    if(fabs(optimizedParams[0].s - s1) > 0.2) {
+    if(fabs(optimizedParams[0].s - s1) > 0.1) {
         throw(std::runtime_error("testUnimodalGaussian failed, s mismatch"));
     }
 }
 
 void testBimodalGaussian() {
+    int numSamples = 20000;
     vector<double> data;
+    double p1 = 0.4;
     double u1 = -3.4;
     double s1 = 1.2;
-    for(int i=0; i<10000; i++) {
+    for(int i=0; i<(int)numSamples*p1; i++) {
         double x1 = (double)rand()/(double)RAND_MAX;
         double x2 = (double)rand()/(double)RAND_MAX;
         double2 z = boxMullerSample(x1, x2, u1, s1);
         data.push_back(z.x);
         data.push_back(z.y);
     }
+    double p2 = 0.6;
     double u2 = 7.4;
     double s2 = 6.2;
-    for(int i=0; i<20000; i++) {
+    for(int i=0; i<(int)numSamples*p2; i++) {
         double x1 = (double)rand()/(double)RAND_MAX;
         double x2 = (double)rand()/(double)RAND_MAX;
         double2 z = boxMullerSample(x1, x2, u2, s2);
@@ -93,17 +96,23 @@ void testBimodalGaussian() {
     EMGaussian em(data, params);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
-    if(fabs(optimizedParams[0].u - u1) > 0.2 ) {
-        throw(std::runtime_error("testUnimodalGaussian failed, u mismatch"));
+    if(fabs(optimizedParams[0].p - p2) > 0.1 ) {
+        throw(std::runtime_error("testUnimodalGaussian failed, p0 mismatch"));
     }
-    if(fabs(optimizedParams[0].s - s1) > 0.2) {
-        throw(std::runtime_error("testUnimodalGaussian failed, s mismatch"));
+    if(fabs(optimizedParams[0].u - u2) > 0.1 ) {
+        throw(std::runtime_error("testUnimodalGaussian failed, u0 mismatch"));
     }
-    if(fabs(optimizedParams[1].u - u1) > 0.2 ) {
-        throw(std::runtime_error("testUnimodalGaussian failed, u mismatch"));
+    if(fabs(optimizedParams[0].s - s2) > 0.1) {
+        throw(std::runtime_error("testUnimodalGaussian failed, s0 mismatch"));
     }
-    if(fabs(optimizedParams[1].s - s1) > 0.2) {
-        throw(std::runtime_error("testUnimodalGaussian failed, s mismatch"));
+    if(fabs(optimizedParams[1].p - p1) > 0.1) {
+        throw(std::runtime_error("testUnimodalGaussian failed, p1 mismatch"));
+    }
+    if(fabs(optimizedParams[1].u - u1) > 0.1) {
+        throw(std::runtime_error("testUnimodalGaussian failed, u1 mismatch"));
+    }
+    if(fabs(optimizedParams[1].s - s1) > 0.1) {
+        throw(std::runtime_error("testUnimodalGaussian failed, s1 mismatch"));
     }
 }
 

@@ -19,19 +19,45 @@ EMPeriodicGaussian::~EMPeriodicGaussian() {
 
 void EMPeriodicGaussian::MStep() {
 
-/*
-    for(double u=-period_/2; u<period_/2; u+=0.01) {
-        cout << u << " " << dldu(u, 0) << endl;
+    // Compute new mean
+    for(int k=0; k<params_.size(); k++) {
+        // find two points ak and bk such that
+        // ak < bk, and dldu(ak) > dldu(bk)
+        // we just divide the domain into 8 equal parts
+        // and guess that its bound to cross at one point
+        int increment = 8;
+        double ak,bk;
+        double x = -period_/2;
+        ak = x;
+        double fx = dldu(x,k);
+        for(int i = 1; i < increment; i += 1) {
+            x += period_/increment;
+            double fx2 = dldu(x,k);
+            if(fx > 0 && fx2 < 0) {
+                bk = x;
+                break;
+            } else {
+                ak = x;
+                fx = fx2;
+            }
+        }
+        double mk;
+        double my;
+        // bisection
+        do {
+            assert(dldu(ak, k) > 0 || isnan(dldu(ak, k)));
+            assert(dldu(bk, k) < 0);
+            mk = (ak+bk)/2.0;
+            my = dldu(mk, k);
+            if(my > 0)
+                ak = mk;
+            else
+                bk = mk;
+        } while(fabs(my) > 1e-5);
+        params_[k].u = mk;
     }
-*/
 
-
-/*
-    for(double s=0; s<6; s+= 0.01) {
-        cout << s << " " << dlds(s, 0) << endl;
-    }
-  */  
-
+    // Compute new standard deviation and probability
     for(int k=0; k<params_.size(); k++) {
         // bisection root-finding algorithm
         double ak = 0.01;
@@ -48,7 +74,16 @@ void EMPeriodicGaussian::MStep() {
             else
                 bk = mk;
         } while(fabs(my) > 1e-5);
+        params_[k].s = mk;
+
+        // Compute new probability
+        double denominatorSum = 0;
+        for(int n=0; n<data_.size(); n++) {
+            denominatorSum += pikn_[n][k];
+        }
+        params_[k].p = denominatorSum / data_.size();
     }
+
 }
 
 double EMPeriodicGaussian::qkn(int k, int n) const {

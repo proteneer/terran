@@ -40,9 +40,7 @@ void testUnimodalPeriodicGaussian() {
     for(int i=0; i < 5000; i++) {
         data.push_back(periodicGaussianSample(u1,s1, period));
     }
-
     sort(data.begin(), data.end());
-
     Param p;
     p.p = 1;
     p.u = 1.7;
@@ -50,8 +48,14 @@ void testUnimodalPeriodicGaussian() {
     vector<Param> params;
     params.push_back(p);
     EMPeriodicGaussian em(data, params);
-    em.EStep();
-    em.MStep();
+    em.run(10000, 0.1);
+    vector<Param> optimizedParams = em.getParams();
+    if(fabs(optimizedParams[0].u - u1) > 0.1) {
+        throw(std::runtime_error("testUnimodalGaussian failed, u mismatch"));
+    }
+    if(fabs(optimizedParams[0].s - s1) > 0.1) {
+        throw(std::runtime_error("testUnimodalGaussian failed, s mismatch"));
+    }
 }
 
 int main() {
