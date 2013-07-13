@@ -7,6 +7,8 @@
 #include <EMGaussian.h>
 #include <MathFunctions.h>
 
+#include "util.h"
+
 using namespace std;
 
 struct double2 {
@@ -28,13 +30,15 @@ double2 boxMullerSample(double x1, double x2, double u, double s) {
 }
 
 void testUnimodalGaussian() {
+    vector<Param> initParams(1);
+    initParams[0].p = 1;
+    initParams[0].u = 12.3;
+    initParams[0].s = 4.7;
     vector<double> data;
-    double u1 = 12.3;
-    double s1 = 4.7;
     for(int i=0; i<10000; i++) {
         double x1 = (double)rand()/(double)RAND_MAX;
         double x2 = (double)rand()/(double)RAND_MAX;
-        double2 z = boxMullerSample(x1, x2, u1, s1);
+        double2 z = boxMullerSample(x1, x2, initParams[0].u, initParams[0].s);
         data.push_back(z.x);
         data.push_back(z.y);
     }
@@ -47,34 +51,30 @@ void testUnimodalGaussian() {
     EMGaussian em(data, params);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
-    if(fabs(optimizedParams[0].u - u1) > 0.1) {
-        throw(std::runtime_error("testUnimodalGaussian failed, u mismatch"));
-    }
-    if(fabs(optimizedParams[0].s - s1) > 0.1) {
-        throw(std::runtime_error("testUnimodalGaussian failed, s mismatch"));
-    }
+    Util::matchParameters(initParams, optimizedParams, 0.02);
 }
 
 void testBimodalGaussian() {
     int numSamples = 20000;
     vector<double> data;
-    double p1 = 0.4;
-    double u1 = -3.4;
-    double s1 = 1.2;
-    for(int i=0; i<(int)numSamples*p1; i++) {
+    vector<Param> initParams(2);
+    initParams[0].p = 0.4;
+    initParams[0].u = -3.4;
+    initParams[0].s = 1.2;
+    for(int i=0; i<numSamples*initParams[0].p; i++) {
         double x1 = (double)rand()/(double)RAND_MAX;
         double x2 = (double)rand()/(double)RAND_MAX;
-        double2 z = boxMullerSample(x1, x2, u1, s1);
+        double2 z = boxMullerSample(x1, x2, initParams[0].u, initParams[0].s);
         data.push_back(z.x);
         data.push_back(z.y);
     }
-    double p2 = 0.6;
-    double u2 = 7.4;
-    double s2 = 6.2;
-    for(int i=0; i<(int)numSamples*p2; i++) {
+    initParams[1].p = 0.6;
+    initParams[1].u = 7.4;
+    initParams[1].s = 6.2;
+    for(int i=0; i<numSamples*initParams[1].p; i++) {
         double x1 = (double)rand()/(double)RAND_MAX;
         double x2 = (double)rand()/(double)RAND_MAX;
-        double2 z = boxMullerSample(x1, x2, u2, s2);
+        double2 z = boxMullerSample(x1, x2, initParams[1].u, initParams[1].s);
         data.push_back(z.x);
         data.push_back(z.y);
     }
@@ -96,30 +96,12 @@ void testBimodalGaussian() {
     EMGaussian em(data, params);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
-    if(fabs(optimizedParams[0].p - p2) > 0.1 ) {
-        throw(std::runtime_error("testUnimodalGaussian failed, p0 mismatch"));
-    }
-    if(fabs(optimizedParams[0].u - u2) > 0.1 ) {
-        throw(std::runtime_error("testUnimodalGaussian failed, u0 mismatch"));
-    }
-    if(fabs(optimizedParams[0].s - s2) > 0.1) {
-        throw(std::runtime_error("testUnimodalGaussian failed, s0 mismatch"));
-    }
-    if(fabs(optimizedParams[1].p - p1) > 0.1) {
-        throw(std::runtime_error("testUnimodalGaussian failed, p1 mismatch"));
-    }
-    if(fabs(optimizedParams[1].u - u1) > 0.1) {
-        throw(std::runtime_error("testUnimodalGaussian failed, u1 mismatch"));
-    }
-    if(fabs(optimizedParams[1].s - s1) > 0.1) {
-        throw(std::runtime_error("testUnimodalGaussian failed, s1 mismatch"));
-    }
+    Util::matchParameters(initParams, optimizedParams, 0.05);
 }
 
 void testTrimodalGaussian() {
 
 }
-
 
 int main() {
     try {

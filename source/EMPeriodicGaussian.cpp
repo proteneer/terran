@@ -21,30 +21,52 @@ EMPeriodicGaussian::~EMPeriodicGaussian() {
 
 }
 
-void EMPeriodicGaussian::MStep() {
 
+#include <iostream>
+using namespace std;
+
+void EMPeriodicGaussian::MStep() {
+#ifndef NDEBUG
+    testIntegrity();
+#endif
     // Compute new mean
     for(int k=0; k<params_.size(); k++) {
         // find two points ak and bk such that
         // ak < bk, and dldu(ak) > dldu(bk)
         // we just divide the domain into 8 equal parts
         // and guess that its bound to cross at one point
-        int increment = 8;
+        int increment = 16;
+
+        // look for two points that bracket the point
+        vector<double> signs(increment);
+        vector<double> xvals(increment);
+        for(int i=0; i<increment; i++) {
+            double x=-period_/2+i*period_/increment;
+            signs[i] = dldu(x,k);
+            xvals[i] = x;
+        }
+        bool found = false;
         double ak,bk;
-        double x = -period_/2;
-        ak = x;
-        double fx = dldu(x,k);
-        for(int i = 1; i < increment; i += 1) {
-            x += period_/increment;
-            double fx2 = dldu(x,k);
-            if(fx > 0 && fx2 < 0) {
-                bk = x;
-                break;
-            } else {
-                ak = x;
-                fx = fx2;
+        for(int i=0; i<signs.size()-1; i++) {
+            if(signs[i]>0 && signs[i+1]<0) {
+                found = true;
+                ak = xvals[i];
+                bk = xvals[i+1];
             }
         }
+        if(!found) {
+            /*
+            for(double x=-period_/2;x<period_/2;x+=0.01) {
+                cout << x << " " << dldu(x,k) << endl;
+            }
+            for(int i=0; i<signs.size(); i++) {
+                cout << xvals[i] << " " << signs[i] << endl;
+            }
+            */
+            throw(std::runtime_error("Fatal: Bracket not found!"));
+        }
+
+
         double mk;
         double my;
         // bisection
@@ -57,7 +79,7 @@ void EMPeriodicGaussian::MStep() {
                 ak = mk;
             else
                 bk = mk;
-        } while(fabs(my) > 1e-5);
+        } while(fabs(my) > 1e-3);
         params_[k].u = mk;
     }
 

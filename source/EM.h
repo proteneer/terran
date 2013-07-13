@@ -41,7 +41,7 @@ class EM {
         // Compute the Expectation based on current parameters
         void EStep();
 
-        // Maximize the Expectation
+        // Maximize the Expectation by tuning parameters
         virtual void MStep() = 0;
 
     private:
