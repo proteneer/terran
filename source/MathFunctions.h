@@ -11,12 +11,41 @@ inline double gaussian(double uk, double sk, double xn) {
     return 1.0/(sqrt(2*PI)*sk)*exp(-(0.5)*pow((xn-uk)/sk,2));
 } 
 
+inline double gaussianDx(double uk, double sk, double xn) {
+    double multiplier = (uk-xn)/(sk*sk);
+    double suffix = multiplier*gaussian(uk, sk, xn);
+    return multiplier*suffix;
+}
+
 inline double periodicGaussian(double uk, double sk, double xn, int numImages, double period) {
     double sum = 0;
     for(int r=-numImages; r<=numImages; r++) {
-        sum += gaussian(uk+r*period, sk, xn);
+    // this should be gaussian(uk-r*period) to match the paper since r is symmetric.
+        sum += gaussian(uk-r*period, sk, xn);
     }
     return sum;
+}
+
+
+/*
+
+Equation [8] in the paper is wrong, there is an extra factor of 1/2. The correct derivative is:
+
+dgp     1
+--- =  ---(u-x)*gp+sum rD gaussian(x,u-rD,s)
+dx     s^2          r
+
+We should also define what the gaussian is in the paper as well
+
+*/
+
+inline double periodicGaussianDx(double uk, double sk, double xn, int numImages, double period) {
+    double prefactor = (uk-xn)/(sk*sk)*periodicGaussian(uk, sk, xn, numImages, period);
+    double sum = 0;
+    for(int r=-numImages; r<=numImages; r++) {
+        sum += r*period*gaussian(uk-r*period, sk, xn);
+    }
+    return prefactor+sum;
 }
 
 inline double gaussianMixture(const std::vector<Param> &params, double xn) {
@@ -28,7 +57,6 @@ inline double gaussianMixture(const std::vector<Param> &params, double xn) {
         sum += pk*gaussian(uk, sk, xn);
     }
     return sum;
-
 }
 
 inline double periodicGaussianMixture(const std::vector<Param> &params, double xn, int numImages = 20, int period = 2*PI) {
