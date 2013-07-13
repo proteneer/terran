@@ -54,10 +54,6 @@ double EM::getLikelihood() const {
     return lambda;
 }
 
-#include <iostream>
-
-using namespace std;
-
 bool EM::run(int maxSteps, double tolerance) {
     int steps = 0;
     double likelihood = getLikelihood();
