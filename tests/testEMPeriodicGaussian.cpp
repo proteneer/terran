@@ -56,8 +56,6 @@ void testUnimodalPeriodicGaussian() {
     Util::matchParameters(initParams, optimizedParams);
 }
 
-#include <algorithm>
-
 void testBimodalPeriodicGaussian() {
     vector<double> data;
     double period = 2*PI;
@@ -98,7 +96,6 @@ void testBimodalPeriodicGaussian() {
     vector<Param> optimizedParams = em.getParams();
 
     Util::matchParameters(initParams, optimizedParams, 0.05);
-    
 }
 
 int main() {

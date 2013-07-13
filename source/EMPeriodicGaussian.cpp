@@ -21,10 +21,6 @@ EMPeriodicGaussian::~EMPeriodicGaussian() {
 
 }
 
-
-#include <iostream>
-using namespace std;
-
 void EMPeriodicGaussian::MStep() {
 #ifndef NDEBUG
     testIntegrity();
@@ -65,7 +61,6 @@ void EMPeriodicGaussian::MStep() {
             */
             throw(std::runtime_error("Fatal: Bracket not found!"));
         }
-
 
         double mk;
         double my;
