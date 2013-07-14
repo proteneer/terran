@@ -2,6 +2,10 @@
 #define PARAM_H_
 
 struct Param {
+
+    Param() {} ;
+    Param(double p, double u, double s) : p(p), u(u), s(s) {};
+
     // probability weight of this mixture
     double p; 
     // mean

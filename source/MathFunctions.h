@@ -28,24 +28,16 @@ inline double periodicGaussian(double uk, double sk, double xn, int numImages, d
 
 
 /*
-
-Equation [8] in the paper is wrong, there is an extra factor of 1/2. The correct derivative is:
-
-dgp     1
---- =  ---(u-x)*gp+sum rD gaussian(x,u-rD,s)
-dx     s^2          r
-
-We should also define what the gaussian is in the paper as well
-
+Equation [8] in the paper is completely wrong!
 */
 
 inline double periodicGaussianDx(double uk, double sk, double xn, int numImages, double period) {
-    double prefactor = (uk-xn)/(sk*sk)*periodicGaussian(uk, sk, xn, numImages, period);
+    double prefactor = 1/(sqrt(2*PI)*sk*sk*sk);
     double sum = 0;
     for(int r=-numImages; r<=numImages; r++) {
-        sum += r*period*gaussian(uk-r*period, sk, xn);
+        sum += (uk-xn+r*period)*exp(-0.5*pow((xn-uk-r*period)/sk,2));
     }
-    return prefactor+sum;
+    return prefactor*sum;
 }
 
 inline double gaussianMixture(const std::vector<Param> &params, double xn) {
@@ -59,7 +51,19 @@ inline double gaussianMixture(const std::vector<Param> &params, double xn) {
     return sum;
 }
 
-inline double periodicGaussianMixture(const std::vector<Param> &params, double xn, int numImages = 20, int period = 2*PI) {
+inline double gaussianMixtureDx(const std::vector<Param> &params, double xn) {
+    double sum = 0;
+    for(int k=0; k<params.size(); k++) {
+        double pk = params[k].p;
+        double uk = params[k].u;
+        double sk = params[k].s;
+        sum += pk*gaussianDx(uk, sk, xn);
+    }
+    return sum;
+
+}
+
+inline double periodicGaussianMixture(const std::vector<Param> &params, double xn, double period = 2*PI, int numImages = 10) {
     //assert(xn >= (-period/2-1e-6) && xn <= (period/2+1e-6));  
     double sum = 0;
     for(int k=0; k<params.size(); k++) {
@@ -67,6 +71,18 @@ inline double periodicGaussianMixture(const std::vector<Param> &params, double x
         double uk = params[k].u;
         double sk = params[k].s;
         sum += pk*periodicGaussian(uk, sk, xn, numImages, period);
+    }
+    return sum;
+}
+
+inline double periodicGaussianMixtureDx(const std::vector<Param> &params, double xn, double period = 2*PI, int numImages = 10) {
+    //assert(xn >= (-period/2-1e-6) && xn <= (period/2+1e-6));  
+    double sum = 0;
+    for(int k=0; k<params.size(); k++) {
+        double pk = params[k].p;
+        double uk = params[k].u;
+        double sk = params[k].s;
+        sum += pk*periodicGaussianDx(uk, sk, xn, numImages, period);
     }
     return sum;
 }

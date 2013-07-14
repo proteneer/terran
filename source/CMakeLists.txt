@@ -1,1 +1,1 @@
-add_library(EM EM.cpp EMGaussian.cpp EMPeriodicGaussian.cpp)
+add_library(EM EM.cpp EMGaussian.cpp EMPeriodicGaussian.cpp findIntervals.cpp)
