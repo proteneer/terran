@@ -26,7 +26,6 @@ inline double periodicGaussian(double uk, double sk, double xn, int numImages, d
     return sum;
 }
 
-
 /*
 Equation [8] in the paper is completely wrong!
 */
