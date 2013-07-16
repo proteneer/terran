@@ -1,4 +1,5 @@
 #include "findIntervals.h"
+#include <iomanip>
 
 #include <vector>
 
@@ -27,18 +28,15 @@ vector<double> findPeriodicMaxima(const vector<Param> &params, double period, in
             iteration++;
             if(iteration >= 1e6)
                 throw(std::runtime_error("findPeriodicMaxima: maximum iteration count reached!"));
-            
             double xn_new = xn_old + delta*periodicGaussianMixtureDx(params, xn_old, period, images);
             if(fabs(xn_new - xn_old) < 1e-8)
                 found = true;
-
             xn_old = xn_new;
         }
-
-
         bool skip = false;
+        // if two gaussians are too close to each other, discard it
         for(int i=0; i<maximas.size(); i++)
-            if(fabs(xn_old-maximas[i]) < 1e-7)
+            if(fabs(xn_old-maximas[i]) < 1e-3)
                 skip = true;
         if(!skip) 
             maximas.push_back(xn_old);
@@ -83,4 +81,16 @@ void partitionPeriodicGaussian(const vector<Param> &params, double period, int i
     for(double xn = -period/2; xn < period/2; xn += 0.01) {
         mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << endl;
     }
+    /*
+    ofstream mixture("mixture.dat");
+    double left = 1.4732;
+    double right = 1.4734;
+    for(double xn = left; xn < right; xn += 0.00001) {
+        mixture << std::setprecision(10) << xn << " " << periodicGaussianMixture(params, xn, period, images) << endl;
+    }
+    ofstream mixtureDx("mixtureDx.dat");
+    for(double xn = left; xn < right; xn += 0.00001) {
+        mixtureDx << std::setprecision(10) << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << endl;
+    }
+    */
 }
