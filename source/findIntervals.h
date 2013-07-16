@@ -9,4 +9,8 @@ void partitionGaussian(const std::vector<Param> &params);
 
 void partitionPeriodicGaussian(const std::vector<Param> &params, double period = 2*PI, int images = 30);
 
+std::vector<double> findPeriodicMaxima(const std::vector<Param> &params, double period = 2*PI, int images = 30);
+
+std::vector<double> findPeriodicMinima(const std::vector<Param> &params, double period = 2*PI, int images = 30);
+
 #endif 

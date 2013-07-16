@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 #include <assert.h>
 using namespace std;
@@ -15,25 +16,34 @@ void partitionGaussian(const vector<Param> &params) {
 
 // Maximas can be found by using the mean as initial guesses. In the case of overlapping components
 // They should converge to the same point. Unlike minimas, they don't have pathological zero derivatives
-vector<double> findMaximas(const vector<Param> &params, double period, int images) {
+vector<double> findPeriodicMaxima(const vector<Param> &params, double period, int images) {
     vector<double> maximas;
     for(int k=0; k<params.size(); k++) {
         double xn_old = params[k].u;
         bool found = false;
-        const double delta = 1e-5;
-        do {
+        const double delta = 1e-4;
+        int iteration = 0;
+        while(!found) {
+            iteration++;
+            if(iteration >= 1e6)
+                throw(std::runtime_error("findPeriodicMaxima: maximum iteration count reached!"));
+            
             double xn_new = xn_old + delta*periodicGaussianMixtureDx(params, xn_old, period, images);
-            //cout << xn_new << " " << periodicGaussianMixture(params, xn_new, period, images)  << endl;
-            if(fabs(xn_new - xn_old) < 1e-5) {
+            if(fabs(xn_new - xn_old) < 1e-8)
                 found = true;
-            } else {
-                xn_old = xn_new;
-            }
-        } while(!found);
-    }
-        
-    return maximas;
 
+            xn_old = xn_new;
+        }
+
+
+        bool skip = false;
+        for(int i=0; i<maximas.size(); i++)
+            if(fabs(xn_old-maximas[i]) < 1e-7)
+                skip = true;
+        if(!skip) 
+            maximas.push_back(xn_old);
+    }
+    return maximas;
 }
 
 // Algorithm 1.
@@ -42,9 +52,7 @@ vector<double> findMaximas(const vector<Param> &params, double period, int image
 // 2. Sort the maximas according to their x value
 // 3. Find minimas by taking adjacent pair of maximas and doing either
 //    bisection or gradient descent to converge at a minima
-vector<double> findMinimas(const vector<Param> &params, double period, int images) {
-
-    // try bisectioning.
+vector<double> findPeriodicMinima(const vector<Param> &params, double period, int images) {
 
     double ak = -1.2;
     double bk = 0.5;
@@ -66,11 +74,7 @@ vector<double> findMinimas(const vector<Param> &params, double period, int image
     return vector<double>(0);
 }
 
-/*
-
-*/
 void partitionPeriodicGaussian(const vector<Param> &params, double period, int images) {
-
     ofstream mixture("mixture.dat");
     for(double xn = -period/2; xn < period/2; xn += 0.01) {
         mixture << xn << " " << periodicGaussianMixture(params, xn, period, images) << endl;
@@ -79,9 +83,4 @@ void partitionPeriodicGaussian(const vector<Param> &params, double period, int i
     for(double xn = -period/2; xn < period/2; xn += 0.01) {
         mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << endl;
     }
-  
-    findMaximas(params, period, images);
-    
-//    findMinimas(params, period, images);
-
 }
