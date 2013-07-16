@@ -71,8 +71,53 @@ void testFindPeriodicMaxima() {
             throw(std::runtime_error("Finding Maxima 4 Failed."));
     }
 
-}
+    // 4 Fused into 3
+    {
+        vector<Param> p;
+        p.push_back(Param(1.0/4.0,-2.2, 0.73));
+        p.push_back(Param(1.0/4.0,-0.8, 0.44));
+        p.push_back(Param(1.0/4.0, 0.8, 0.61));
+        p.push_back(Param(1.0/4.0, 1.8, 0.45));
+        vector<double> results = findPeriodicMaxima(p);
+        if(results.size() > 3)
+            throw(std::runtime_error("Finding Maxima 5 Failed: Too many components!"));
+        if(fabs(results[0]-(-2.141)) > tol)
+            throw(std::runtime_error("Finding Maxima 5 Failed."));
+        if(fabs(results[1]-(-0.835)) > tol)
+            throw(std::runtime_error("Finding Maxima 5 Failed."));
+        if(fabs(results[2]-( 1.671)) > tol)
+            throw(std::runtime_error("Finding Maxima 5 Failed."));
+    }
 
+    {
+        vector<Param> p;
+        p.push_back(Param(1.0/4.0,-2.125, 0.73));
+        p.push_back(Param(1.0/4.0,-0.8, 0.44));
+        p.push_back(Param(1.0/4.0, 0.8, 0.61));
+        p.push_back(Param(1.0/4.0, 1.8, 0.45));
+        vector<double> results = findPeriodicMaxima(p);
+        partitionPeriodicGaussian(p);
+        for(int i=0; i < results.size(); i++) {
+            cout << results[i] << endl;
+        }
+        /*
+        if(results.size() > 3)
+            throw(std::runtime_error("Finding Maxima 5 Failed: Too many components!"));
+        if(fabs(results[0]-(-2.141)) > tol)
+            throw(std::runtime_error("Finding Maxima 5 Failed."));
+        if(fabs(results[1]-(-0.835)) > tol)
+            throw(std::runtime_error("Finding Maxima 5 Failed."));
+        if(fabs(results[2]-( 1.671)) > tol)
+            throw(std::runtime_error("Finding Maxima 5 Failed."));
+        */
+    }
+
+}
+/*
+        for(int i=0; i< results.size(); i++) {
+            cout << results[i] << endl;
+        }
+*/
 int main() {
     try {
         testFindPeriodicMaxima();
