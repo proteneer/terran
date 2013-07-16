@@ -26,8 +26,12 @@ vector<double> findPeriodicMaxima(const vector<Param> &params, double period, in
         int iteration = 0;
         while(!found) {
             iteration++;
-            if(iteration >= 1e6)
+            // Saddle points suck. If the simple algorithm doesn't converge
+            // it's probably due to a saddle point. 
+            if(iteration >= 1e7) {
                 throw(std::runtime_error("findPeriodicMaxima: maximum iteration count reached!"));
+            }
+
             double xn_new = xn_old + delta*periodicGaussianMixtureDx(params, xn_old, period, images);
             if(fabs(xn_new - xn_old) < 1e-8)
                 found = true;
