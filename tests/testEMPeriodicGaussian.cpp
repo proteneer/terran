@@ -53,7 +53,7 @@ void testUnimodalPeriodicGaussian() {
     EMPeriodicGaussian em(data, params);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
-    Util::matchParameters(initParams, optimizedParams);
+    Util::matchParameters(initParams, optimizedParams, 0.05);
 }
 
 void testBimodalPeriodicGaussian() {
