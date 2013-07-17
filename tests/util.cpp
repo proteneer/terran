@@ -1,10 +1,11 @@
-#include "util.h"
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>
 #include <math.h>
 #include <iostream>
 
+#include "util.h"
+#include "MathFunctions.h"
 
 using namespace std;
 
@@ -50,6 +51,29 @@ void Util::matchPoints(const vector<double> &p1, const vector<double> &p2, doubl
     sort(list2.begin(), list2.end());
     for(int i=0; i < list1.size(); i++) {
         if(fabs(list1[i]-list2[i]) > threshold) { 
+            stringstream ss;
+            ss << "Nonmatching vector element found! ";
+            if(count != -1)
+                ss << " Test: " << count;
+            throw(std::runtime_error(ss.str()));
+        }
+    }
+}
+
+void Util::matchPeriodicPoints(const vector<double> &p1, const vector<double> &p2, double period, double threshold, int count) {
+    if(p1.size() != p2.size()) {
+        stringstream ss;
+        ss << "Unequal vector size!";
+        if(count != -1)
+            ss << " Test: " << count;
+        throw(std::runtime_error("Unequal Vector Size!"));
+    }
+    vector<double> list1(p1);
+    vector<double> list2(p2);
+    sort(list1.begin(), list1.end());
+    sort(list2.begin(), list2.end());
+    for(int i=0; i < list1.size(); i++) {
+        if(fabsp(list1[i],list2[i],period) > threshold) { 
             stringstream ss;
             ss << "Nonmatching vector element found! ";
             if(count != -1)

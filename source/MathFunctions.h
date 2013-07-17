@@ -7,6 +7,26 @@
 
 const double PI = 3.14159265358;
 
+inline double normalize(double x, double left=-PI, double right=PI) {
+    double period = right-left;
+    while(x > right) {
+        x -= period;
+    }
+    while(x < left) {
+        x += period;
+    }
+    return x;
+}
+
+inline double periodicDifference(double x1, double x2, double period) {
+    double diff = x1-x2;
+    diff -= floor(diff/period+0.5)*period;
+    return diff;
+}
+inline double fabsp(double x1, double x2, double period) {
+    return fabs(periodicDifference(x1,x2,period));
+}
+
 inline double gaussian(double uk, double sk, double xn) {
     return 1.0/(sqrt(2*PI)*sk)*exp(-(0.5)*pow((xn-uk)/sk,2));
 } 

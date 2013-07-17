@@ -10,30 +10,7 @@
 #include <assert.h>
 using namespace std;
 
-static double normalize(double x, double left=-PI, double right=PI) {
-    double period = right-left;
-    while(x > right) {
-        x -= period;
-    }
-    while(x < left) {
-        x += period;
-    }
-    return x;
-}
-
-static double periodicDifference(double x1, double x2, double period) {
-    double diff = x1-x2;
-    diff -= floor(diff/period+0.5)*period;
-    return diff;
-}
-
-// Periodic absolute value
-static double fabsp(double x1, double x2, double period) {
-    return fabs(periodicDifference(x1,x2,period));
-}
-
 void partitionGaussian(const vector<Param> &params) {
-
 
 }
 
@@ -79,14 +56,11 @@ vector<double> findPeriodicMaxima(const vector<Param> &params, double period, in
 //
 // Note: Be careful of corner cases dealing with periodic boundaries. 
 vector<double> findPeriodicMinima(const vector<Param> &params, double period, int images) {
-
     // Get a list of all the maxima and sort them
     vector<double> minima;
     vector<double> maxima = findPeriodicMaxima(params, period, images);
     assert(maxima.size() > 1);
     sort(maxima.begin(), maxima.end());
-
-
     for(int i=0; i < maxima.size(); i++) {
         double l1;
         {

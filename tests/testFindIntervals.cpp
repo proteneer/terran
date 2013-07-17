@@ -126,18 +126,14 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/7.0, -2.0, 0.5));
         partitionPeriodicGaussian(p);
         vector<double> results = findPeriodicMaxima(p);
-        if(results.size() != 2)
-            throw(std::runtime_error("Finding Maxima 6 Failed: Too many components!"));
-        if(fabs(results[0]-(-3.074)) > tol)
-            throw(std::runtime_error("Finding Maxima 6 Failed."));
-        if(fabs(results[1]-(-2.109)) > tol)
-            throw(std::runtime_error("Finding Maxima 6 Failed."));
-        //Util::matchPoints(results, truth, tol, testCount++);
+        vector<double> truth;
+        truth.push_back(-3.074);
+        truth.push_back(-2.109);
+        Util::matchPoints(results, truth, tol, testCount++);
     }
 }
 
 void testFindPeriodicMinima() {
-
     // Unimodal
     double tol = 1e-3;
     vector<Param> p;
@@ -148,7 +144,6 @@ void testFindPeriodicMinima() {
         throw(std::runtime_error("Finding Minima 1 Failed: Wrong number of minima"));
     if(fabs(results[0]-3.14159) > tol && fabs(results[0]-0) > tol)
         throw(std::runtime_error("Finding Minima 1 Failed."));  
-
 }
 /*
         for(int i=0; i< results.size(); i++) {
