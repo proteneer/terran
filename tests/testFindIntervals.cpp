@@ -124,6 +124,21 @@ void testFindPeriodicMaxima() {
         if(fabs(results[1]-( 1.117)) > tol)
             throw(std::runtime_error("Finding Maxima 6 Failed."));
     }
+
+    // Bimodal near boundary
+    {
+        vector<Param> p;
+        p.push_back(Param(1.0/7.0, 3.1, 0.5));
+        p.push_back(Param(1.0/7.0, -2.0, 0.5));
+        partitionPeriodicGaussian(p);
+        vector<double> results = findPeriodicMaxima(p);
+        if(results.size() != 2)
+            throw(std::runtime_error("Finding Maxima 6 Failed: Too many components!"));
+        if(fabs(results[0]-(-3.074)) > tol)
+            throw(std::runtime_error("Finding Maxima 6 Failed."));
+        if(fabs(results[1]-(-2.109)) > tol)
+            throw(std::runtime_error("Finding Maxima 6 Failed."));
+    }
 }
 
 void testFindPeriodicMinima() {
@@ -147,12 +162,10 @@ void testFindPeriodicMinima() {
 */
 int main() {
     try {
+        testFindPeriodicMaxima();
         testFindPeriodicMinima();
-        //testFindPeriodicMaxima();
         cout << "done" << endl;
     } catch(const std::exception &e) {
         cout << e.what() << endl;
     }
 }
-
-
