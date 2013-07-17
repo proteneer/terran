@@ -129,11 +129,15 @@ void testFindPeriodicMaxima() {
 void testFindPeriodicMinima() {
 
     // Unimodal
-
+    double tol = 1e-3;
     vector<Param> p;
     p.push_back(Param(1.0, 0.0, 0.5));
     partitionPeriodicGaussian(p);
-    findPeriodicMinima(p);
+    vector<double> results = findPeriodicMinima(p);
+    if(results.size() != 1)
+        throw(std::runtime_error("Finding Minima 1 Failed: Wrong number of minima"));
+    if(fabs(results[0]-3.14159) > tol && fabs(results[0]-0) > tol)
+        throw(std::runtime_error("Finding Minima 1 Failed."));  
 
 }
 /*
@@ -144,7 +148,7 @@ void testFindPeriodicMinima() {
 int main() {
     try {
         testFindPeriodicMinima();
-//        testFindPeriodicMaxima();
+        //testFindPeriodicMaxima();
         cout << "done" << endl;
     } catch(const std::exception &e) {
         cout << e.what() << endl;

@@ -10,6 +10,28 @@
 #include <assert.h>
 using namespace std;
 
+static double normalize(double x, double left=-PI, double right=PI) {
+    double period = right-left;
+    while(x > right) {
+        x -= period;
+    }
+    while(x < left) {
+        x += period;
+    }
+    return x;
+}
+
+static double periodicDifference(double x1, double x2, double period) {
+    double diff = x1-x2;
+    diff -= floor(diff/period+0.5)*period;
+    return diff;
+}
+
+// Periodic absolute value
+static double fabsp(double x1, double x2, double period) {
+    return fabs(periodicDifference(x1,x2,period));
+}
+
 void partitionGaussian(const vector<Param> &params) {
 
 
@@ -31,32 +53,21 @@ vector<double> findPeriodicMaxima(const vector<Param> &params, double period, in
             if(iteration >= 1e7) {
                 throw(std::runtime_error("findPeriodicMaxima: maximum iteration count reached!"));
             }
-
             double xn_new = xn_old + delta*periodicGaussianMixtureDx(params, xn_old, period, images);
-            if(fabs(xn_new - xn_old) < 1e-8)
+            xn_new = normalize(xn_new);
+            if(fabsp(xn_new, xn_old, period) < 1e-8)
                 found = true;
             xn_old = xn_new;
         }
         bool skip = false;
         // if two gaussians are too close to each other, discard it
         for(int i=0; i<maximas.size(); i++)
-            if(fabs(xn_old-maximas[i]) < 1e-3)
+            if(fabsp(xn_old, maximas[i], period) < 1e-3)
                 skip = true;
         if(!skip) 
             maximas.push_back(xn_old);
     }
     return maximas;
-}
-
-static double normalize(double x, double left=-PI/2, double right=PI/2) {
-    double period = right-left;
-    while(x > right) {
-        x -= period;
-    }
-    while(x < left) {
-        x += period;
-    }
-    return x;
 }
 
 // Algorithm 1.
@@ -70,76 +81,67 @@ static double normalize(double x, double left=-PI/2, double right=PI/2) {
 vector<double> findPeriodicMinima(const vector<Param> &params, double period, int images) {
 
     // Get a list of all the maxima and sort them
+    vector<double> minima;
     vector<double> maxima = findPeriodicMaxima(params, period, images);
-
     assert(maxima.size() > 1);
-
     sort(maxima.begin(), maxima.end());
 
-    for(int i=0; i < maxima.size()-1; i++) {
 
-    }
-
-    // Take care of the corner case with the boundary maxima
-    double l1;
-    {
-        // perturbation so they fall down the right direction
-        double pt = 0.01;
-        double xn_old = maxima[0];
-        xn_old += pt;
-        xn_old = normalize(xn_old);
-        double delta = 1e-4;
-        int iteration = 0;
-        bool found = false;
-        // gradient descent from the xn_old point
-        while(!found) {
-            iteration++;
-            // Saddle points suck. If the simple algorithm doesn't converge
-            // it's probably due to a saddle point. 
-            if(iteration >= 1e10) {
-                //throw(std::runtime_error("findPeriodicMinima Left: maximum iteration count reached!"));
+    for(int i=0; i < maxima.size(); i++) {
+        double l1;
+        {
+            // add small perturbation
+            double pt = 0.01;
+            double xn_old = maxima[i];
+            xn_old = normalize(xn_old+pt);
+            double delta = 1e-4;
+            int iteration = 0;
+            bool found = false;
+            // gradient descent from the xn_old point
+            while(!found) {
+                iteration++;
+                if(iteration >= 1e10) {
+                    //throw(std::runtime_error("findPeriodicMinima Left: maximum iteration count reached!"));
+                }
+                double xn_new = xn_old - delta*periodicGaussianMixtureDx(params, xn_old, period, images);
+                xn_new = normalize(xn_new);
+                if(fabsp(xn_new,xn_old,period) < 1e-8)
+                    found = true;
+                xn_old = xn_new;
             }
-            double xn_new = xn_old - delta*periodicGaussianMixtureDx(params, xn_old, period, images);
-            if(fabs(xn_new - xn_old) < 1e-8)
-                found = true;
-            xn_old = xn_new;
+            l1 = xn_old;
         }
-        l1 = xn_old;
-    }
-    double r1;
-    {
-        double pt = 0.01;
-        double xn_old = maxima[maxima.size()-1];
-        xn_old -= pt;
-        xn_old = normalize(xn_old);
-        double delta = 1e-4;
-        int iteration = 0;
-        bool found = false;
-        // gradient descent from the xn_old point
-        while(!found) {
-            iteration++;
-            // Saddle points suck. If the simple algorithm doesn't converge
-            // it's probably due to a saddle point. 
-            if(iteration >= 1e10) {
-                //throw(std::runtime_error("findPeriodicMaxima Right: maximum iteration count reached!"));
+        double r1;
+        {
+            double pt = 0.01;
+            double xn_old = maxima[(i+1)%maxima.size()];
+            xn_old = normalize(xn_old-pt);
+            double delta = 1e-4;
+            int iteration = 0;
+            bool found = false;
+            // gradient descent from the xn_old point
+            while(!found) {
+                iteration++;
+                if(iteration >= 1e10) {
+                    //throw(std::runtime_error("findPeriodicMaxima Right: maximum iteration count reached!"));
+                }
+                double xn_new = xn_old - delta*periodicGaussianMixtureDx(params, xn_old, period, images);
+                xn_new = normalize(xn_new);
+                if(fabsp(xn_new,xn_old,period) < 1e-8)
+                    found = true;
+                xn_old = xn_new;
             }
-            double xn_new = xn_old - delta*periodicGaussianMixtureDx(params, xn_old, period, images);
-            if(fabs(xn_new - xn_old) < 1e-8)
-                found = true;
-            xn_old = xn_new;
+            r1 = xn_old;
         }
-        r1 = xn_old;
+        double min = normalize(l1 + fabsp(l1,r1,period)/2);
+        //cout << l1 << " " << r1 << " " << min << endl;
+        minima.push_back(min);
     }
-
-    double min = normalize(((l1+period)+r1)/2);
-
-    cout << l1 << " " << r1 << " " << min << endl;
-
     // Eg:
     // Given maximas, a,b,c,d,e
     // There must be minimas between:
     // (e,a) (a,b) (c,d) (d,e)
-    return vector<double>(0);
+    return minima; 
 }
 
 void partitionPeriodicGaussian(const vector<Param> &params, double period, int images) {
