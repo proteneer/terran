@@ -5,7 +5,6 @@
 
 using namespace std;
 
-
 void testFindPeriodicMaxima() {
     double tol = 1e-3;
 
@@ -106,7 +105,8 @@ void testFindPeriodicMaxima() {
         if(fabs(results[2]-( 1.670)) > tol)
             throw(std::runtime_error("Finding Maxima 5 Failed."));
     }
-    // 7 Component Gaussian
+
+    // 7 Fused into 2, 1 Saddle-point
     {
         vector<Param> p;
         p.push_back(Param(1.0/7.0, -2.9, 0.3));
@@ -116,7 +116,6 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/7.0,  1.0, 0.4));
         p.push_back(Param(1.0/7.0,  1.3, 0.6));
         p.push_back(Param(1.0/7.0,  1.9, 0.4));
-        partitionPeriodicGaussian(p);
         vector<double> results = findPeriodicMaxima(p);
         if(results.size() != 2)
             throw(std::runtime_error("Finding Maxima 6 Failed: Too many components!"));
@@ -125,7 +124,16 @@ void testFindPeriodicMaxima() {
         if(fabs(results[1]-( 1.117)) > tol)
             throw(std::runtime_error("Finding Maxima 6 Failed."));
     }
+}
 
+void testFindPeriodicMinima() {
+
+    // Unimodal
+
+    vector<Param> p;
+    p.push_back(Param(1.0, 0.0, 0.5));
+    partitionPeriodicGaussian(p);
+    findPeriodicMinima(p);
 
 }
 /*
@@ -135,7 +143,8 @@ void testFindPeriodicMaxima() {
 */
 int main() {
     try {
-        testFindPeriodicMaxima();
+        testFindPeriodicMinima();
+//        testFindPeriodicMaxima();
         cout << "done" << endl;
     } catch(const std::exception &e) {
         cout << e.what() << endl;
