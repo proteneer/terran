@@ -9,6 +9,11 @@ namespace Util {
 
 void matchParameters(const std::vector<Param> &p1, const std::vector<Param> &p2, double threshold = 0.1);
 
+void matchPoints(const std::vector<double> &p1, const std::vector<double> &p2, double threshold = 0.1, int count = -1);
+
+void matchPeriodicPoints(const std::vector<double> &p1, const std::vector<double> &p2, double period, double threshold = 0.1, int count = -1);
+
+
 }
 
 #endif
