@@ -153,12 +153,39 @@ void testFindPeriodicMinima() {
     {
         vector<Param> p;
         p.push_back(Param(1.0, 0.5, 1.0));
-        partitionPeriodicGaussian(p);
         vector<double> results = findPeriodicMinima(p);
         vector<double> truth;
         truth.push_back(-2.642);
         Util::matchPeriodicPoints(results, truth, period, tol, testCount++);
     }
+
+    // Bimodal
+    {
+        vector<Param> p;
+        p.push_back(Param(0.3, 0.5, 1.0));
+        p.push_back(Param(0.7, -1.5, 0.5));
+        vector<double> results = findPeriodicMinima(p);
+        vector<double> truth;
+        truth.push_back(-0.091);
+        truth.push_back( 3.071);
+        Util::matchPeriodicPoints(results, truth, period, tol, testCount++);
+    }
+
+    // Bimodal
+    {
+        double tol2 = 1e-2;
+        vector<Param> p;
+        p.push_back(Param(0.5, 1.1, 0.3));
+        p.push_back(Param(0.5, -2.9, 0.4));
+        partitionPeriodicGaussian(p);
+        vector<double> results = findPeriodicMinima(p);
+        cout << results[0] << " " << results[1] << endl;
+        vector<double> truth;
+        truth.push_back(-0.632);
+        truth.push_back( 2.108);
+        Util::matchPeriodicPoints(results, truth, period, tol2, testCount++);
+    }
+
 
 }
 /*
