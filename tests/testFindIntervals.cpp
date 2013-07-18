@@ -139,7 +139,6 @@ void testFindPeriodicMinima() {
     int testCount = 0;
     const double period = 2*PI;
 
-/*
     // Unimodal
     {
         vector<Param> p;
@@ -159,7 +158,7 @@ void testFindPeriodicMinima() {
         truth.push_back(-2.642);
         Util::matchPeriodicPoints(results, truth, period, tol, testCount++);
     }
-*/
+
     // Bimodal
     {
         vector<Param> p;
@@ -173,22 +172,18 @@ void testFindPeriodicMinima() {
         Util::matchPeriodicPoints(results, truth, period, tol, testCount++);
     }
 
-/*
-    // Bimodal
+    // Bimodal, this is a very shallow valley 
     {
         double tol2 = 1e-2;
         vector<Param> p;
         p.push_back(Param(0.5, 1.1, 0.3));
         p.push_back(Param(0.5, -2.9, 0.4));
-        partitionPeriodicGaussian(p);
-        vector<double> results = findPeriodicMinima(p);
-        cout << results[0] << " " << results[1] << endl;
+        vector<double> results = findPeriodicMinimaBS(p);
         vector<double> truth;
         truth.push_back(-0.632);
         truth.push_back( 2.108);
         Util::matchPeriodicPoints(results, truth, period, tol2, testCount++);
     }
-    */
 
 
 }
@@ -199,7 +194,7 @@ void testFindPeriodicMinima() {
 */
 int main() {
     try {
-        //testFindPeriodicMaxima();
+        testFindPeriodicMaxima();
         testFindPeriodicMinima();
         cout << "done" << endl;
     } catch(const std::exception &e) {

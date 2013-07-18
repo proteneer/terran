@@ -59,9 +59,7 @@ vector<double> findPeriodicMinimaBS(const vector<Param> &params, double period, 
     const double tol = 1e-6;
     const double perturb = 1e-2;
 
-
     for(int k=0; k<maxima.size(); k++) {
-        cout << endl << k << endl;
         double ak = maxima[k];
         double bk = maxima[(k+1)%params.size()];
         ak = normalize(ak+perturb);
@@ -70,28 +68,25 @@ vector<double> findPeriodicMinimaBS(const vector<Param> &params, double period, 
         double my = 0;
         int iteration = 0;
         do {
-            if(iteration > 1000) {
-                break;
-            } else {
+            if(iteration > 1e6)
+                throw(std::runtime_error("Error: findPeriodicMinimumBS maximized number of iterations reached."));
+            else
                 iteration++;
-            }
-            // take care of special last component that crosses
-            // the periodic boundary
             
+            // take care of special last component that crosses
             // this is guaranteed to only happens if we're in the
             // periodic case
             if(bk < ak)
                 mk = normalize((ak+period+bk)/2.0);
             else
                 mk = normalize((ak+bk)/2.0);
-            cout << ak << " " << mk << " " << bk << endl;
             my = periodicGaussianMixtureDx(params, mk, period, images);
             if(my < 0) 
                 ak = mk;
             else
                 bk = mk;
         //} while (fabs(my) > 1e-9);
-        } while (fabsp(ak,bk,period) > 1e-5);
+        } while (fabsp(ak,bk,period) > 1e-8);
         minima.push_back(mk);
     }
     return minima;
