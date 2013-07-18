@@ -185,6 +185,20 @@ void testFindPeriodicMinima() {
         Util::matchPeriodicPoints(results, truth, period, tol2, testCount++);
     }
 
+    // Trimodal
+    {
+        double tol2 = 1e-2;
+        vector<Param> p;
+        p.push_back(Param(1.0/3.0, 1.0, 0.3));
+        p.push_back(Param(1.0/3.0, -3.0, 0.3));
+        p.push_back(Param(1.0/3.0, 0.0, 0.3));
+        vector<double> results = findPeriodicMinimaBS(p);
+        vector<double> truth;
+        truth.push_back( 2.15);
+        truth.push_back(-1.5);
+        truth.push_back( 0.5);
+        Util::matchPeriodicPoints(results, truth, period, tol2, testCount++);
+    }
 
 }
 /*
@@ -194,7 +208,7 @@ void testFindPeriodicMinima() {
 */
 int main() {
     try {
-        testFindPeriodicMaxima();
+//        testFindPeriodicMaxima();
         testFindPeriodicMinima();
         cout << "done" << endl;
     } catch(const std::exception &e) {
