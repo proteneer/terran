@@ -13,4 +13,6 @@ std::vector<double> findPeriodicMaxima(const std::vector<Param> &params, double 
 
 std::vector<double> findPeriodicMinima(const std::vector<Param> &params, double period = 2*PI, int images = 30);
 
+std::vector<double> findPeriodicMinimaGS(const std::vector<Param> &params, double period = 2*PI, int images = 30);
+
 #endif 

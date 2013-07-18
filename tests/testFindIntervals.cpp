@@ -143,12 +143,13 @@ void testFindPeriodicMinima() {
     {
         vector<Param> p;
         p.push_back(Param(1.0, 0.0, 0.5));
-        vector<double> results = findPeriodicMinima(p);
+        vector<double> results = findPeriodicMinimaGS(p);
         vector<double> truth;
         truth.push_back(-period/2);
         Util::matchPeriodicPoints(results, truth, period, tol, testCount++);
     }
 
+/*
     // Unimodal
     {
         vector<Param> p;
@@ -185,6 +186,7 @@ void testFindPeriodicMinima() {
         truth.push_back( 2.108);
         Util::matchPeriodicPoints(results, truth, period, tol2, testCount++);
     }
+    */
 
 
 }

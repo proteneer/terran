@@ -22,6 +22,8 @@ vector<double> findPeriodicMaxima(const vector<Param> &params, double period, in
         double xn_old = params[k].u;
         bool found = false;
         const double delta = 1e-4;
+
+        // careful: change this to a long if need to be >2e9
         int iteration = 0;
         while(!found) {
             iteration++;
@@ -47,6 +49,72 @@ vector<double> findPeriodicMaxima(const vector<Param> &params, double period, in
     return maximas;
 }
 
+// Golden section method of finding minima.
+// Original implementation: Numerical Recipes
+// Modified for periodic boundaries
+vector<double> findPeriodicMinimaGS(const vector<Param> &params, double period, int images) {
+    vector<double> minima;
+    vector<double> maxima = findPeriodicMaxima(params, period, images);
+    assert(maxima.size() > 0);
+    sort(maxima.begin(), maxima.end());
+
+    const double tol = 1e-6;
+    const double R = 0.61803399;
+    const double C = (1.0-R);
+
+    for(int i=0; i < maxima.size(); i++) {
+        // x0 will always be ax
+        // x3 will always be cx
+        // x1 and x2 represent bx and the guess
+        double x0,x1,x2,x3;
+        double ax = maxima[i];
+        double cx = maxima[(i+1)%maxima.size()];
+        if(i == maxima.size()-1) {
+            ax += period;
+        } 
+        double bx = (ax+cx)/2;
+        normalize(bx); 
+        x0 = maxima[i]; // ax
+        x3 = maxima[(i+1)%maxima.size()]; //cx
+        if(fabsp(cx,bx,period) > fabsp(bx,ax,period)) {
+            x1 = bx;
+            x2 = bx + C*(cx-bx);
+        } else {
+            x2 = bx;
+            x1 = bx - C*(bx-ax);
+        }
+        // move into periodic box
+        x1 = normalize(x1);
+        x2 = normalize(x2);
+        double f1 = periodicGaussianMixture(params, x1, period, images);
+        double f2 = periodicGaussianMixture(params, x2, period, images);
+        cout << "Derp: " << ax << " " << bx << " " << cx << endl;
+        cout << "Initial: " << x0 << " " << x1 << " " << x2 << " " << x3 << endl;
+
+        // do loop is critical here, else the first minima unit test will fail!
+        do {
+            cout << std::setprecision(8) << x0 << " " << x1 << " " << x2 << " " << x3 << endl;
+            if(f2 < f1) {
+                x0 = x1;
+                x1 = x2;
+                x2 = R*x1+C*x3;
+                normalize(x2);
+                f1 = f2;
+                f2 = periodicGaussianMixture(params, x2, period, images);
+            } else {
+                x3 = x2;
+                x2 = x1;
+                x1 = R*x2+C*x0;
+                normalize(x1);
+                f2 = f1;
+                f1 = periodicGaussianMixture(params, x1, period, images);
+            }
+        } while(fabsp(x3,x0,period) > tol);
+        minima.push_back(x3);
+    }
+    return minima;
+}
+
 // Algorithm 1.
 
 // 1. Find all the maximas
@@ -59,22 +127,23 @@ vector<double> findPeriodicMinima(const vector<Param> &params, double period, in
     // Get a list of all the maxima and sort them
     vector<double> minima;
     vector<double> maxima = findPeriodicMaxima(params, period, images);
-    assert(maxima.size() > 1);
+    assert(maxima.size() > 0);
     sort(maxima.begin(), maxima.end());
     for(int i=0; i < maxima.size(); i++) {
         double l1;
+        const unsigned long maxIterations = 1e11;
         {
             // add small perturbation
             double pt = 0.01;
             double xn_old = maxima[i];
             xn_old = normalize(xn_old+pt);
             double delta = 1e-4;
-            int iteration = 0;
+            unsigned long iteration = 0;
             bool found = false;
             // gradient descent from the xn_old point
             while(!found) {
                 iteration++;
-                if(iteration >= 1e10) {
+                if(iteration >= maxIterations) {
                     //throw(std::runtime_error("findPeriodicMinima Left: maximum iteration count reached!"));
                 }
                 double xn_new = xn_old - delta*periodicGaussianMixtureDx(params, xn_old, period, images);
@@ -83,6 +152,7 @@ vector<double> findPeriodicMinima(const vector<Param> &params, double period, in
                     found = true;
                 xn_old = xn_new;
             }
+            cout << "left converged in " << iteration << endl;
             l1 = xn_old;
         }
         double r1;
@@ -91,12 +161,12 @@ vector<double> findPeriodicMinima(const vector<Param> &params, double period, in
             double xn_old = maxima[(i+1)%maxima.size()];
             xn_old = normalize(xn_old-pt);
             double delta = 1e-4;
-            int iteration = 0;
+            unsigned long iteration = 0;
             bool found = false;
             // gradient descent from the xn_old point
             while(!found) {
                 iteration++;
-                if(iteration >= 1e10) {
+                if(iteration >= maxIterations) {
                     //throw(std::runtime_error("findPeriodicMaxima Right: maximum iteration count reached!"));
                 }
                 double xn_new = xn_old - delta*periodicGaussianMixtureDx(params, xn_old, period, images);
@@ -105,6 +175,7 @@ vector<double> findPeriodicMinima(const vector<Param> &params, double period, in
                     found = true;
                 xn_old = xn_new;
             }
+            cout << "right converged in " << iteration << endl;
             r1 = xn_old;
         }
         double min = normalize(l1 + fabsp(l1,r1,period)/2);
