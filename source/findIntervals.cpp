@@ -49,9 +49,59 @@ vector<double> findPeriodicMaxima(const vector<Param> &params, double period, in
     return maximas;
 }
 
+// Just bisect the derivative T_T
+// BS converges at a rate of 0.50
+vector<double> findPeriodicMinimaBS(const vector<Param> &params, double period, int images) {
+    vector<double> minima;
+    vector<double> maxima = findPeriodicMaxima(params, period, images);
+    assert(maxima.size() > 0);
+    sort(maxima.begin(), maxima.end());
+    const double tol = 1e-6;
+    const double perturb = 1e-2;
+
+
+    for(int k=0; k<maxima.size(); k++) {
+        cout << endl << k << endl;
+        double ak = maxima[k];
+        double bk = maxima[(k+1)%params.size()];
+        ak = normalize(ak+perturb);
+        bk = normalize(bk-perturb);
+        double mk = 0;
+        double my = 0;
+        int iteration = 0;
+        do {
+            if(iteration > 1000) {
+                break;
+            } else {
+                iteration++;
+            }
+            // take care of special last component that crosses
+            // the periodic boundary
+            
+            // this is guaranteed to only happens if we're in the
+            // periodic case
+            if(bk < ak)
+                mk = normalize((ak+period+bk)/2.0);
+            else
+                mk = normalize((ak+bk)/2.0);
+            cout << ak << " " << mk << " " << bk << endl;
+            my = periodicGaussianMixtureDx(params, mk, period, images);
+            if(my < 0) 
+                ak = mk;
+            else
+                bk = mk;
+        //} while (fabs(my) > 1e-9);
+        } while (fabsp(ak,bk,period) > 1e-5);
+        minima.push_back(mk);
+    }
+    return minima;
+}
+
+
 // Golden section method of finding minima.
 // Original implementation: Numerical Recipes
 // Modified for periodic boundaries
+// GS converges at a rate of 0.68
 vector<double> findPeriodicMinimaGS(const vector<Param> &params, double period, int images) {
     vector<double> minima;
     vector<double> maxima = findPeriodicMaxima(params, period, images);
