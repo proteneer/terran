@@ -69,13 +69,15 @@ vector<double> findPeriodicMinimaGS(const vector<Param> &params, double period, 
         double x0,x1,x2,x3;
         double ax = maxima[i];
         double cx = maxima[(i+1)%maxima.size()];
+        x0 = ax;
+        x3 = cx;
+
         if(i == maxima.size()-1) {
             ax += period;
         } 
         double bx = (ax+cx)/2;
-        normalize(bx); 
-        x0 = maxima[i]; // ax
-        x3 = maxima[(i+1)%maxima.size()]; //cx
+        bx = normalize(bx); 
+        cout << "a b c: " << ax << " " << bx << " " << cx << endl;
         if(fabsp(cx,bx,period) > fabsp(bx,ax,period)) {
             x1 = bx;
             x2 = bx + C*(cx-bx);
@@ -88,7 +90,6 @@ vector<double> findPeriodicMinimaGS(const vector<Param> &params, double period, 
         x2 = normalize(x2);
         double f1 = periodicGaussianMixture(params, x1, period, images);
         double f2 = periodicGaussianMixture(params, x2, period, images);
-        cout << "Derp: " << ax << " " << bx << " " << cx << endl;
         cout << "Initial: " << x0 << " " << x1 << " " << x2 << " " << x3 << endl;
 
         // do loop is critical here, else the first minima unit test will fail!
