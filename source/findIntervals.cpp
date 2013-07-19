@@ -57,7 +57,7 @@ vector<double> findPeriodicMinimaBS(const vector<Param> &params, double period, 
     assert(maxima.size() > 0);
     sort(maxima.begin(), maxima.end());
     const double tol = 1e-6;
-    const double perturb = 1e-1;
+    const double perturb = 1e-2;
 
     for(int k=0; k<maxima.size(); k++) {
         double ak = maxima[k];
