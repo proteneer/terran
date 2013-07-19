@@ -135,7 +135,7 @@ void testFindPeriodicMaxima() {
 
 void testFindPeriodicMinima() {
 
-    const double tol = 1e-3;
+    const double tol = 5e-3;
     int testCount = 0;
     const double period = 2*PI;
 
@@ -200,6 +200,24 @@ void testFindPeriodicMinima() {
         Util::matchPeriodicPoints(results, truth, period, tol2, testCount++);
     }
 
+    // 7 Fused into 2, 1 Saddle-point
+    {
+        vector<Param> p;
+        p.push_back(Param(1.0/7.0, -2.9, 0.3));
+        p.push_back(Param(1.0/7.0, -2.1, 0.6));
+        p.push_back(Param(1.0/7.0, -1.2, 1.2));
+        p.push_back(Param(1.0/7.0, -0.2, 0.7));
+        p.push_back(Param(1.0/7.0,  1.0, 0.4));
+        p.push_back(Param(1.0/7.0,  1.3, 0.6));
+        p.push_back(Param(1.0/7.0,  1.9, 0.4));
+        partitionPeriodicGaussian(p);
+        vector<double> results = findPeriodicMinimaBS(p);
+        vector<double> truth;
+        truth.push_back(-1.072);
+        truth.push_back( 2.688);
+        Util::matchPoints(results, truth, tol, testCount++);
+    }
+
 }
 /*
         for(int i=0; i< results.size(); i++) {
@@ -208,7 +226,7 @@ void testFindPeriodicMinima() {
 */
 int main() {
     try {
-//        testFindPeriodicMaxima();
+        testFindPeriodicMaxima();
         testFindPeriodicMinima();
         cout << "done" << endl;
     } catch(const std::exception &e) {
