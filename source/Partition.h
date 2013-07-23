@@ -22,6 +22,6 @@ public:
     virtual std::vector<double> findMinima() const = 0;
 
 protected:
-    std::vector<Param> params_;
+    const std::vector<Param> params_;
 
 };

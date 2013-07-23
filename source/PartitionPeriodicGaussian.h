@@ -18,6 +18,6 @@ public:
 
 private:
 
-    double period_;
-    int images_;
+    const double period_;
+    const int images_;
 };
