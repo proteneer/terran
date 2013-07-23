@@ -13,7 +13,7 @@ public:
     }; 
 
     // Partition the domain into disjoint intervals
-    virtual void partition(double threshold) const = 0;
+    virtual std::vector<double> partition(double threshold) const = 0;
 
     // Find the maxima
     virtual std::vector<double> findMaxima() const = 0;

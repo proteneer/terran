@@ -1,6 +1,7 @@
 #include "PartitionPeriodicGaussian.h"
 #include <stdexcept>
 #include <assert.h>
+#include <iostream>
 
 using namespace std;
 
@@ -9,8 +10,16 @@ PartitionPeriodicGaussian::PartitionPeriodicGaussian(const vector<Param> &params
 
 }
 
-void PartitionPeriodicGaussian::partition(double threshold) const {
-
+vector<double> PartitionPeriodicGaussian::partition(double threshold) const {
+    vector<double> minima = findMinima();
+    vector<double> partition;
+    for(int i=0; i<minima.size(); i++) {
+        double val = periodicGaussianMixture(params_, minima[i], period_, images_);
+        if(val < threshold) {
+            partition.push_back(minima[i]);
+        }
+    }
+    return partition;
 }
 
 vector<double> PartitionPeriodicGaussian::findMaxima() const {

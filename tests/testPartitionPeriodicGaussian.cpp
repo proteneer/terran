@@ -232,10 +232,29 @@ void testFindPeriodicMinima() {
 
 }
 
+void testPartition() {
+    int testCount = 0;
+    double tol = 1e-2;
+    {
+        vector<Param> p;
+        p.push_back(Param(1.0/4.0, -2.3, 0.4));
+        p.push_back(Param(1.0/4.0, -0.6, 0.3));
+        p.push_back(Param(1.0/4.0,  1.6, 0.6));
+        p.push_back(Param(1.0/4.0,  2.7, 0.2));
+        PartitionPeriodicGaussian partition(p);
+        vector<double> results = partition.partition(0.05);
+        vector<double> truth;
+        truth.push_back(-1.38);
+        truth.push_back( 0.26);
+        Util::matchPoints(results, truth, tol,testCount++);
+    }
+}
+
 int main() {
     try {
         testFindPeriodicMaxima();
         testFindPeriodicMinima();
+        testPartition();
         cout << "done" << endl;
     } catch(const std::exception &e) {
         cout << e.what() << endl;
