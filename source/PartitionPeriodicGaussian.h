@@ -2,6 +2,7 @@
 #include "MathFunctions.h"
 
 class PartitionPeriodicGaussian : public Partition {
+
 public:
 
     explicit PartitionPeriodicGaussian(const std::vector<Param> &params,

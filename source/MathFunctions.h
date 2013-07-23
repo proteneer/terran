@@ -7,6 +7,7 @@
 
 const double PI = 3.14159265358;
 
+// moves a point to inside the periodic domain
 inline double normalize(double x, double left=-PI, double right=PI) {
     double period = right-left;
     while(x > right) {
@@ -18,29 +19,37 @@ inline double normalize(double x, double left=-PI, double right=PI) {
     return x;
 }
 
+// calculates the shortest distance between two points given a period
 inline double periodicDifference(double x1, double x2, double period) {
     double diff = x1-x2;
     diff -= floor(diff/period+0.5)*period;
     return diff;
 }
+
+// returns |x1-x2| given shortest period
 inline double fabsp(double x1, double x2, double period) {
     return fabs(periodicDifference(x1,x2,period));
 }
 
+// evaluates the gaussian function at point xn given parameters uk and sk
 inline double gaussian(double uk, double sk, double xn) {
     return 1.0/(sqrt(2*PI)*sk)*exp(-(0.5)*pow((xn-uk)/sk,2));
 } 
 
+// derivative of the gaussian
 inline double gaussianDx(double uk, double sk, double xn) {
     double multiplier = (uk-xn)/(sk*sk);
     double suffix = multiplier*gaussian(uk, sk, xn);
     return multiplier*suffix;
 }
 
+// evaluates the periodic gaussian function at point xn
+// uk and sk retain the semantic of mean and standard deviation
+// numImages is the number of times to wrap around
+// period is defined by the domain of the function
 inline double periodicGaussian(double uk, double sk, double xn, int numImages, double period) {
     double sum = 0;
     for(int r=-numImages; r<=numImages; r++) {
-    // this should be gaussian(uk-r*period) to match the paper since r is symmetric.
         sum += gaussian(uk-r*period, sk, xn);
     }
     return sum;
@@ -50,6 +59,7 @@ inline double periodicGaussian(double uk, double sk, double xn, int numImages, d
 Equation [8] in the paper is completely wrong!
 */
 
+// derivative of the periodic gaussian function
 inline double periodicGaussianDx(double uk, double sk, double xn, int numImages, double period) {
     double prefactor = 1/(sqrt(2*PI)*sk*sk*sk);
     double sum = 0;
@@ -59,6 +69,8 @@ inline double periodicGaussianDx(double uk, double sk, double xn, int numImages,
     return prefactor*sum;
 }
 
+// evaluates xn given a gaussian mixture
+// where sum pk = 1
 inline double gaussianMixture(const std::vector<Param> &params, double xn) {
     double sum = 0;
     for(int k=0; k<params.size(); k++) {
@@ -70,6 +82,7 @@ inline double gaussianMixture(const std::vector<Param> &params, double xn) {
     return sum;
 }
 
+// derivative of a gaussian mixture
 inline double gaussianMixtureDx(const std::vector<Param> &params, double xn) {
     double sum = 0;
     for(int k=0; k<params.size(); k++) {
@@ -82,6 +95,7 @@ inline double gaussianMixtureDx(const std::vector<Param> &params, double xn) {
 
 }
 
+// evaluates xn given a periodic gaussian mixture
 inline double periodicGaussianMixture(const std::vector<Param> &params, double xn, double period = 2*PI, int numImages = 10) {
     //assert(xn >= (-period/2-1e-6) && xn <= (period/2+1e-6));  
     double sum = 0;
@@ -94,6 +108,7 @@ inline double periodicGaussianMixture(const std::vector<Param> &params, double x
     return sum;
 }
 
+// derivative of a gaussian mixture
 inline double periodicGaussianMixtureDx(const std::vector<Param> &params, double xn, double period = 2*PI, int numImages = 10) {
     //assert(xn >= (-period/2-1e-6) && xn <= (period/2+1e-6));  
     double sum = 0;
@@ -106,5 +121,25 @@ inline double periodicGaussianMixtureDx(const std::vector<Param> &params, double
     return sum;
 }
 
-// TODO: Derivatives of both GMs and PGMs
+// draws a random sample from the periodic gaussian with mean u,
+// std. deviation s, and period period
+// assume x is in -period/2, period/2
+inline double periodicGaussianSample(double u, double s, double period) {
+    // sample between [0,1]
+    while(true) {
+        double x1 = (double) rand() / (double) RAND_MAX;
+        // move to [-0.5, 0.5]
+        x1 -= 0.5;
+        // move to [-0.5*2PI, -0.5*2PI]
+        x1 *= period;
+        // determine the probability of drawing x1
+        double probability = periodicGaussian(u, s, x1, 100, period);
+        // make a random sample between 0 and 1 
+        double draw = (double) rand() / (double) RAND_MAX;
+        if(draw < probability) {
+            return x1;
+        }
+    }
+}
+
 #endif

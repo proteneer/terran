@@ -5,6 +5,12 @@
 
 using namespace std;
 
+// clustering class:
+// getMostDensePoint() for a given cluster
+
+// This all belongs to a clustering class
+
+
 // intervals is of size D x # of buckets in the interval
 vector<short> assignPointToBucket(const vector<double> point, const vector<bool> &isPeriodic, vector<vector<double> > &intervals) {
 
