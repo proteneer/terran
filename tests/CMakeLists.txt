@@ -7,5 +7,5 @@ target_link_libraries(testEMGaussian EM)
 add_executable(testEMPeriodicGaussian testEMPeriodicGaussian.cpp util.cpp)
 target_link_libraries(testEMPeriodicGaussian EM)
 
-add_executable(testFindIntervals testFindIntervals.cpp util.cpp)
-target_link_libraries(testFindIntervals EM)
+add_executable(testPartitionPeriodicGaussian testPartitionPeriodicGaussian.cpp util.cpp)
+target_link_libraries(testPartitionPeriodicGaussian EM)
