@@ -36,7 +36,7 @@ class EM {
 
         // Run the EM algorithm
         // Returns true if executed successfully, false otherwise
-    	bool run(int maxSteps, double tolerance);
+    	bool run(int maxSteps = 10000, double tolerance = 0.1);
 
         // Compute the Expectation based on current parameters
         void EStep();

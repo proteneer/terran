@@ -10,6 +10,10 @@ using namespace std;
 
 // This all belongs to a clustering class
 
+// todo:
+// add code to verify that all minima have been found, ie. for each point there exists a minima within some +- epsilon of it?
+// ** maybe be hard... for minima, easier for maxima?**
+
 
 // intervals is of size D x # of buckets in the interval
 vector<short> assignPointToBucket(const vector<double> point, const vector<bool> &isPeriodic, vector<vector<double> > &intervals) {
