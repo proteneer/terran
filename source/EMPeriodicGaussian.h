@@ -8,7 +8,7 @@
 class EMPeriodicGaussian : public EM {
     public:
         // period and images are initialized by default
-        EMPeriodicGaussian(const std::vector<double> &data, const std::vector<Param> &params, double period = 2*PI, int images = 30);
+        explicit EMPeriodicGaussian(const std::vector<double> &data, const std::vector<Param> &params, double period = 2*PI, int images = 30);
         ~EMPeriodicGaussian();
 
         void MStep();
