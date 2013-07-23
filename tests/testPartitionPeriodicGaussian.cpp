@@ -1,4 +1,3 @@
-#include <findIntervals.h>
 #include <PartitionPeriodicGaussian.h>
 #include <vector>
 #include <iostream>    

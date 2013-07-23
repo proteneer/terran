@@ -5,7 +5,7 @@
 using namespace std;
 
 PartitionPeriodicGaussian::PartitionPeriodicGaussian(const vector<Param> &params, 
-    double period, double images) : Partition(params), period_(period), images_(images) {
+    double period, int images) : Partition(params), period_(period), images_(images) {
 
 }
 

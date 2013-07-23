@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <math.h>
 #include <iostream>
+#include <fstream>
 
 #include "util.h"
 #include "MathFunctions.h"
@@ -10,6 +11,18 @@
 using namespace std;
 
 // Naive O(N^2) method
+
+void Util::plotPeriodicGaussian(const vector<Param> &params, double period, int images) {
+    ofstream mixture("mixture.dat");
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        mixture << xn << " " << periodicGaussianMixture(params, xn, period, images) << endl;
+    }
+    ofstream mixtureDx("mixtureDx.dat");
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << endl;
+    }
+}
+
 void Util::matchParameters(const vector<Param> &p1, const vector<Param> &p2, double threshold) {
     if(p1.size() != p2.size()) {
         throw(std::runtime_error("Unequal Parameter Size!"));
