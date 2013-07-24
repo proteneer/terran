@@ -80,7 +80,6 @@ void testEasyCase2D() {
         for(int i=0; i < dataset.size(); i++) {
             d0.push_back(dataset[i][0]);
         }
-
         vector<Param> params;
         {
             Param p;
@@ -101,8 +100,6 @@ void testEasyCase2D() {
         vector<Param> p = em.getParams();
         PartitionPeriodicGaussian ppg(p, 2*PI, 10);
         intervals.push_back(ppg.partition(0.05));
-        cout << p[0].p << " " << p[0].u << " " << p[0].s << endl;
-        cout << p[1].p << " " << p[1].u << " " << p[1].s << endl;
     }
     {
         vector<double> d1;
@@ -135,16 +132,16 @@ void testEasyCase2D() {
         EMPeriodicGaussian em(d1, params, 2*PI, 10);
         em.run();
         vector<Param> p = em.getParams();
+        Util::plotPeriodicGaussian(p, 2*PI, 10);
         PartitionPeriodicGaussian ppg(p, 2*PI, 10);
         intervals.push_back(ppg.partition(0.05));
-        cout << p[0].p << " " << p[0].u << " " << p[0].s << endl;
-        cout << p[1].p << " " << p[1].u << " " << p[1].s << endl;
-        cout << p[2].p << " " << p[2].u << " " << p[2].s << endl;
     }
+
+
 
     // Partitions
     for(int i=0; i<intervals.size(); i++) {
-        for(int j=0; j<intervals[j].size(); j++) {
+        for(int j=0; j<intervals[i].size(); j++) {
             cout << intervals[i][j] << " ";
         }
         cout << endl;
