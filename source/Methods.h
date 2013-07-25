@@ -2,18 +2,19 @@
 #include "Param.h"
 
 // An abstract class used to find minima and maxima of a mixture 
-// model
-class Partition {
+
+// Refactor into Methods class
+
+// Move partition, assign to bucket, etc. into Terran class
+
+class Methods {
 
 public:
 
-    Partition(const std::vector<Param> &params) :
+    Methods(const std::vector<Param> &params) :
         params_(params) {
         
     }; 
-
-    // Partition the domain into disjoint intervals
-    virtual std::vector<double> partition(double threshold) const = 0;
 
     // Find the maxima
     virtual std::vector<double> findMaxima() const = 0;

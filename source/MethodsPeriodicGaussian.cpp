@@ -1,16 +1,16 @@
-#include "PartitionPeriodicGaussian.h"
+#include "MethodsPeriodicGaussian.h"
 #include <stdexcept>
 #include <assert.h>
 #include <iostream>
 
 using namespace std;
 
-PartitionPeriodicGaussian::PartitionPeriodicGaussian(const vector<Param> &params, 
+MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params, 
     double period, int images) : Partition(params), period_(period), images_(images) {
 
 }
 
-vector<double> PartitionPeriodicGaussian::partition(double threshold) const {
+vector<double> MethodsPeriodicGaussian::partition(double threshold) const {
     vector<double> minima = findMinima();
     vector<double> partition;
     for(int i=0; i<minima.size(); i++) {
@@ -22,7 +22,7 @@ vector<double> PartitionPeriodicGaussian::partition(double threshold) const {
     return partition;
 }
 
-vector<double> PartitionPeriodicGaussian::findMaxima() const {
+vector<double> MethodsPeriodicGaussian::findMaxima() const {
     vector<double> maximas;
     for(int k=0; k<params_.size(); k++) {
         double xn_old = params_[k].u;
@@ -56,7 +56,7 @@ vector<double> PartitionPeriodicGaussian::findMaxima() const {
 
 }
 
-vector<double> PartitionPeriodicGaussian::findMinima() const {
+vector<double> MethodsPeriodicGaussian::findMinima() const {
     vector<double> minima;
     vector<double> maxima = findMaxima();
     assert(maxima.size() > 0);

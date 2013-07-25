@@ -1,11 +1,11 @@
 #include "Partition.h"
 #include "MathFunctions.h"
 
-class PartitionPeriodicGaussian : public Partition {
+class MethodsPeriodicGaussian : public Methods {
 
 public:
 
-    explicit PartitionPeriodicGaussian(const std::vector<Param> &params,
+    explicit MethodsPeriodicGaussian(const std::vector<Param> &params,
         double period = 2*PI, int images = 10);
 
     // Partition the domain into disjoint intervals

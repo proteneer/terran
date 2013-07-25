@@ -4,10 +4,11 @@
 
 #include <EMGaussian.h>
 #include <EMPeriodicGaussian.h>
-#include <PartitionPeriodicGaussian.h>
+#include <MethodsPeriodicGaussian.h>
 #include <MathFunctions.h>
 
 #include "util.h"
+#include "assign.h"
 
 using namespace std;
 
@@ -35,7 +36,7 @@ void testEasyCase2D() {
     {
         double u1 = -PI/2;
         double u2 =  PI/2;
-        double s = 0.3;
+        double s = 0.5;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -49,7 +50,7 @@ void testEasyCase2D() {
     {
         double u1 = -PI/2;
         double u2 = -PI/2;
-        double s = 0.3;
+        double s = 0.5;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -63,7 +64,7 @@ void testEasyCase2D() {
     {
         double u1 = PI/4;
         double u2 = 0;
-        double s = 0.3;
+        double s = 0.5;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -136,7 +137,6 @@ void testEasyCase2D() {
         PartitionPeriodicGaussian ppg(p, 2*PI, 10);
         intervals.push_back(ppg.partition(0.05));
     }
-
 
 
     // Partitions
