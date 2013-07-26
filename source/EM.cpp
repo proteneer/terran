@@ -2,6 +2,8 @@
 #include "MathFunctions.h"
 #include <iostream>
 
+namespace Terran {
+
 EM::~EM() {
 
 }
@@ -93,3 +95,5 @@ void EM::testIntegrity() const {
         }
     }
 };
+
+}

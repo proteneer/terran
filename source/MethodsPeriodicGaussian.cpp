@@ -5,6 +5,8 @@
 
 using namespace std;
 
+namespace Terran {
+
 MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params, 
     double period, int images) : Partition(params), period_(period), images_(images) {
 
@@ -95,4 +97,6 @@ vector<double> MethodsPeriodicGaussian::findMinima() const {
         minima.push_back(mk);
     }
     return minima;
+}
+
 }

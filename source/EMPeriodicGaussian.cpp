@@ -3,6 +3,8 @@
 
 using namespace std;
 
+namespace Terran {
+
 EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<Param> &params, double period, int images) : 
     EM(data, params), 
     period_(period),
@@ -165,4 +167,6 @@ double EMPeriodicGaussian::dlds(double sk, int k) const {
         s_sum += pikn_[n][k]*(p1+p2+p3);
     }
     return s_sum;
+}
+
 }

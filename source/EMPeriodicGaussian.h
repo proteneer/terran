@@ -4,6 +4,8 @@
 #include "EM.h"
 #include "MathFunctions.h"
 
+namespace Terran {
+
 // Expectation Maximization of Periodic Gaussian Mixture Models
 class EMPeriodicGaussian : public EM {
     public:
@@ -22,4 +24,6 @@ class EMPeriodicGaussian : public EM {
         double period_;
         int images_;
 };
+
+}
 #endif

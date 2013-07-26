@@ -17,6 +17,9 @@
 // the M step as needed. 
 //
 // Ref 1. Estimating Gaussian Mixture Densities with EM - A Tutorial, Carlo Tomasi
+
+namespace Terran {
+
 class EM { 
     public:
         EM(const std::vector<double> &data, const std::vector<Param> &params);
@@ -62,4 +65,6 @@ class EM {
         // this is updated during the E-step
         std::vector<std::vector<double> > pikn_;
 };
+
+}
 #endif

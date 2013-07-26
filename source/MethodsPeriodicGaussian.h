@@ -1,6 +1,8 @@
 #include "Partition.h"
 #include "MathFunctions.h"
 
+namespace Terran {
+
 class MethodsPeriodicGaussian : public Methods {
 
 public:
@@ -22,3 +24,5 @@ private:
     const double period_;
     const int images_;
 };
+
+}

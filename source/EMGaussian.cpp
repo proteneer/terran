@@ -1,6 +1,8 @@
 #include "EMGaussian.h"
 #include "MathFunctions.h"
 
+namespace Terran {
+
 EMGaussian::EMGaussian(const std::vector<double> &data, const std::vector<Param> &params) : 
     EM(data, params) {
 
@@ -42,6 +44,6 @@ double EMGaussian::qkn(int k, int n) const {
    double sk = params_[k].s;    
    double xn = data_[n];
    return pk * gaussian(uk, sk, xn);
-
+}
 
 }

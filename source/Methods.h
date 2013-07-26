@@ -7,6 +7,8 @@
 
 // Move partition, assign to bucket, etc. into Terran class
 
+namespace Terran {
+
 class Methods {
 
 public:
@@ -27,3 +29,5 @@ protected:
     const std::vector<Param> params_;
 
 };
+
+}

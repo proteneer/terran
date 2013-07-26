@@ -1,6 +1,8 @@
 #ifndef PARAM_H_
 #define PARAM_H_
 
+namespace Terran {
+
 struct Param {
 
     Param() {} ;
@@ -14,4 +16,5 @@ struct Param {
     double s;
 };
 
+}
 #endif
