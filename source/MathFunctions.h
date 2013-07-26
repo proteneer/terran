@@ -7,6 +7,8 @@
 
 const double PI = 3.14159265358;
 
+namespace Terran {
+
 // moves a point to inside the periodic domain
 inline double normalize(double x, double left=-PI, double right=PI) {
     double period = right-left;
@@ -140,6 +142,8 @@ inline double periodicGaussianSample(double u, double s, double period) {
             return x1;
         }
     }
+}
+
 }
 
 #endif

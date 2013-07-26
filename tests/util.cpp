@@ -9,6 +9,8 @@
 #include "MathFunctions.h"
 
 using namespace std;
+using Terran::Param;
+using Terran::fabsp;
 
 // Naive O(N^2) method
 

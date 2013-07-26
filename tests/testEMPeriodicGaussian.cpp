@@ -12,11 +12,14 @@
 #include "util.h"
 
 using namespace std;
+using namespace Terran;
+
 
 void testUnimodalPeriodicGaussian() {
     vector<double> data;
     vector<Param> initParams(1);
     double period = 2*PI;
+    double images = 15;
     initParams[0].p = 1;
     initParams[0].u = 1.2345;
     initParams[0].s = 1.1;
@@ -29,7 +32,7 @@ void testUnimodalPeriodicGaussian() {
     p.s = 2.1;
     vector<Param> params;
     params.push_back(p);
-    EMPeriodicGaussian em(data, params);
+    EMPeriodicGaussian em(data, params, period, images);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
     Util::matchParameters(initParams, optimizedParams, 0.05);
@@ -38,7 +41,7 @@ void testUnimodalPeriodicGaussian() {
 void testBimodalPeriodicGaussian() {
     vector<double> data;
     double period = 2*PI;
-
+    double images = 15;
     vector<Param> initParams(2);
     initParams[0].p = 0.65;
     initParams[0].u = -0.3;
@@ -70,7 +73,7 @@ void testBimodalPeriodicGaussian() {
         params.push_back(p);
     }
     
-    EMPeriodicGaussian em(data, params, period, 5);
+    EMPeriodicGaussian em(data, params, period, images);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
 

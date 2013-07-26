@@ -3,6 +3,8 @@
 
 #include "EM.h"
 
+namespace Terran {
+
 // Canonical Expectation Maximization of Gaussian Mixture Models
 class EMGaussian : public EM {
     public:
@@ -15,5 +17,7 @@ class EMGaussian : public EM {
         double qkn(int k, int n) const;
 
 };
+
+}
 
 #endif

@@ -7,8 +7,8 @@ target_link_libraries(testEMGaussian EM)
 add_executable(testEMPeriodicGaussian testEMPeriodicGaussian.cpp util.cpp)
 target_link_libraries(testEMPeriodicGaussian EM)
 
-add_executable(testPartitionPeriodicGaussian testPartitionPeriodicGaussian.cpp util.cpp)
-target_link_libraries(testPartitionPeriodicGaussian EM)
+add_executable(testMethodsPeriodicGaussian testMethodsPeriodicGaussian.cpp util.cpp)
+target_link_libraries(testMethodsPeriodicGaussian EM)
 
-add_executable(testAssignment testAssignment.cpp util.cpp)
-target_link_libraries(testAssignment EM)
+#add_executable(testAssignment testAssignment.cpp util.cpp)
+#target_link_libraries(testAssignment EM)

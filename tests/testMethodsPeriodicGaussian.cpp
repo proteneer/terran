@@ -1,4 +1,4 @@
-#include <PartitionPeriodicGaussian.h>
+#include <MethodsPeriodicGaussian.h>
 #include <vector>
 #include <iostream>    
 #include <stdexcept>
@@ -6,18 +6,20 @@
 #include "util.h"
 
 using namespace std;
+using namespace Terran;
 
 void testFindPeriodicMaxima() {
-    double tol = 1e-3;
+    const double tol = 1e-3;
     int testCount = 0;
-
+    const double period = 2*PI;
+    const double images = 15;
     // Bimodal
     {
         vector<Param> p;
         p.push_back(Param(0.6,  1.0, 0.5));
         p.push_back(Param(0.4, -2.3, 0.5));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-2.3);
         truth.push_back( 1.0);
@@ -29,8 +31,8 @@ void testFindPeriodicMaxima() {
         vector<Param> p;
         p.push_back(Param(0.5, -0.2, 0.5));
         p.push_back(Param(0.5,  1.6, 0.6));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-0.188);
         truth.push_back( 1.595);
@@ -42,8 +44,8 @@ void testFindPeriodicMaxima() {
         vector<Param> p;
         p.push_back(Param(0.5, 1.2, 0.5));
         p.push_back(Param(0.5, 1.6, 0.4));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(1.473);
         Util::matchPoints(results, truth, tol, testCount++);
@@ -55,8 +57,8 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/3.0,-0.2, 0.5));
         p.push_back(Param(1.0/3.0, 0.6, 0.6));
         p.push_back(Param(1.0/3.0, 1.6, 0.7));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(0.117);
         Util::matchPoints(results, truth, tol, testCount++);
@@ -69,8 +71,8 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/4.0,-0.8, 0.44));
         p.push_back(Param(1.0/4.0, 0.8, 0.61));
         p.push_back(Param(1.0/4.0, 1.8, 0.45));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-0.847);
         truth.push_back( 1.670);
@@ -84,8 +86,8 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/4.0,-0.8, 0.44));
         p.push_back(Param(1.0/4.0, 0.8, 0.61));
         p.push_back(Param(1.0/4.0, 1.8, 0.45));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-2.141);
         truth.push_back(-0.835);
@@ -100,8 +102,8 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/4.0,-0.8, 0.44));
         p.push_back(Param(1.0/4.0, 0.8, 0.61));
         p.push_back(Param(1.0/4.0, 1.8, 0.45));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-1.968);
         truth.push_back(-0.843);
@@ -119,8 +121,8 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/7.0,  1.0, 0.4));
         p.push_back(Param(1.0/7.0,  1.3, 0.6));
         p.push_back(Param(1.0/7.0,  1.9, 0.4));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-2.847);
         truth.push_back( 1.117);
@@ -132,8 +134,8 @@ void testFindPeriodicMaxima() {
         vector<Param> p;
         p.push_back(Param(1.0/7.0, 3.1, 0.5));
         p.push_back(Param(1.0/7.0, -2.0, 0.5));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMaxima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-3.074);
         truth.push_back(-2.109);
@@ -146,13 +148,14 @@ void testFindPeriodicMinima() {
     const double tol = 5e-3;
     int testCount = 0;
     const double period = 2*PI;
+    const double images = 15;
 
     // Unimodal
     {
         vector<Param> p;
         p.push_back(Param(1.0, 0.0, 0.5));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMinima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-period/2);
         Util::matchPeriodicPoints(results, truth, period, tol, testCount++);
@@ -162,8 +165,8 @@ void testFindPeriodicMinima() {
     {
         vector<Param> p;
         p.push_back(Param(1.0, 0.5, 1.0));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMinima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-2.642);
         Util::matchPeriodicPoints(results, truth, period, tol, testCount++);
@@ -174,8 +177,8 @@ void testFindPeriodicMinima() {
         vector<Param> p;
         p.push_back(Param(0.3, 0.5, 1.0));
         p.push_back(Param(0.7, -1.5, 0.5));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMinima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-0.091);
         truth.push_back( 3.071);
@@ -188,8 +191,8 @@ void testFindPeriodicMinima() {
         vector<Param> p;
         p.push_back(Param(0.5, 1.1, 0.3));
         p.push_back(Param(0.5, -2.9, 0.4));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMinima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-0.632);
         truth.push_back( 2.108);
@@ -203,8 +206,8 @@ void testFindPeriodicMinima() {
         p.push_back(Param(1.0/3.0, 1.0, 0.3));
         p.push_back(Param(1.0/3.0, -3.0, 0.3));
         p.push_back(Param(1.0/3.0, 0.0, 0.3));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMinima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back( 2.15);
         truth.push_back(-1.5);
@@ -222,17 +225,17 @@ void testFindPeriodicMinima() {
         p.push_back(Param(1.0/7.0,  1.0, 0.4));
         p.push_back(Param(1.0/7.0,  1.3, 0.6));
         p.push_back(Param(1.0/7.0,  1.9, 0.4));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.findMinima();
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-1.072);
         truth.push_back( 2.688);
         Util::matchPoints(results, truth, tol, testCount++);
     }
-
 }
 
-void testPartition() {
+/*
+void testMethods() {
     int testCount = 0;
     double tol = 1e-2;
     {
@@ -241,20 +244,21 @@ void testPartition() {
         p.push_back(Param(1.0/4.0, -0.6, 0.3));
         p.push_back(Param(1.0/4.0,  1.6, 0.6));
         p.push_back(Param(1.0/4.0,  2.7, 0.2));
-        PartitionPeriodicGaussian partition(p);
-        vector<double> results = partition.partition(0.05);
+        MethodsPeriodicGaussian methods(p, period, images);
+        vector<double> results = methods.methods(0.05);
         vector<double> truth;
         truth.push_back(-1.38);
         truth.push_back( 0.26);
         Util::matchPoints(results, truth, tol,testCount++);
     }
 }
+*/
 
 int main() {
     try {
         testFindPeriodicMaxima();
         testFindPeriodicMinima();
-        testPartition();
+        //testMethods();
         cout << "done" << endl;
     } catch(const std::exception &e) {
         cout << e.what() << endl;

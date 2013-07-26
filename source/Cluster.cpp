@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <sstream>
+#include <map>
 
 #include "Cluster.h"
 #include "MethodsPeriodicGaussian.h"
@@ -10,12 +11,12 @@ using namespace std;
 
 namespace Terran {
 
-Cluster::Cluster(const std::vector<const std::vector<double> > &data, const std::vector<double> &period, const std::vector<std::vector<Param> > &initialParams) : 
+Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period, const vector<vector<Param> > &initialParams) : 
     dataset_(data),
     period_(period),
     paramset_(initialParams),
-    images_(vector<int>(paramset_.size(),15)),
-    partitions_(vector<vector<double> >(paramset_.size(),vector<double>())) {
+    images_(paramset_.size(), 15),
+    partitions_(paramset_.size()) {
 
 }
 
@@ -52,7 +53,7 @@ double Cluster::getImages(int dimension) const {
     return period_[dimension];
 }
 
-double Cluster::getParameters(int dimension) const {
+vector<Param> Cluster::getParameters(int dimension) const {
     return paramset_[dimension];
 }
 
@@ -65,12 +66,12 @@ void Cluster::setImages(int dimension, int numImages) {
     images_[dimension] = numImages;
 }
 
-Cluster::vector<double> partition(int dimension, double threshold) {
-    vector<double> params = paramset_[dimension];
+void Cluster::partition(int dimension, double threshold) {
+    vector<Param> params = paramset_[dimension];
     vector<double> partition;
-    if(isPeriodic(d)) {
-        const double period = period_[d];
-        const int images = images_[d];
+    if(isPeriodic(dimension)) {
+        const double period = period_[dimension];
+        const int images = images_[dimension];
         MethodsPeriodicGaussian mpg(params, period, images);
         vector<double> minima = mpg.findMinima();
         for(int i=0; i < minima.size(); i++) {
@@ -83,18 +84,16 @@ Cluster::vector<double> partition(int dimension, double threshold) {
         // implement code to partition non periodic mixture models
 
     }
-    return partition;
+    partitions_[dimension] = partition;
 }
 
-vector<int> Cluster::run() const{
-
+vector<int> Cluster::run() {
     // todo: parallelize on multiple threads
-    vector<vector<double> > intervals;
     for(int d = 0; d < getNumDimensions(); d++) {
         // optimize the parameters
         optimizeParameters(d);
         // partition each dimension using parameters optimized by EM
-        partitions_.push_back(partition(d));
+        partition(d, 0.05);
     }
 
     // assign each point to a bucket
@@ -112,7 +111,7 @@ vector<int> Cluster::run() const{
         it != clusters.end(); it++) {
         vector<int> pointIndices = it->second;
         for(int j=0; j<pointIndices.size(); j++) {
-            assignment[pointsIndices[j]] = clusterIndex;
+            assignment[pointIndices[j]] = clusterIndex;
         }
         clusterIndex++;
     }
@@ -123,31 +122,31 @@ vector<int> Cluster::run() const{
 void Cluster::optimizeParameters(int d) {
     vector<double> data;
     for(int n = 0; n < getNumPoints(); n++) {
-        data.push_back(dataset[n][d]);
+        data.push_back(dataset_[n][d]);
     }
     // load initial set of parameters
-    const vector<data> &initialParams = paramsset_[d];
+    const vector<Param> &initialParams = paramset_[d];
 
     if(isPeriodic(d)) {
-        EMPeriodicGaussian epg(data, initialParams, period[d], images[d]);
+        EMPeriodicGaussian epg(data, initialParams, period_[d], images_[d]);
         epg.run();
-        paramsset_[d] = epg.getParams();
+        paramset_[d] = epg.getParams();
     } else {
         EMGaussian eg(data, initialParams);
         eg.run();
-        paramsset_[d] = eg.getParams();
+        paramset_[d] = eg.getParams();
     }
 }
 
-vector<short> Cluster::assign(int pointIndex) {
+vector<short> Cluster::assign(int pointIndex) const {
     vector<short> bucket(getNumDimensions());
-    vector<double> point = dataset[pointIndex];
+    vector<double> point = dataset_[pointIndex];
 
     // for each dimension in the point
     for(int d=0; d<getNumDimensions(); d++) {
         // loop over the intervals
-        for(int j=0; j<intervals[d].size(); j++) {
-            if(point[d] < intervals[d][j]) {
+        for(int j=0; j<partitions_[d].size(); j++) {
+            if(point[d] < partitions_[d][j]) {
                 bucket[d] = j;
                 break;
             }

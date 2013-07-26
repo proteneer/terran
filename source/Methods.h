@@ -1,11 +1,8 @@
 #include <vector>
 #include "Param.h"
 
-// An abstract class used to find minima and maxima of a mixture 
-
+// An abstract class used to find minima and maxima of a mixture model
 // Refactor into Methods class
-
-// Move partition, assign to bucket, etc. into Terran class
 
 namespace Terran {
 

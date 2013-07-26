@@ -10,6 +10,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace Terran;
 
 struct double2 {
     double x;

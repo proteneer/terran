@@ -2,7 +2,7 @@
 #define TERRAN_H_
 
 #include <vector>
-#include "MixtureModel.h"
+#include "Param.h"
 
 /* Main interface class of the Cluster clustering algorithm */
 
@@ -31,7 +31,7 @@ class Cluster {
 
 public:
 
-    Cluster(const std::vector<const std::vector<double> > &data, const std::vector<double> &period, const std::vector<std::vector<Param> > &initialParams);
+    Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period, const std::vector<std::vector<Param> > &initialParams);
 
     ~Cluster();
 
@@ -70,12 +70,13 @@ public:
 private:
 
     // partition the dimension into disjoint intervals
-    std::vector<double> partition(int dimension, double threshold);
+    void partition(int dimension, double threshold);
 
     // assigns a given point to a bucket
     std::vector<short> assign(int point) const;
 
     // points are stored in dataset, size N x D
+    // change to array of array later for performance
     const std::vector<std::vector<double> > dataset_;
 
     // describes the domain of each dimension
@@ -90,9 +91,9 @@ private:
     std::vector<int> images_;
 
     // disjoint partitions of the domain
-    std::vector<std::vector<int> > partitions_;
+    std::vector<std::vector<double> > partitions_;
     
-}
+};
 
 } // namespace Terran
 

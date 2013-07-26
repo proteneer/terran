@@ -1,5 +1,5 @@
-#include "Partition.h"
 #include "MathFunctions.h"
+#include "Methods.h"
 
 namespace Terran {
 
@@ -8,7 +8,7 @@ class MethodsPeriodicGaussian : public Methods {
 public:
 
     explicit MethodsPeriodicGaussian(const std::vector<Param> &params,
-        double period = 2*PI, int images = 10);
+        double period, int images);
 
     // Partition the domain into disjoint intervals
     std::vector<double> partition(double threshold) const;

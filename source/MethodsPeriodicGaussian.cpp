@@ -8,20 +8,8 @@ using namespace std;
 namespace Terran {
 
 MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params, 
-    double period, int images) : Partition(params), period_(period), images_(images) {
+    double period, int images) : Methods(params), period_(period), images_(images) {
 
-}
-
-vector<double> MethodsPeriodicGaussian::partition(double threshold) const {
-    vector<double> minima = findMinima();
-    vector<double> partition;
-    for(int i=0; i<minima.size(); i++) {
-        double val = periodicGaussianMixture(params_, minima[i], period_, images_);
-        if(val < threshold) {
-            partition.push_back(minima[i]);
-        }
-    }
-    return partition;
 }
 
 vector<double> MethodsPeriodicGaussian::findMaxima() const {
