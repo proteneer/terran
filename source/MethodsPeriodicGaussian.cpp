@@ -62,8 +62,8 @@ vector<double> MethodsPeriodicGaussian::findMinima() const {
         double my = 0;
         int iteration = 0;
         do {
-            if(iteration > 1e6)
-                throw(std::runtime_error("Error: findPeriodicMinimumBS maximized number of iterations reached."));
+            if(iteration > 1e3)
+                throw(std::runtime_error("Error: findMinima maximized number of iterations reached."));
             else
                 iteration++;
             

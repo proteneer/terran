@@ -1,8 +1,12 @@
 #include "EM.h"
 #include "MathFunctions.h"
 #include <iostream>
+#include <fstream>
+
 
 namespace Terran {
+
+using namespace std;
 
 EM::~EM() {
 
@@ -56,12 +60,30 @@ double EM::getLikelihood() const {
     return lambda;
 }
 
+
+static void ppg(const vector<Param> &params, double period, int images) {
+    std::ofstream mixture("mixture.dat");
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        mixture << xn << " " << periodicGaussianMixture(params, xn, period, images) << std::endl;
+    }
+    std::ofstream mixtureDx("mixtureDx.dat");
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << std::endl;
+    }
+}
+
 bool EM::run(int maxSteps, double tolerance) {
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld = likelihood;
     do {
         likelihoodOld = likelihood;
+
+        for(int i=0; i < params_.size(); i++) {
+            std::cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << std::endl;
+        }
+        std::cout << std::endl;
+        ppg(params_, 2*PI, 15);
         EStep();
         MStep();   
         steps++;

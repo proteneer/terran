@@ -12,7 +12,6 @@ using namespace std;
 using Terran::Param;
 using Terran::fabsp;
 
-// Naive O(N^2) method
 
 void Util::plotPeriodicGaussian(const vector<Param> &params, double period, int images) {
     ofstream mixture("mixture.dat");
@@ -25,6 +24,7 @@ void Util::plotPeriodicGaussian(const vector<Param> &params, double period, int 
     }
 }
 
+// Naive O(N^2) method
 void Util::matchParameters(const vector<Param> &p1, const vector<Param> &p2, double threshold) {
     if(p1.size() != p2.size()) {
         throw(std::runtime_error("Unequal Parameter Size!"));

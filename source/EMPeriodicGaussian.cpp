@@ -1,5 +1,8 @@
 #include "EMPeriodicGaussian.h"
 #include <assert.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -23,10 +26,13 @@ EMPeriodicGaussian::~EMPeriodicGaussian() {
 
 }
 
+
 void EMPeriodicGaussian::MStep() {
 #ifndef NDEBUG
     testIntegrity();
 #endif
+
+
     // Compute new mean
     for(int k=0; k<params_.size(); k++) {
         // find two points ak and bk such that
@@ -39,20 +45,62 @@ void EMPeriodicGaussian::MStep() {
         vector<double> signs(increment);
         vector<double> xvals(increment);
         for(int i=0; i<increment; i++) {
-            double x=-period_/2+i*period_/increment;
+            double x = -period_/2+i*period_/increment;
             signs[i] = dldu(x,k);
             xvals[i] = x;
         }
+
         bool found = false;
         double ak,bk;
-        for(int i=0; i<signs.size()-1; i++) {
-            if(signs[i]>0 && signs[i+1]<0) {
+        for(int i=0; i<signs.size(); i++) {
+            if(signs[i]>0 && signs[(i+1)%increment]<0) {
                 found = true;
                 ak = xvals[i];
-                bk = xvals[i+1];
+                bk = xvals[(i+1)%increment];
             }
         }
+
+        // need to search account of periodic domains as well
+
         if(!found) {
+
+            
+            // pretty much all of this is debug code
+            cout << "Parameters puk" << endl;
+
+            cout << params_[k].p << " " << params_[k].u << " " << params_[k].s<< endl;
+
+
+            cout << "Signs" << endl;
+
+            for(int j=0; j < signs.size(); j++) {
+                cout << signs[j] << " ";
+            }
+
+            stringstream filename("dldu");
+            filename << k;
+            ofstream log(filename.str().c_str()); 
+
+            for(double uk = -PI; uk < PI; uk += 0.01) {
+
+                double sk = params_[k].s;
+                double s_sum = 0;
+                for(int n=0; n<data_.size(); n++) {
+                    double xn = data_[n];
+                    double summand = 0;
+                    double r_sum_rg = 0;
+                    double r_sum_g = 0;
+                    for(int r=-images_; r<=images_; r++) {
+                        r_sum_g  += gaussian(uk+r*period_, sk, xn); 
+                        r_sum_rg += r*gaussian(uk+r*period_, sk, xn);
+                    }
+                    summand = r_sum_rg/r_sum_g;
+                    cout << r_sum_rg << " " << r_sum_g << " " << summand << endl;
+                    s_sum += pikn_[n][k]*(xn - uk - period_*summand);
+                }
+
+                //log << dldu(x,k) << endl;
+            }
             /*
             for(double x=-period_/2;x<period_/2;x+=0.01) {
                 cout << x << " " << dldu(x,k) << endl;
@@ -66,17 +114,32 @@ void EMPeriodicGaussian::MStep() {
 
         double mk;
         double my;
-        // bisection
+
+        int iteration = 0;
+        // bisection with periodic boundaries
         do {
-            assert(dldu(ak, k) > 0 || isnan(dldu(ak, k)));
+            if(iteration > 1e3) 
+                throw(std::runtime_error("Error: findPeriodicMinima maximized number of iterations reached."));
+             else
+                 iteration++;
+                  
+            //assert(dldu(ak, k) > 0 || isnan(dldu(ak, k)));
+            /*
+            cout << ak << " " << bk << endl;
+            cout << dldu(ak,k) << " " << dldu(bk,k) << endl;
+            */
             assert(dldu(bk, k) < 0);
-            mk = (ak+bk)/2.0;
+            
+            if(bk < ak)
+                mk = normalize((ak+period_+bk)/2.0);
+            else
+                mk = normalize((ak+bk)/2.0);
             my = dldu(mk, k);
             if(my > 0)
                 ak = mk;
             else
                 bk = mk;
-        } while(fabs(my) > 1e-3);
+        } while(fabs(my) > 1e-5);
         params_[k].u = mk;
     }
 
