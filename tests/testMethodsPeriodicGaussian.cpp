@@ -18,7 +18,7 @@ void testFindPeriodicMaxima() {
         vector<Param> p;
         p.push_back(Param(0.6,  1.0, 0.5));
         p.push_back(Param(0.4, -2.3, 0.5));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-2.3);
@@ -31,7 +31,7 @@ void testFindPeriodicMaxima() {
         vector<Param> p;
         p.push_back(Param(0.5, -0.2, 0.5));
         p.push_back(Param(0.5,  1.6, 0.6));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-0.188);
@@ -44,7 +44,7 @@ void testFindPeriodicMaxima() {
         vector<Param> p;
         p.push_back(Param(0.5, 1.2, 0.5));
         p.push_back(Param(0.5, 1.6, 0.4));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(1.473);
@@ -57,7 +57,7 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/3.0,-0.2, 0.5));
         p.push_back(Param(1.0/3.0, 0.6, 0.6));
         p.push_back(Param(1.0/3.0, 1.6, 0.7));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(0.117);
@@ -71,7 +71,7 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/4.0,-0.8, 0.44));
         p.push_back(Param(1.0/4.0, 0.8, 0.61));
         p.push_back(Param(1.0/4.0, 1.8, 0.45));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-0.847);
@@ -86,7 +86,7 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/4.0,-0.8, 0.44));
         p.push_back(Param(1.0/4.0, 0.8, 0.61));
         p.push_back(Param(1.0/4.0, 1.8, 0.45));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-2.141);
@@ -102,7 +102,7 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/4.0,-0.8, 0.44));
         p.push_back(Param(1.0/4.0, 0.8, 0.61));
         p.push_back(Param(1.0/4.0, 1.8, 0.45));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-1.968);
@@ -121,7 +121,7 @@ void testFindPeriodicMaxima() {
         p.push_back(Param(1.0/7.0,  1.0, 0.4));
         p.push_back(Param(1.0/7.0,  1.3, 0.6));
         p.push_back(Param(1.0/7.0,  1.9, 0.4));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-2.847);
@@ -134,7 +134,7 @@ void testFindPeriodicMaxima() {
         vector<Param> p;
         p.push_back(Param(1.0/7.0, 3.1, 0.5));
         p.push_back(Param(1.0/7.0, -2.0, 0.5));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back(-3.074);
@@ -154,7 +154,7 @@ void testFindPeriodicMinima() {
     {
         vector<Param> p;
         p.push_back(Param(1.0, 0.0, 0.5));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-period/2);
@@ -165,7 +165,7 @@ void testFindPeriodicMinima() {
     {
         vector<Param> p;
         p.push_back(Param(1.0, 0.5, 1.0));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-2.642);
@@ -177,7 +177,7 @@ void testFindPeriodicMinima() {
         vector<Param> p;
         p.push_back(Param(0.3, 0.5, 1.0));
         p.push_back(Param(0.7, -1.5, 0.5));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-0.091);
@@ -191,7 +191,7 @@ void testFindPeriodicMinima() {
         vector<Param> p;
         p.push_back(Param(0.5, 1.1, 0.3));
         p.push_back(Param(0.5, -2.9, 0.4));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-0.632);
@@ -206,7 +206,7 @@ void testFindPeriodicMinima() {
         p.push_back(Param(1.0/3.0, 1.0, 0.3));
         p.push_back(Param(1.0/3.0, -3.0, 0.3));
         p.push_back(Param(1.0/3.0, 0.0, 0.3));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back( 2.15);
@@ -225,7 +225,7 @@ void testFindPeriodicMinima() {
         p.push_back(Param(1.0/7.0,  1.0, 0.4));
         p.push_back(Param(1.0/7.0,  1.3, 0.6));
         p.push_back(Param(1.0/7.0,  1.9, 0.4));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMinima();
         vector<double> truth;
         truth.push_back(-1.072);
@@ -244,7 +244,7 @@ void testMethods() {
         p.push_back(Param(1.0/4.0, -0.6, 0.3));
         p.push_back(Param(1.0/4.0,  1.6, 0.6));
         p.push_back(Param(1.0/4.0,  2.7, 0.2));
-        MethodsPeriodicGaussian methods(p, period, images);
+        MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.methods(0.05);
         vector<double> truth;
         truth.push_back(-1.38);

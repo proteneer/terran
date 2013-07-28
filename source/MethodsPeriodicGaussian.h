@@ -8,7 +8,7 @@ class MethodsPeriodicGaussian : public Methods {
 public:
 
     explicit MethodsPeriodicGaussian(const std::vector<Param> &params,
-        double period, int images);
+        double period);
 
     // Partition the domain into disjoint intervals
     std::vector<double> partition(double threshold) const;
@@ -22,7 +22,6 @@ public:
 private:
 
     const double period_;
-    const int images_;
 };
 
 }

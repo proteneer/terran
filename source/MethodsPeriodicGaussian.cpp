@@ -8,7 +8,7 @@ using namespace std;
 namespace Terran {
 
 MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params, 
-    double period, int images) : Methods(params), period_(period), images_(images) {
+    double period) : Methods(params), period_(period) {
 
 }
 
@@ -28,7 +28,7 @@ vector<double> MethodsPeriodicGaussian::findMaxima() const {
             if(iteration >= 1e7) {
                 throw(std::runtime_error("findPeriodicMaxima: maximum iteration count reached!"));
             }
-            double xn_new = xn_old + delta*periodicGaussianMixtureDx(params_, xn_old, period_, images_);
+            double xn_new = xn_old + delta*periodicGaussianMixtureDx(params_, xn_old, period_);
             xn_new = normalize(xn_new);
             if(fabsp(xn_new, xn_old, period_) < 1e-8)
                 found = true;
@@ -75,7 +75,7 @@ vector<double> MethodsPeriodicGaussian::findMinima() const {
                 mk = normalize((ak+period_+bk)/2.0);
             else
                 mk = normalize((ak+bk)/2.0);
-            my = periodicGaussianMixtureDx(params_, mk, period_, images_);
+            my = periodicGaussianMixtureDx(params_, mk, period_);
             if(my < 0) 
                 ak = mk;
             else

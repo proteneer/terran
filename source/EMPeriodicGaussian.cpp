@@ -8,10 +8,9 @@ using namespace std;
 
 namespace Terran {
 
-EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<Param> &params, double period, int images) : 
+EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<Param> &params, double period) : 
     EM(data, params), 
-    period_(period),
-    images_(images) {
+    period_(period) {
     for(int i=0; i<params.size(); i++) {
         if(params_[i].s > period_)
             throw(std::runtime_error("Cannot have s > period in parameters"));
@@ -63,52 +62,6 @@ void EMPeriodicGaussian::MStep() {
         // need to search account of periodic domains as well
 
         if(!found) {
-
-            
-            // pretty much all of this is debug code
-            cout << "Parameters puk" << endl;
-
-            cout << params_[k].p << " " << params_[k].u << " " << params_[k].s<< endl;
-
-
-            cout << "Signs" << endl;
-
-            for(int j=0; j < signs.size(); j++) {
-                cout << signs[j] << " ";
-            }
-
-            stringstream filename("dldu");
-            filename << k;
-            ofstream log(filename.str().c_str()); 
-
-            for(double uk = -PI; uk < PI; uk += 0.01) {
-
-                double sk = params_[k].s;
-                double s_sum = 0;
-                for(int n=0; n<data_.size(); n++) {
-                    double xn = data_[n];
-                    double summand = 0;
-                    double r_sum_rg = 0;
-                    double r_sum_g = 0;
-                    for(int r=-images_; r<=images_; r++) {
-                        r_sum_g  += gaussian(uk+r*period_, sk, xn); 
-                        r_sum_rg += r*gaussian(uk+r*period_, sk, xn);
-                    }
-                    summand = r_sum_rg/r_sum_g;
-                    cout << r_sum_rg << " " << r_sum_g << " " << summand << endl;
-                    s_sum += pikn_[n][k]*(xn - uk - period_*summand);
-                }
-
-                //log << dldu(x,k) << endl;
-            }
-            /*
-            for(double x=-period_/2;x<period_/2;x+=0.01) {
-                cout << x << " " << dldu(x,k) << endl;
-            }
-            for(int i=0; i<signs.size(); i++) {
-                cout << xvals[i] << " " << signs[i] << endl;
-            }
-            */
             throw(std::runtime_error("Fatal: Bracket not found!"));
         }
 
@@ -177,7 +130,7 @@ double EMPeriodicGaussian::qkn(int k, int n) const {
     double pk = params_[k].p;
     double uk = params_[k].u;
     double sk = params_[k].s;
-    return pk*periodicGaussian(uk,sk,xn,images_,period_);
+    return pk*periodicGaussian(uk,sk,xn,period_);
 }
 
 double EMPeriodicGaussian::dldu(double uk, int k) const {
@@ -188,6 +141,7 @@ double EMPeriodicGaussian::dldu(double uk, int k) const {
         double summand = 0;
         double r_sum_rg = 0;
         double r_sum_g = 0;
+        int images_ = 50;
         for(int r=-images_; r<=images_; r++) {
             r_sum_g  += gaussian(uk+r*period_, sk, xn); 
             r_sum_rg += r*gaussian(uk+r*period_, sk, xn);
@@ -214,10 +168,12 @@ double EMPeriodicGaussian::dlds(double sk, int k) const {
 
         // how many images we need to use to approximate
         // the periodic gaussian
+        int images_ = 50;
         const int R = images_;
 
         // domain length
         const int D = period_;
+
 
         for(int r=-R; r<=R; r++) {
             r_sum_g   += gaussian(uk+r*D, sk, xn);

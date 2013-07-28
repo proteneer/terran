@@ -72,7 +72,7 @@ void Cluster::partition(int dimension, double threshold) {
     if(isPeriodic(dimension)) {
         const double period = period_[dimension];
         const int images = images_[dimension];
-        MethodsPeriodicGaussian mpg(params, period, images);
+        MethodsPeriodicGaussian mpg(params, period);
         vector<double> minima = mpg.findMinima();
         for(int i=0; i < minima.size(); i++) {
             double val = periodicGaussianMixture(params, minima[i], period, images);
@@ -128,7 +128,7 @@ void Cluster::optimizeParameters(int d) {
     const vector<Param> &initialParams = paramset_[d];
 
     if(isPeriodic(d)) {
-        EMPeriodicGaussian epg(data, initialParams, period_[d], images_[d]);
+        EMPeriodicGaussian epg(data, initialParams, period_[d]);
         epg.run();
         paramset_[d] = epg.getParams();
     } else {

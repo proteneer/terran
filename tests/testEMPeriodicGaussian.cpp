@@ -29,7 +29,7 @@ void testUnimodalPeriodicGaussian() {
     p.s = 2.1;
     vector<Param> params;
     params.push_back(p);
-    EMPeriodicGaussian em(data, params, period, images);
+    EMPeriodicGaussian em(data, params, period);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
     Util::matchParameters(initParams, optimizedParams, 0.05);
@@ -69,7 +69,7 @@ void testBimodalPeriodicGaussian() {
         params.push_back(p);
     }
     
-    EMPeriodicGaussian em(data, params, period, images);
+    EMPeriodicGaussian em(data, params, period);
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
 
@@ -113,7 +113,7 @@ void testOverfitPeriodicGaussian() {
         params.push_back(p);
     }
 
-    EMPeriodicGaussian em(data, params, period, images);
+    EMPeriodicGaussian em(data, params, period);
     em.run(10000,0.01);
     vector<Param> optimizedParams = em.getParams();
 
@@ -121,7 +121,7 @@ void testOverfitPeriodicGaussian() {
         cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
     }
 
-    MethodsPeriodicGaussian mpg(optimizedParams, period, images);
+    MethodsPeriodicGaussian mpg(optimizedParams, period);
     vector<double> maxima = mpg.findMaxima();
     cout << " maximas " << endl;
     for(int i=0; i<maxima.size(); i++) {

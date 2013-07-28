@@ -38,7 +38,6 @@ void tunersumrg() {
 
 }
 
-// test the periodic gaussian to make sure the number of images is tuned automatically
 void testPeriodicGaussian() {
     double period = 2*PI;
     double tolerance = 1e-9;
@@ -49,7 +48,7 @@ void testPeriodicGaussian() {
             // vary point sample
             for(double xn = -period/2; xn < period/2; xn+= 0.025) {
                 // use 100 images as absolute truth
-                double truth = periodicGaussian(uk,sk,xn,100,period);
+                double truth = periodicGaussian(uk,sk,xn,period,100);
                 double test = periodicGaussian(uk,sk,xn,period); 
                 if(fabs(test-truth) > tolerance) {
                     stringstream msg;
@@ -71,7 +70,7 @@ void testPeriodicGaussianDx() {
             // vary point sample
             for(double xn = -period/2; xn < period/2; xn+= 0.025) {
                 // use 100 images as absolute truth
-                double truth = periodicGaussianDx(uk,sk,xn,100,period);
+                double truth = periodicGaussianDx(uk,sk,xn,period,100);
                 double test = periodicGaussianDx(uk,sk,xn,period); 
                 if(fabs(test-truth) > tolerance) {
                     stringstream msg;
@@ -81,8 +80,6 @@ void testPeriodicGaussianDx() {
             }
         }
     }
-
-
 }
 
 /*

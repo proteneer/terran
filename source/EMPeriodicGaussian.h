@@ -10,7 +10,7 @@ namespace Terran {
 class EMPeriodicGaussian : public EM {
     public:
         // period and images are initialized by default
-        explicit EMPeriodicGaussian(const std::vector<double> &data, const std::vector<Param> &params, double period, int images);
+        explicit EMPeriodicGaussian(const std::vector<double> &data, const std::vector<Param> &params, double period);
         ~EMPeriodicGaussian();
 
         void MStep();
@@ -22,7 +22,6 @@ class EMPeriodicGaussian : public EM {
         double dldu(double uk, int k) const;
 
         double period_;
-        int images_;
 };
 
 }
