@@ -25,12 +25,10 @@ EMPeriodicGaussian::~EMPeriodicGaussian() {
 
 }
 
-
 void EMPeriodicGaussian::MStep() {
 #ifndef NDEBUG
     testIntegrity();
 #endif
-
 
     // Compute new mean
     for(int k=0; k<params_.size(); k++) {
@@ -71,8 +69,17 @@ void EMPeriodicGaussian::MStep() {
         int iteration = 0;
         // bisection with periodic boundaries
         do {
-            if(iteration > 1e3) 
-                throw(std::runtime_error("Error: findPeriodicMinima maximized number of iterations reached."));
+
+
+            if(iteration > 1e3) {
+            
+                ofstream derp("Asdfasdf.txt");
+                for(double a = -PI; a < PI; a+= 0.01) {
+                    derp << a << " " << dldu(a,k) << endl;
+                }
+            
+                throw(std::runtime_error("Error: MStep() (mean) maximum number of iterations reached."));
+            }
              else
                  iteration++;
                   
@@ -92,6 +99,9 @@ void EMPeriodicGaussian::MStep() {
                 ak = mk;
             else
                 bk = mk;
+
+            std::cout.precision(10);
+            cout <<  iteration << " " << ak << " " << bk << " " << my << endl;
         } while(fabs(my) > 1e-5);
         params_[k].u = mk;
     }
@@ -141,11 +151,22 @@ double EMPeriodicGaussian::dldu(double uk, int k) const {
         double summand = 0;
         double r_sum_rg = 0;
         double r_sum_g = 0;
+
+        double left = -50;
+        double right = 50;
+        int lower = floor(left/period_+0.5);
+        int upper = floor(right/period_+0.5);
+
+        for(int r=lower; r <= upper; r++) {
+            r_sum_g  += gaussian(uk+r*period_, sk, xn); 
+            r_sum_rg += r*gaussian(uk+r*period_, sk, xn);
+        }
+        /*
         int images_ = 50;
         for(int r=-images_; r<=images_; r++) {
             r_sum_g  += gaussian(uk+r*period_, sk, xn); 
             r_sum_rg += r*gaussian(uk+r*period_, sk, xn);
-        }
+        }*/
         summand = r_sum_rg/r_sum_g;
         s_sum += pikn_[n][k]*(xn - uk - period_*summand);
     }
@@ -176,10 +197,13 @@ double EMPeriodicGaussian::dlds(double sk, int k) const {
 
 
         for(int r=-R; r<=R; r++) {
-            r_sum_g   += gaussian(uk+r*D, sk, xn);
-            r_sum_rg  += r*gaussian(uk+r*D, sk, xn);
-            r_sum_rrg += r*r*gaussian(uk+r*D, sk, xn);
+            double gauss = gaussian(uk+r*D, sk, xn);
+            r_sum_g   += gauss;
+            r_sum_rg  += r*gauss;
+            r_sum_rrg += r*r*gauss;
         }
+
+
 
         p2 = -2*(xn-uk)*D*r_sum_rg / r_sum_g;
         p3 = D*D*r_sum_rrg / r_sum_g;

@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <assert.h>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -26,7 +27,7 @@ vector<double> MethodsPeriodicGaussian::findMaxima() const {
             // Saddle points suck. If the simple algorithm doesn't converge
             // it's probably due to a saddle point. 
             if(iteration >= 1e7) {
-                throw(std::runtime_error("findPeriodicMaxima: maximum iteration count reached!"));
+                throw(std::runtime_error("findMaxima: maximum iteration count reached!"));
             }
             double xn_new = xn_old + delta*periodicGaussianMixtureDx(params_, xn_old, period_);
             xn_new = normalize(xn_new);
@@ -46,6 +47,18 @@ vector<double> MethodsPeriodicGaussian::findMaxima() const {
 
 }
 
+
+static void plotPeriodicGaussian(const vector<Param> &params, double period, int images) {
+    ofstream mixture("mixture.dat");
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        mixture << xn << " " << periodicGaussianMixture(params, xn, period, images) << endl;
+    }
+    ofstream mixtureDx("mixtureDx.dat");
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << endl;
+    }
+}
+
 vector<double> MethodsPeriodicGaussian::findMinima() const {
     vector<double> minima;
     vector<double> maxima = findMaxima();
@@ -62,8 +75,12 @@ vector<double> MethodsPeriodicGaussian::findMinima() const {
         double my = 0;
         int iteration = 0;
         do {
-            if(iteration > 1e3)
+            if(iteration > 1e5) {
+
+                plotPeriodicGaussian(params_, period_, 100);
+
                 throw(std::runtime_error("Error: findMinima maximized number of iterations reached."));
+            }
             else
                 iteration++;
             
