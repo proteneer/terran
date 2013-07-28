@@ -10,5 +10,7 @@ target_link_libraries(testEMPeriodicGaussian EM)
 add_executable(testMethodsPeriodicGaussian testMethodsPeriodicGaussian.cpp util.cpp)
 target_link_libraries(testMethodsPeriodicGaussian EM)
 
+add_executable(testMathFunctions testMathFunctions.cpp util.cpp)
+target_link_libraries(testMathFunctions EM)
 #add_executable(testAssignment testAssignment.cpp util.cpp)
 #target_link_libraries(testAssignment EM)

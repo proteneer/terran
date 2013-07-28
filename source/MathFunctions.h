@@ -5,6 +5,10 @@
 #include <vector>
 #include "Param.h"
 
+
+#include <iostream>
+using namespace std;
+
 const double PI = 3.14159265358;
 
 namespace Terran {
@@ -49,6 +53,22 @@ inline double gaussianDx(double uk, double sk, double xn) {
 // uk and sk retain the semantic of mean and standard deviation
 // numImages is the number of times to wrap around
 // period is defined by the domain of the function
+
+// this version of the periodicGaussian picks the number of images automatically based 
+// the value of sk and uk
+
+/*
+inline double periodicGaussian(double uk, double sk, double xn, double period) {
+    double sum = 0;
+
+
+    for(int r=-numImages; r<=numImages; r++) {
+        sum += gaussian(uk-r*period, sk, xn);
+    }
+    return sum;
+}
+*/
+
 inline double periodicGaussian(double uk, double sk, double xn, int numImages, double period) {
     double sum = 0;
     for(int r=-numImages; r<=numImages; r++) {
@@ -60,6 +80,55 @@ inline double periodicGaussian(double uk, double sk, double xn, int numImages, d
 /*
 Equation [8] in the paper is completely wrong!
 */
+
+
+
+// derivative of the periodic gaussian function
+
+
+//   |----0----|
+// --|u---0----|--
+// l-|u-r-0----|--
+
+
+//     **
+//     **
+//   ******
+// **********
+
+
+//                     |               l  |  u     r         |
+// -----------------------------------------------------------------------------
+// -2-2-2-2-2-2-1-1-1-1-1-1-1-1-1-1000000000000000001111111111111111111122222222              p
+
+//                        
+//                     |               l  |  u     r         |
+// -----------------------------------------------------------------------------
+// -2-2-2-2-2-2-2-2-2-2-1-1-1-1-1-1-1-1-1 00000000000000000001111111111111111111
+
+inline double periodicGaussian(double uk, double sk, double xn, double period) {
+    // six standard deviations covers 99.99966% of the total probability
+    double left = uk-7*sk;
+    double right = uk+7*sk;
+
+
+    int lower = floor(left/period+0.5);
+    int upper = floor(right/period+0.5);
+    
+    // left/period 
+
+    //lower = -2;
+    //upper = 2;
+
+    cout << left << " " << right << " " << lower << " " << upper << endl;
+
+    int numImages = 10;
+    double sum = 0;
+    for(int r=lower; r<=upper; r++) {
+        sum += gaussian(uk-r*period, sk, xn);
+    }
+    return sum;
+}
 
 // derivative of the periodic gaussian function
 inline double periodicGaussianDx(double uk, double sk, double xn, int numImages, double period) {
