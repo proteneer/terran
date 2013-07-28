@@ -144,8 +144,8 @@ void testOverfitPeriodicGaussian() {
 
 int main() {
     try {
-//        testUnimodalPeriodicGaussian();
-//        testBimodalPeriodicGaussian();
+        testUnimodalPeriodicGaussian();
+        testBimodalPeriodicGaussian();
         testOverfitPeriodicGaussian();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;

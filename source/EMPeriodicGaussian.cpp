@@ -101,7 +101,7 @@ void EMPeriodicGaussian::MStep() {
                 bk = mk;
 
             std::cout.precision(10);
-            cout <<  iteration << " " << ak << " " << bk << " " << my << endl;
+            //cout <<  iteration << " " << ak << " " << bk << " " << my << endl;
         } while(fabs(my) > 1e-5);
         params_[k].u = mk;
     }
@@ -152,10 +152,13 @@ double EMPeriodicGaussian::dldu(double uk, int k) const {
         double r_sum_rg = 0;
         double r_sum_g = 0;
 
-        double left = -50;
-        double right = 50;
+        double left = uk-7*sk;
+        double right = uk+7*sk;
         int lower = floor(left/period_+0.5);
         int upper = floor(right/period_+0.5);
+
+        lower = min(-1, lower);
+        upper = max( 1, upper);
 
         for(int r=lower; r <= upper; r++) {
             r_sum_g  += gaussian(uk+r*period_, sk, xn); 
@@ -168,6 +171,8 @@ double EMPeriodicGaussian::dldu(double uk, int k) const {
             r_sum_rg += r*gaussian(uk+r*period_, sk, xn);
         }*/
         summand = r_sum_rg/r_sum_g;
+        if(isnan(summand))
+            summand = 0;
         s_sum += pikn_[n][k]*(xn - uk - period_*summand);
     }
     return s_sum;
@@ -187,26 +192,26 @@ double EMPeriodicGaussian::dlds(double sk, int k) const {
         double r_sum_rg = 0;
         double r_sum_rrg = 0;
 
-        // how many images we need to use to approximate
-        // the periodic gaussian
-        int images_ = 50;
-        const int R = images_;
-
-        // domain length
         const int D = period_;
 
-
-        for(int r=-R; r<=R; r++) {
+        double left = uk-7*sk;
+        double right = uk+7*sk;
+        int lower = floor(left/period_+0.5);
+        int upper = floor(right/period_+0.5);
+        lower = min(-1, lower);
+        upper = max( 1, upper);
+        for(int r=lower; r<=upper; r++) {
             double gauss = gaussian(uk+r*D, sk, xn);
             r_sum_g   += gauss;
             r_sum_rg  += r*gauss;
             r_sum_rrg += r*r*gauss;
         }
-
-
-
         p2 = -2*(xn-uk)*D*r_sum_rg / r_sum_g;
         p3 = D*D*r_sum_rrg / r_sum_g;
+        if(isnan(p2))
+            p2 = 0;
+        if(isnan(p3))
+            p3 = 0;
         s_sum += pikn_[n][k]*(p1+p2+p3);
     }
     return s_sum;
