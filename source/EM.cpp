@@ -92,6 +92,35 @@ bool EM::run(int maxSteps, double tolerance) {
     return (steps < maxSteps);
 }
 
+bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
+    int steps = 0;
+    double likelihood = getLikelihood();
+    double likelihoodOld = likelihood;
+    do {
+        likelihoodOld = likelihood;
+
+        vector<Param> newParams;
+        
+        for(int i=0; i < params_.size(); i++) {
+            if(params_[i].p > cutoff) {
+                newParams.push_back(params_[i]);
+            }
+            std::cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << std::endl;
+        }
+
+        params_ = newParams;
+
+        std::cout << std::endl;
+        ppg(params_, 2*PI, 15);
+        EStep();
+        MStep();   
+        steps++;
+        likelihood = getLikelihood(); 
+    } while(fabs(likelihoodOld - likelihood) > tolerance && steps < maxSteps);
+    return (steps < maxSteps);
+
+}
+
 void EM::EStep() {
     for(int n=0; n<data_.size(); n++) {
         double sum = 0;

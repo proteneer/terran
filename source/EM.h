@@ -37,9 +37,14 @@ class EM {
         // Compute the log likelihood given current parameters
         double getLikelihood() const;
 
-        // Run the EM algorithm
+        // Run the canonical EM algorithm 
         // Returns true if executed successfully, false otherwise
     	bool run(int maxSteps = 10000, double tolerance = 0.1);
+
+        // Run the adaptive EM algorithm
+        // The number of parameters that overfit will be pruned away automatically
+        // This is determined by the probability weight component p
+        bool adaptiveRun(int maxSteps = 10000, double tolerance = 0.1, double cutoff = 0.05);
 
         // Compute the Expectation based on current parameters
         void EStep();

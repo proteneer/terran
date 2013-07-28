@@ -138,6 +138,66 @@ void testOverfitPeriodicGaussian() {
     truth.push_back( 0.918);
 
     //Util::matchParameters(initParams, optimizedParams, 0.05);
+}
+
+void testOverfitPeriodicGaussian2() {
+    vector<double> data;
+    double period = 2*PI;
+    int images = 6;
+    vector<Param> initParams(2);
+    initParams[0].p = 0.65;
+    initParams[0].u = -0.3;
+    initParams[0].s = 0.5;
+    for(int i=0; i<5000*initParams[0].p; i++) {
+        data.push_back(periodicGaussianSample(initParams[0].u,initParams[0].s,period));
+    }
+    initParams[1].p = 0.35;
+    initParams[1].u = 1.9;
+    initParams[1].s = 0.5;
+    for(int i=0; i<5000*initParams[1].p; i++) {
+        data.push_back(periodicGaussianSample(initParams[1].u,initParams[1].s,period));
+    }
+    
+    ofstream d("data.txt");
+    for(int i=0; i<data.size(); i++) {
+         d << data[i] << endl;
+    }
+
+    vector<Param> params;
+    const int numSamples = 8;
+    for(int i=0; i < numSamples; i++) {
+        Param p;
+        p.p = 1/(float)numSamples;
+        p.u = -PI + ((float)i/numSamples)*(period);
+        p.s = 0.3;
+        params.push_back(p);
+    }
+
+    EMPeriodicGaussian em(data, params, period);
+    em.adaptiveRun(10000,0.01, 0.07);
+    vector<Param> optimizedParams = em.getParams();
+
+    for(int i=0; i < optimizedParams.size(); i++) {
+        cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
+    }
+
+    MethodsPeriodicGaussian mpg(optimizedParams, period);
+    vector<double> maxima = mpg.findMaxima();
+    cout << " maximas " << endl;
+    for(int i=0; i<maxima.size(); i++) {
+        cout << maxima[i] << endl;
+    }
+    vector<double> minima = mpg.findMinima();
+    cout << " minimas " << endl;
+    for(int i=0; i<minima.size(); i++) {
+        cout << minima[i] << endl;
+    }
+
+    vector<double> truth;
+    truth.push_back(-2.411);
+    truth.push_back( 0.918);
+
+    //Util::matchParameters(initParams, optimizedParams, 0.05);
 
 
 }
@@ -146,7 +206,8 @@ int main() {
     try {
         testUnimodalPeriodicGaussian();
         testBimodalPeriodicGaussian();
-        testOverfitPeriodicGaussian();
+        testOverfitPeriodicGaussian2();
+        //testOverfitPeriodicGaussian();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }
