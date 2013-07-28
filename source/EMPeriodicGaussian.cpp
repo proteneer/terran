@@ -69,27 +69,11 @@ void EMPeriodicGaussian::MStep() {
         int iteration = 0;
         // bisection with periodic boundaries
         do {
-
-
             if(iteration > 1e3) {
-            
-                ofstream derp("Asdfasdf.txt");
-                for(double a = -PI; a < PI; a+= 0.01) {
-                    derp << a << " " << dldu(a,k) << endl;
-                }
-            
                 throw(std::runtime_error("Error: MStep() (mean) maximum number of iterations reached."));
             }
              else
                  iteration++;
-                  
-            //assert(dldu(ak, k) > 0 || isnan(dldu(ak, k)));
-            /*
-            cout << ak << " " << bk << endl;
-            cout << dldu(ak,k) << " " << dldu(bk,k) << endl;
-            */
-            assert(dldu(bk, k) < 0);
-            
             if(bk < ak)
                 mk = normalize((ak+period_+bk)/2.0);
             else
@@ -99,9 +83,6 @@ void EMPeriodicGaussian::MStep() {
                 ak = mk;
             else
                 bk = mk;
-
-            std::cout.precision(10);
-            //cout <<  iteration << " " << ak << " " << bk << " " << my << endl;
         } while(fabs(my) > 1e-5);
         params_[k].u = mk;
     }

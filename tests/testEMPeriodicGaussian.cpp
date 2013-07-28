@@ -73,6 +73,8 @@ void testBimodalPeriodicGaussian() {
     em.run(10000, 0.1);
     vector<Param> optimizedParams = em.getParams();
 
+    Util::plotPeriodicGaussian(initParams, period, 100);
+
     Util::matchParameters(initParams, optimizedParams, 0.05);
 }
 
@@ -117,27 +119,19 @@ void testOverfitPeriodicGaussian() {
     em.run(10000,0.01);
     vector<Param> optimizedParams = em.getParams();
 
-    for(int i=0; i < optimizedParams.size(); i++) {
-        cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
-    }
-
     MethodsPeriodicGaussian mpg(optimizedParams, period);
     vector<double> maxima = mpg.findMaxima();
-    cout << " maximas " << endl;
-    for(int i=0; i<maxima.size(); i++) {
-        cout << maxima[i] << endl;
-    }
     vector<double> minima = mpg.findMinima();
-    cout << " minimas " << endl;
-    for(int i=0; i<minima.size(); i++) {
-        cout << minima[i] << endl;
-    }
 
-    vector<double> truth;
-    truth.push_back(-2.411);
-    truth.push_back( 0.918);
+    vector<double> truthMaxima;
+    truthMaxima.push_back( 1.898);
+    truthMaxima.push_back(-0.301);
+    vector<double> truthMinima;
+    truthMinima.push_back( 0.888);
+    truthMinima.push_back(-2.382);
 
-    //Util::matchParameters(initParams, optimizedParams, 0.05);
+    Util::matchPoints(truthMaxima, maxima, 0.01);
+    Util::matchPoints(truthMinima, minima, 0.05);
 }
 
 void testOverfitPeriodicGaussian2() {
@@ -177,37 +171,39 @@ void testOverfitPeriodicGaussian2() {
     em.adaptiveRun(10000,0.01, 0.07);
     vector<Param> optimizedParams = em.getParams();
 
-    for(int i=0; i < optimizedParams.size(); i++) {
-        cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
-    }
-
     MethodsPeriodicGaussian mpg(optimizedParams, period);
     vector<double> maxima = mpg.findMaxima();
-    cout << " maximas " << endl;
-    for(int i=0; i<maxima.size(); i++) {
+    vector<double> minima = mpg.findMinima();
+
+    Util::plotPeriodicGaussian(optimizedParams, period, 100);
+
+    vector<double> truthMaxima;
+    truthMaxima.push_back( 1.898);
+    truthMaxima.push_back(-0.301);
+    vector<double> truthMinima;
+    truthMinima.push_back( 0.888);
+    truthMinima.push_back(-2.382);
+
+    cout << "maxima" << endl;
+    for(int i=0; i < maxima.size(); i++) {
         cout << maxima[i] << endl;
     }
-    vector<double> minima = mpg.findMinima();
-    cout << " minimas " << endl;
-    for(int i=0; i<minima.size(); i++) {
+
+    cout << "minima" << endl;
+    for(int i=0; i < minima.size(); i++) {
         cout << minima[i] << endl;
     }
 
-    vector<double> truth;
-    truth.push_back(-2.411);
-    truth.push_back( 0.918);
-
-    //Util::matchParameters(initParams, optimizedParams, 0.05);
-
-
+    Util::matchPoints(truthMaxima, maxima, 0.05);
+    Util::matchPoints(truthMinima, minima, 0.15);
 }
 
 int main() {
     try {
-        testUnimodalPeriodicGaussian();
+        //testUnimodalPeriodicGaussian();
         testBimodalPeriodicGaussian();
-        testOverfitPeriodicGaussian2();
-        //testOverfitPeriodicGaussian();
+//        testOverfitPeriodicGaussian();
+//        testOverfitPeriodicGaussian2();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }
