@@ -81,48 +81,12 @@ inline double periodicGaussian(double uk, double sk, double xn, int numImages, d
 Equation [8] in the paper is completely wrong!
 */
 
-
-
-// derivative of the periodic gaussian function
-
-
-//   |----0----|
-// --|u---0----|--
-// l-|u-r-0----|--
-
-
-//     **
-//     **
-//   ******
-// **********
-
-
-//                     |               l  |  u     r         |
-// -----------------------------------------------------------------------------
-// -2-2-2-2-2-2-1-1-1-1-1-1-1-1-1-1000000000000000001111111111111111111122222222              p
-
-//                        
-//                     |               l  |  u     r         |
-// -----------------------------------------------------------------------------
-// -2-2-2-2-2-2-2-2-2-2-1-1-1-1-1-1-1-1-1 00000000000000000001111111111111111111
-
 inline double periodicGaussian(double uk, double sk, double xn, double period) {
-    // six standard deviations covers 99.99966% of the total probability
-    double left = uk-7*sk;
-    double right = uk+7*sk;
-
-
+    // 6.5 standard deviations is a 1 in 12450197393 occurrence
+    double left = uk-6.5*sk;
+    double right = uk+6.5*sk;
     int lower = floor(left/period+0.5);
     int upper = floor(right/period+0.5);
-    
-    // left/period 
-
-    //lower = -2;
-    //upper = 2;
-
-    cout << left << " " << right << " " << lower << " " << upper << endl;
-
-    int numImages = 10;
     double sum = 0;
     for(int r=lower; r<=upper; r++) {
         sum += gaussian(uk-r*period, sk, xn);
@@ -133,6 +97,17 @@ inline double periodicGaussian(double uk, double sk, double xn, double period) {
 // derivative of the periodic gaussian function
 inline double periodicGaussianDx(double uk, double sk, double xn, int numImages, double period) {
     double prefactor = 1/(sqrt(2*PI)*sk*sk*sk);
+    double sum = 0;
+    for(int r=-numImages; r<=numImages; r++) {
+        sum += (uk-xn+r*period)*exp(-0.5*pow((xn-uk-r*period)/sk,2));
+    }
+    return prefactor*sum;
+}
+
+inline double periodicGaussianDx(double uk, double sk, double xn, double period) {
+    double prefactor = 1/(sqrt(2*PI)*sk*sk*sk);
+    // heuristic derived from tuning
+    int numImages = ceil(sk)+1;
     double sum = 0;
     for(int r=-numImages; r<=numImages; r++) {
         sum += (uk-xn+r*period)*exp(-0.5*pow((xn-uk-r*period)/sk,2));
