@@ -1,5 +1,6 @@
 #include "EM.h"
 #include "MathFunctions.h"
+#include <limits>
 #include <iostream>
 #include <fstream>
 
@@ -58,18 +59,6 @@ double EM::getLikelihood() const {
         lambda += log(sum);
     }
     return lambda;
-}
-
-
-static void ppg(const vector<Param> &params, double period, int images) {
-    std::ofstream mixture("mixture.dat");
-    for(double xn = -period/2; xn < period/2; xn += 0.01) {
-        mixture << xn << " " << periodicGaussianMixture(params, xn, period, images) << std::endl;
-    }
-    std::ofstream mixtureDx("mixtureDx.dat");
-    for(double xn = -period/2; xn < period/2; xn += 0.01) {
-        mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << std::endl;
-    }
 }
 
 bool EM::run(int maxSteps, double tolerance) {
@@ -137,30 +126,34 @@ bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
     return (steps < maxSteps);
 }
 
-/*
 
-move to clustering class
-
-bool EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numSeeds) {
+void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numTries) {
     vector<Param> bestParams;
-    double bestLikelihood;
+    double bestLikelihood = numeric_limits<double>::min();
     int iteration = 0;
     do {
         vector<Param> params;
-        for(int i=0; i < numParams; i++) {
+        vector<double> mean = sampleDomain(numParams);
+        for(int i=0; i < mean.size(); i++) {
             // generate a random number between 0 and 1
-            double frac = (double) rand() / (double) RAND_MAX;
             Param p;
             p.p = 1.0/numParams;
-            p.u = -period/2 + frac*period; 
+            p.u = mean[i];
             p.s = 0.3;
+            params.push_back(p);
         }
-        params.push_back(p);
-          
+        
+        setParams(params);
+        adaptiveRun(maxSteps, tolerance, cutoff);
+        double newLikelihood = getLikelihood();
+        if(newLikelihood > bestLikelihood) {
+            bestLikelihood = newLikelihood;
+            bestParams = getParams(); 
+        }
         iteration++;
-    } while(iteration < numSeeds);
+    } while(iteration < numTries);
+    params_ = bestParams;
 }
-*/
 
 void EM::EStep() {
     for(int n=0; n<data_.size(); n++) {

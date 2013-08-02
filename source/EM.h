@@ -46,6 +46,8 @@ class EM {
         // This is determined by the probability weight component p
         bool adaptiveRun(int maxSteps = 100, double tolerance = 0.1, double cutoff = 0.05);
 
+        void multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numTries);
+
         // Compute the Expectation based on current parameters
         void EStep();
 
