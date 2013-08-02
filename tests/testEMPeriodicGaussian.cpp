@@ -16,7 +16,6 @@ void testUnimodalPeriodicGaussian() {
     vector<double> data;
     vector<Param> initParams(1);
     double period = 2*PI;
-    int images = 15;
     initParams[0].p = 1;
     initParams[0].u = 1.2345;
     initParams[0].s = 1.1;
@@ -30,7 +29,7 @@ void testUnimodalPeriodicGaussian() {
     vector<Param> params;
     params.push_back(p);
     EMPeriodicGaussian em(data, params, period);
-    em.run(10000, 0.1);
+    em.run(100, 0.1);
     vector<Param> optimizedParams = em.getParams();
     Util::matchParameters(initParams, optimizedParams, 0.05);
 }
@@ -38,7 +37,6 @@ void testUnimodalPeriodicGaussian() {
 void testBimodalPeriodicGaussian() {
     vector<double> data;
     double period = 2*PI;
-    int images = 15;
     vector<Param> initParams(2);
     initParams[0].p = 0.65;
     initParams[0].u = -0.3;
@@ -68,13 +66,10 @@ void testBimodalPeriodicGaussian() {
         p.s = 1.4;
         params.push_back(p);
     }
-    
     EMPeriodicGaussian em(data, params, period);
-    em.run(10000, 0.1);
+    em.run(100, 0.1);
     vector<Param> optimizedParams = em.getParams();
-
     Util::plotPeriodicGaussian(initParams, period, 100);
-
     Util::matchParameters(initParams, optimizedParams, 0.05);
 }
 
@@ -85,7 +80,6 @@ using namespace std;
 void testOverfitPeriodicGaussian() {
     vector<double> data;
     double period = 2*PI;
-    int images = 6;
     vector<Param> initParams(2);
     initParams[0].p = 0.65;
     initParams[0].u = -0.3;
@@ -100,10 +94,12 @@ void testOverfitPeriodicGaussian() {
         data.push_back(periodicGaussianSample(initParams[1].u,initParams[1].s,period));
     }
     
+    /*
     ofstream d("data.txt");
     for(int i=0; i<data.size(); i++) {
          d << data[i] << endl;
     }
+    */
 
     vector<Param> params;
     const int numSamples = 8;
@@ -116,7 +112,7 @@ void testOverfitPeriodicGaussian() {
     }
 
     EMPeriodicGaussian em(data, params, period);
-    em.run(10000,0.01);
+    em.run(1000,0.001);
     vector<Param> optimizedParams = em.getParams();
 
     MethodsPeriodicGaussian mpg(optimizedParams, period);
@@ -130,14 +126,15 @@ void testOverfitPeriodicGaussian() {
     truthMinima.push_back( 0.888);
     truthMinima.push_back(-2.382);
 
-    Util::matchPoints(truthMaxima, maxima, 0.01);
-    Util::matchPoints(truthMinima, minima, 0.05);
+    double tol = period/100.0;
+
+    Util::matchPoints(truthMaxima, maxima, tol);
+    Util::matchPoints(truthMinima, minima, tol);
 }
 
-void testOverfitPeriodicGaussian2() {
+void testAdaptiveRun() {
     vector<double> data;
     double period = 2*PI;
-    int images = 6;
     vector<Param> initParams(2);
     initParams[0].p = 0.65;
     initParams[0].u = -0.3;
@@ -168,7 +165,7 @@ void testOverfitPeriodicGaussian2() {
     }
 
     EMPeriodicGaussian em(data, params, period);
-    em.adaptiveRun(10000,0.01, 0.07);
+    em.adaptiveRun(100,0.01, 0.07);
     vector<Param> optimizedParams = em.getParams();
 
     MethodsPeriodicGaussian mpg(optimizedParams, period);
@@ -194,16 +191,21 @@ void testOverfitPeriodicGaussian2() {
         cout << minima[i] << endl;
     }
 
-    Util::matchPoints(truthMaxima, maxima, 0.05);
-    Util::matchPoints(truthMinima, minima, 0.15);
+    double tol = period/100.0f;
+
+    Util::matchPoints(truthMaxima, maxima, tol);
+    Util::matchPoints(truthMinima, minima, tol);
 }
 
 int main() {
     try {
-        //testUnimodalPeriodicGaussian();
+        testUnimodalPeriodicGaussian();
+        srand(1);
         testBimodalPeriodicGaussian();
-//        testOverfitPeriodicGaussian();
-//        testOverfitPeriodicGaussian2();
+        srand(1);
+        //testOverfitPeriodicGaussian();
+        srand(1);
+        testAdaptiveRun();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }

@@ -50,7 +50,7 @@ void testUnimodalGaussian() {
     p.s = 8.1;
     params.push_back(p);
     EMGaussian em(data, params);
-    em.run(10000, 0.1);
+    em.run(100, 0.1);
     vector<Param> optimizedParams = em.getParams();
     Util::matchParameters(initParams, optimizedParams, 0.02);
 }
@@ -95,7 +95,7 @@ void testBimodalGaussian() {
         params.push_back(p);
     }
     EMGaussian em(data, params);
-    em.run(10000, 0.1);
+    em.run(100, 0.1);
     vector<Param> optimizedParams = em.getParams();
     Util::matchParameters(initParams, optimizedParams, 0.05);
 }
@@ -107,6 +107,7 @@ void testTrimodalGaussian() {
 int main() {
     try {
         testUnimodalGaussian();
+        srand(1);
         testBimodalGaussian();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;

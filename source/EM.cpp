@@ -75,33 +75,68 @@ static void ppg(const vector<Param> &params, double period, int images) {
 bool EM::run(int maxSteps, double tolerance) {
     int steps = 0;
     double likelihood = getLikelihood();
-    double likelihoodOld = likelihood;
-    cout.precision(9);
-    for(int i=0; i < params_.size(); i++) {
-            std::cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << std::endl;
-    }
-    cout << "Likelihood: " << likelihood << endl;
+    double likelihoodOld;
+    // keep an old copy of params
+    vector<Param> paramsOld;
+
     do {
         likelihoodOld = likelihood;
-
-        ppg(params_, 2*PI, 15);
+        paramsOld = params_;
         EStep();
         MStep();   
         steps++;
         likelihood = getLikelihood(); 
-        for(int i=0; i < params_.size(); i++) {
-            std::cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << std::endl;
-        }
-        cout << "Likelihood: " << likelihood << endl;
-        cout << endl;
+        // if the likelihood increased, then we revert back to the old params right before
+        // we took the step and break;
+        // (the likelihood may increase due to convergence/numerical issues, and is
+        // an indication of convergence)
+
         if(likelihood < likelihoodOld) {
-            throw(std::runtime_error("EM::run() likelihood increased, recommend relaxing convergence criteria"));
+            params_ = paramsOld;
+            break; 
         }
-    } while(fabs(likelihoodOld - likelihood) > tolerance && steps < maxSteps);
+    // Stop EM if:
+    // a. likelihood reaches the specified tolerance
+    // b. maxmimum number of steps reached
+    // c. likelihood decreases
+    } while(likelihood - likelihoodOld > tolerance && steps < maxSteps);
+
     return (steps < maxSteps);
 }
 
 bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
+    int steps = 0;
+    double likelihood = getLikelihood();
+    double likelihoodOld;
+    // keep an old copy of params
+    vector<Param> paramsOld;
+
+    do {
+        likelihoodOld = getLikelihood();
+        paramsOld = params_;
+        EStep();
+        MStep();   
+        steps++;
+        likelihood = getLikelihood(); 
+        vector<Param> newParams;
+        for(int i=0; i < params_.size(); i++)
+            if(params_[i].p > cutoff)
+                newParams.push_back(params_[i]);
+
+        if(newParams.size() != params_.size()) {
+            params_ = newParams;
+        } else if(likelihood < likelihoodOld) {
+            params_ = paramsOld;
+            break; 
+        }
+    // Stop EM if:
+    // a. likelihood reaches the specified tolerance
+    // b. maxmimum number of steps reached
+    // c. likelihood decreases
+    } while(likelihood-likelihoodOld > tolerance && steps < maxSteps);
+
+    return (steps < maxSteps);
+    /*
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld = likelihood;
@@ -127,7 +162,7 @@ bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
         likelihood = getLikelihood(); 
     } while(fabs(likelihoodOld - likelihood) > tolerance && steps < maxSteps);
     return (steps < maxSteps);
-
+    */
 }
 
 void EM::EStep() {
