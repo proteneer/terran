@@ -6,12 +6,13 @@
 
 /* Main interface class of the Cluster clustering algorithm */
 
-
 // Usage:
 // 1. Invoke EM on each degree of freedom to partition the domain into disjoint intervals.
 // 2. Assign each point to a bucket using a map
 // 3. Return a clustering based on the map
 // 4. (Optional) Repeat 1-3 for each cluster until each degree of freedom has exactly 1 partition//    This is done by invoking the Cluster class recursively until no more DOFs can be found
+
+// The Cluster class should not be responsible for doing the actual EM, this overlaps with the duties of the various EM classes.
 
 // The resulting tree might look like:
 //                     *
@@ -41,24 +42,44 @@ public:
     // returns number of points in the dataset
     int getNumPoints() const;
 
-    // returns true if dimension X is periodic
-    bool isPeriodic(int dimension) const;
+    // returns true if dimension d is periodic
+    bool isPeriodic(int d) const;
 
-    // if dimension is periodic, returns the period of the dimension
+    // if dimension is periodic, returns the period of the dimension d
     // else an exception is thrown
-    double getPeriod(int dimension) const;
+    double getPeriod(int d) const;
 
-    // returns the set of parameters in the mixture model fitting dimension
-    std::vector<Param> getParameters(int dimension) const;
+    // return point n
+    std::vector<double> getPoint(int n) const;
 
-    // set the parameters needed to approximate dimension
-    void setParameters(int dimension, std::vector<Param> params);
+    // return marginalized values for dimension d
+    std::vector<double> getDimension(int d) const;
+
+    // returns the set of parameters in the mixture model fitting dimension d
+    std::vector<Param> getParameters(int d) const;
+
+    // set the parameters of the mixture model for dimension d
+    void setParameters(int d, const std::vector<Param> &params);
+
+    // set the partitions of dimension d
+    void setPartitions(int d, const std::vector<double> &p);
 
     // returns an assignment of points into clusters
-    std::vector<int> run();
+    // each dimension must have been partitioned either by means of:
+    // setPartitions() or invoking partition()
+    std::vector<int> cluster();
 
-    // run EM to optimize the parameters on a given dimension
-    void optimizeParameters(int dimension);
+    // simple algorithm to optimize the parameters on a given dimension d using EM
+
+    // parameters given, no multi run, no adaptive run [OK]
+    // no parameters given, multi run, adaptive run [OK]
+
+    // if no parameters are given for dimension, then multiAdaptive run is used
+    // if parameters are explicitly given, no multiRun is done, though adaptiveRun is still
+    // an option
+
+    void optimizeParameters(int d);
+
 
 private:
 

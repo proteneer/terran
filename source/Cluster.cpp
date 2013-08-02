@@ -43,6 +43,24 @@ double Cluster::getPeriod(int dimension) const {
     return period_[dimension];
 }
 
+vector<double> Cluster::getPoint(int n) const {
+    if(n >= getNumPoints()) {
+        throw(std::runtime_error("Cluster::getPoint() out of bounds!"));   
+    }
+    return dataset_[n];
+}
+
+vector<double> Cluster::getDimension(int d) const {
+    if(d >= getNumDimensions()) {
+        throw(std::runtime_error("Cluster::getDimension() out of bounds!"));   
+    }
+    vector<double> data(getNumPoints());
+    for(int i=0; i<getNumPoints(); i++) {
+        data[i] = dataset_[i][d];
+    }
+    return data;
+}
+
 vector<Param> Cluster::getParameters(int dimension) const {
     return paramset_[dimension];
 }
@@ -67,24 +85,46 @@ void Cluster::partition(int dimension, double threshold) {
     partitions_[dimension] = partition;
 }
 
-vector<int> Cluster::run() {
+void Cluster::setPartitions(int dimension, const vector<double> &p) {
+    if(dimension > getNumDimensions() - 1) {
+        throw(std::runtime_error("Dimension out of bounds\n"));
+    }
+    partitions_[dimension] = p;
+}
+
+vector<int> Cluster::cluster() {
     // todo: parallelize on multiple threads
+
+    /*
     for(int d = 0; d < getNumDimensions(); d++) {
+        if(paramset_[d].size() == 0) {    
+            stringstream ss;
+            ss << "Fatal! Parameters not set for dimension " << d <<endl;
+            throw(std::runtime_error(ss.str()));
+        }
         // optimize the parameters
         optimizeParameters(d);
         // partition each dimension using parameters optimized by EM
         partition(d, 0.05);
     }
+    */
 
+    for(int d = 0; d < getNumDimensions(); d++) {
+        if(partitions_[d].size() == 0) {
+            stringstream msg;
+            msg << "Error in cluster(), partitions in dimension " << d << " not set!" << endl;
+            throw(std::runtime_error(msg.str()));
+        }
+    }
     // assign each point to a bucket
-    // cannot parallelize easily
+    // cannot parallelize easily due to push_back
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {
         vector<short> bucket = assign(n);
         clusters[bucket].push_back(n);
     }
 
-    // loop over the buckets and get the points in each
+    // loop over the buckets and set to cluster
     int clusterIndex = 0;
     vector<int> assignment(getNumPoints(),-1);
     for(map<vector<short>, vector<int> >::const_iterator it = clusters.begin();
