@@ -140,10 +140,8 @@ void EM::testIntegrity() const {
         for(int n=0; n<data_.size(); n++) {
             sum += pikn_[n][k];   
         }
-        
-        if(fabs(sum-1.0) < 0.01) {
+        if(fabs(sum-1.0) < 1e-7)
             throw(std::runtime_error("pikn no longer sums to 1"));
-        }
     }
 };
 
