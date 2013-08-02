@@ -52,12 +52,8 @@ class EM {
         // Maximize the Expectation by tuning parameters
         virtual void MStep() = 0;
 
-    private:
-
-        // Used by the EStep to compute the expectation
-        virtual double qkn(int k, int n) const = 0;
-
     protected:
+
         // The sum over k for each n in p(k|n) should be 1
         void testIntegrity() const;
 
@@ -69,6 +65,15 @@ class EM {
         // component k, ie. p(k|n) during iteration i
         // this is updated during the E-step
         std::vector<std::vector<double> > pikn_;
+
+    private:
+
+        // Used by the EStep to compute the expectation
+        virtual double qkn(int k, int n) const = 0;
+
+        // Generate random samples in the domain
+        virtual std::vector<double> sampleDomain(int count) const = 0;
+
 };
 
 }

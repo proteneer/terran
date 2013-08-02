@@ -14,7 +14,11 @@ class EMPeriodicGaussian : public EM {
         ~EMPeriodicGaussian();
 
         void MStep();
+
     private:
+        // sample points in the periodic domain
+        virtual vector<double> sampleDomain(int count) const;
+
         double qkn(int k, int n) const; 
 
         // Simplified versions of the lambda derivative in order to find roots

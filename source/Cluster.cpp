@@ -93,8 +93,8 @@ void Cluster::setPartitions(int dimension, const vector<double> &p) {
 }
 
 vector<int> Cluster::cluster() {
-    // todo: parallelize on multiple threads
 
+    // todo: parallelize on multiple threads
     /*
     for(int d = 0; d < getNumDimensions(); d++) {
         if(paramset_[d].size() == 0) {    
@@ -148,13 +148,23 @@ void Cluster::optimizeParameters(int d) {
     const vector<Param> &initialParams = paramset_[d];
 
     if(isPeriodic(d)) {
-        EMPeriodicGaussian epg(data, initialParams, period_[d]);
-        epg.run();
-        paramset_[d] = epg.getParams();
+        if(paramset_[d].size() == 0) {
+            //EMPeriodicGaussian epg(data, period_[d]);
+
+            //epg.multiAdaptiveRun()
+        } else {
+            EMPeriodicGaussian epg(data, initialParams, period_[d]);
+            epg.run();
+        }
+        //paramset_[d] = epg.getParams();
     } else {
-        EMGaussian eg(data, initialParams);
-        eg.run();
-        paramset_[d] = eg.getParams();
+        //EMGaussian eg(data, initialParams);
+        if(paramset_[d].size() == 0) {
+        
+        } else { 
+            //eg.run();
+        }
+        //paramset_[d] = eg.getParams();
     }
 }
 

@@ -71,15 +71,9 @@ public:
 
     // simple algorithm to optimize the parameters on a given dimension d using EM
 
-    // parameters given, no multi run, no adaptive run [OK]
-    // no parameters given, multi run, adaptive run [OK]
-
-    // if no parameters are given for dimension, then multiAdaptive run is used
-    // if parameters are explicitly given, no multiRun is done, though adaptiveRun is still
-    // an option
-
+    // parameters given, EM::run() is called
+    // no parameters given, a customized version of adaptiveRun() is called
     void optimizeParameters(int d);
-
 
 private:
 

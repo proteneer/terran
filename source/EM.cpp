@@ -91,6 +91,7 @@ bool EM::run(int maxSteps, double tolerance) {
         // (the likelihood may increase due to convergence/numerical issues, and is
         // an indication of convergence)
 
+        // likelihood decreases normally if a convergence criterion has been reached
         if(likelihood < likelihoodOld) {
             params_ = paramsOld;
             break; 
@@ -98,7 +99,6 @@ bool EM::run(int maxSteps, double tolerance) {
     // Stop EM if:
     // a. likelihood reaches the specified tolerance
     // b. maxmimum number of steps reached
-    // c. likelihood decreases
     } while(likelihood - likelihoodOld > tolerance && steps < maxSteps);
 
     return (steps < maxSteps);
@@ -132,38 +132,35 @@ bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
     // Stop EM if:
     // a. likelihood reaches the specified tolerance
     // b. maxmimum number of steps reached
-    // c. likelihood decreases
     } while(likelihood-likelihoodOld > tolerance && steps < maxSteps);
 
     return (steps < maxSteps);
-    /*
-    int steps = 0;
-    double likelihood = getLikelihood();
-    double likelihoodOld = likelihood;
-    do {
-        likelihoodOld = likelihood;
-
-        vector<Param> newParams;
-        
-        for(int i=0; i < params_.size(); i++) {
-            if(params_[i].p > cutoff) {
-                newParams.push_back(params_[i]);
-            }
-            std::cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << std::endl;
-        }
-
-        params_ = newParams;
-
-        std::cout << std::endl;
-        ppg(params_, 2*PI, 15);
-        EStep();
-        MStep();   
-        steps++;
-        likelihood = getLikelihood(); 
-    } while(fabs(likelihoodOld - likelihood) > tolerance && steps < maxSteps);
-    return (steps < maxSteps);
-    */
 }
+
+/*
+
+move to clustering class
+
+bool EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numSeeds) {
+    vector<Param> bestParams;
+    double bestLikelihood;
+    int iteration = 0;
+    do {
+        vector<Param> params;
+        for(int i=0; i < numParams; i++) {
+            // generate a random number between 0 and 1
+            double frac = (double) rand() / (double) RAND_MAX;
+            Param p;
+            p.p = 1.0/numParams;
+            p.u = -period/2 + frac*period; 
+            p.s = 0.3;
+        }
+        params.push_back(p);
+          
+        iteration++;
+    } while(iteration < numSeeds);
+}
+*/
 
 void EM::EStep() {
     for(int n=0; n<data_.size(); n++) {

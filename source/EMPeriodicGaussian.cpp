@@ -113,7 +113,16 @@ void EMPeriodicGaussian::MStep() {
         }
         params_[k].p = denominatorSum / data_.size();
     }
+}
 
+vector<double> EMPeriodicGaussian::sampleDomain(int count) const {
+    vector<double> points;
+    for(int i=0; i < count; i++) {
+        double frac = (double) rand() / (double) RAND_MAX;
+        double val = -period_/2 + frac*period_;
+        points.push_back(val);
+    }
+    return points;
 }
 
 double EMPeriodicGaussian::qkn(int k, int n) const {
