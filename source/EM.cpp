@@ -76,18 +76,27 @@ bool EM::run(int maxSteps, double tolerance) {
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld = likelihood;
+    cout.precision(9);
+    for(int i=0; i < params_.size(); i++) {
+            std::cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << std::endl;
+    }
+    cout << "Likelihood: " << likelihood << endl;
     do {
         likelihoodOld = likelihood;
 
-        for(int i=0; i < params_.size(); i++) {
-            std::cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << std::endl;
-        }
-        std::cout << std::endl;
         ppg(params_, 2*PI, 15);
         EStep();
         MStep();   
         steps++;
         likelihood = getLikelihood(); 
+        for(int i=0; i < params_.size(); i++) {
+            std::cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << std::endl;
+        }
+        cout << "Likelihood: " << likelihood << endl;
+        cout << endl;
+        if(likelihood < likelihoodOld) {
+            throw(std::runtime_error("EM::run() likelihood increased, recommend relaxing convergence criteria"));
+        }
     } while(fabs(likelihoodOld - likelihood) > tolerance && steps < maxSteps);
     return (steps < maxSteps);
 }
