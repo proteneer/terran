@@ -13,14 +13,14 @@ using Terran::Param;
 using Terran::fabsp;
 
 
-void Util::plotPeriodicGaussian(const vector<Param> &params, double period, int images) {
-    ofstream mixture("mixture.dat");
+void Util::plotPeriodicGaussian(const vector<Param> &params, double period, string filename) {
+    ofstream f1(filename.c_str());
     for(double xn = -period/2; xn < period/2; xn += 0.01) {
-        mixture << xn << " " << periodicGaussianMixture(params, xn, period, images) << endl;
+        f1 << xn << " " << periodicGaussianMixture(params, xn, period, 50) << endl;
     }
-    ofstream mixtureDx("mixtureDx.dat");
+    ofstream f2((filename + "Dx").c_str());
     for(double xn = -period/2; xn < period/2; xn += 0.01) {
-        mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << endl;
+        f2 << xn << " " << periodicGaussianMixtureDx(params, xn, period, 50) << endl;
     }
 }
 

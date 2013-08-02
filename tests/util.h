@@ -7,7 +7,7 @@
 
 namespace Util {
 
-void plotPeriodicGaussian(const std::vector<Terran::Param> &params, double period, int images);
+void plotPeriodicGaussian(const std::vector<Terran::Param> &params, double period, std::string filename = "mixture");
 
 void matchParameters(const std::vector<Terran::Param> &p1, const std::vector<Terran::Param> &p2, double threshold);
 

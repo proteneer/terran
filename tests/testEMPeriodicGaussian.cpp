@@ -69,7 +69,7 @@ void testBimodalPeriodicGaussian() {
     EMPeriodicGaussian em(data, params, period);
     em.run(100, 0.1);
     vector<Param> optimizedParams = em.getParams();
-    Util::plotPeriodicGaussian(initParams, period, 100);
+    Util::plotPeriodicGaussian(initParams, period, "bimodal");
     Util::matchParameters(initParams, optimizedParams, 0.05);
 }
 
@@ -165,14 +165,14 @@ void testAdaptiveRun() {
     }
 
     EMPeriodicGaussian em(data, params, period);
-    em.adaptiveRun(100,0.01, 0.07);
+    em.adaptiveRun(1000,0.01, 0.08);
     vector<Param> optimizedParams = em.getParams();
 
     MethodsPeriodicGaussian mpg(optimizedParams, period);
     vector<double> maxima = mpg.findMaxima();
     vector<double> minima = mpg.findMinima();
 
-    Util::plotPeriodicGaussian(optimizedParams, period, 100);
+    Util::plotPeriodicGaussian(optimizedParams, period, "adaptive");
 
     vector<double> truthMaxima;
     truthMaxima.push_back( 1.898);
@@ -181,6 +181,7 @@ void testAdaptiveRun() {
     truthMinima.push_back( 0.888);
     truthMinima.push_back(-2.382);
 
+/*
     cout << "maxima" << endl;
     for(int i=0; i < maxima.size(); i++) {
         cout << maxima[i] << endl;
@@ -190,11 +191,13 @@ void testAdaptiveRun() {
     for(int i=0; i < minima.size(); i++) {
         cout << minima[i] << endl;
     }
+*/
 
-    double tol = period/100.0f;
+    double tol1 = period/100.0f;
+    double tol2 = period/50.0f;
 
-    Util::matchPoints(truthMaxima, maxima, tol);
-    Util::matchPoints(truthMinima, minima, tol);
+    Util::matchPoints(truthMaxima, maxima, tol1);
+    Util::matchPoints(truthMinima, minima, tol2);
 }
 
 int main() {
