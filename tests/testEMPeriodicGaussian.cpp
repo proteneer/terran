@@ -14,6 +14,14 @@
 using namespace std;
 using namespace Terran;
 
+void testSampleDomain() {
+    double period = 2*PI;
+    vector<double> data;
+    data.push_back(0);
+
+
+}
+
 void testUnimodalPeriodicGaussian() {
     vector<double> data;
     vector<Param> initParams(1);
@@ -201,6 +209,8 @@ void testAdaptiveRun() {
 
 int main() {
     try {
+        testSampleDomain();
+        srand(1);
         testUnimodalPeriodicGaussian();
         srand(1);
         testBimodalPeriodicGaussian();

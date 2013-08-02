@@ -8,6 +8,19 @@ using namespace std;
 
 namespace Terran {
 
+EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data,  double period) : 
+    EM(data), 
+    period_(period) {
+    for(int i=0; i<params_.size(); i++) {
+        if(params_[i].s > period_)
+            throw(std::runtime_error("Cannot have s > period in parameters"));
+        if(params_[i].u < -period_/2)
+            throw(std::runtime_error("Cannot have u < -period/2"));
+        if(params_[i].u > period_/2)
+            throw(std::runtime_error("Cannot have u > period/2"));
+    }
+}
+
 EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<Param> &params, double period) : 
     EM(data, params), 
     period_(period) {

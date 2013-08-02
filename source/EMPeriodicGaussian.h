@@ -9,8 +9,10 @@ namespace Terran {
 // Expectation Maximization of Periodic Gaussian Mixture Models
 class EMPeriodicGaussian : public EM {
     public:
-        // period and images are initialized by default
+        
         explicit EMPeriodicGaussian(const std::vector<double> &data, const std::vector<Param> &params, double period);
+        
+        explicit EMPeriodicGaussian(const std::vector<double> &data, double period);
         ~EMPeriodicGaussian();
 
         void MStep();

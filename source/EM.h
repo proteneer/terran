@@ -23,10 +23,11 @@ namespace Terran {
 class EM { 
     public:
         EM(const std::vector<double> &data, const std::vector<Param> &params);
+        EM(const std::vector<double> &data);
         virtual ~EM();
 
         // Set parameters
-        void setParams(const std::vector<Param> &input);
+        void setParameters(const std::vector<Param> &input);
 
         // Get parameters
         std::vector<Param> getParams() const;

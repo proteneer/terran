@@ -13,6 +13,29 @@ EM::~EM() {
 
 }
 
+EM::EM(const std::vector<double> &data) : 
+    data_(data),
+    pikn_(data.size(), std::vector<double>(0)) {
+
+    if(data_.size() == 0)
+        throw(std::runtime_error("Cannot initialize EM with empty dataset"));
+
+    double psum = 0;
+
+    for(int i=0; i<params_.size(); i++) {
+        psum += params_[i].p;
+        if(params_[i].p <= 0)
+            throw(std::runtime_error("Cannot have p <= 0 in parameters"));
+        if(params_[i].p > 1)
+            throw(std::runtime_error("Cannot have p > 1 in parameters"));
+        if(params_[i].s <= 0)
+            throw(std::runtime_error("Cannot have s <= 0 in parameters"));
+    }
+    if(psum > 1.0001) {
+        throw(std::runtime_error("Initial probabilities sum to greater than 1"));
+    }
+}
+
 EM::EM(const std::vector<double> &data, const std::vector<Param> &params) : 
     data_(data),
     params_(params),
@@ -37,8 +60,10 @@ EM::EM(const std::vector<double> &data, const std::vector<Param> &params) :
     }
 }
 
-void EM::setParams(const std::vector<Param> &input) {
+void EM::setParameters(const std::vector<Param> &input) {
     params_ = input;
+    vector<vector<double> > temp(data_.size(), std::vector<double>(params_.size(),0));
+    pikn_ = temp; 
 }
 
 std::vector<Param> EM::getParams() const {
@@ -143,7 +168,7 @@ void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int num
             params.push_back(p);
         }
         
-        setParams(params);
+        setParameters(params);
         adaptiveRun(maxSteps, tolerance, cutoff);
         double newLikelihood = getLikelihood();
         if(newLikelihood > bestLikelihood) {
