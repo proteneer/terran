@@ -48,18 +48,11 @@ public:
     // else an exception is thrown
     double getPeriod(int dimension) const;
 
-    // if dimension is periodic, returns the number of images of the dimension
-    // else an exception is thrown
-    double getImages(int dimension) const;
-
     // returns the set of parameters in the mixture model fitting dimension
     std::vector<Param> getParameters(int dimension) const;
 
     // set the parameters needed to approximate dimension
     void setParameters(int dimension, std::vector<Param> params);
-
-    // set number of images to use
-    void setImages(int dimension, int numImages);
 
     // returns an assignment of points into clusters
     std::vector<int> run();
@@ -85,10 +78,6 @@ private:
 
     // the mixture model used to describe each DOF, size D x variable
     std::vector<std::vector<Param> > paramset_;
-
-    // describes the number of images needed to approximate each dimension
-    // this only needs to be mucked with if the standard deviation is large
-    std::vector<int> images_;
 
     // disjoint partitions of the domain
     std::vector<std::vector<double> > partitions_;

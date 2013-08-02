@@ -15,7 +15,6 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
     dataset_(data),
     period_(period),
     paramset_(initialParams),
-    images_(paramset_.size(), 15),
     partitions_(paramset_.size()) {
 
 }
@@ -44,26 +43,8 @@ double Cluster::getPeriod(int dimension) const {
     return period_[dimension];
 }
 
-double Cluster::getImages(int dimension) const {
-    if(!isPeriodic(dimension)) {
-        stringstream msg;
-        msg << "getImages() exception, dimension " << dimension << " is not periodic!";
-        throw(std::runtime_error(msg.str()));
-    }
-    return period_[dimension];
-}
-
 vector<Param> Cluster::getParameters(int dimension) const {
     return paramset_[dimension];
-}
-
-void Cluster::setImages(int dimension, int numImages) {
-    if(!isPeriodic(dimension)) {
-        stringstream msg;
-        msg << "setImages() exception, dimension " << dimension << " is not periodic!";
-        throw(std::runtime_error(msg.str()));
-    }
-    images_[dimension] = numImages;
 }
 
 void Cluster::partition(int dimension, double threshold) {
@@ -71,11 +52,10 @@ void Cluster::partition(int dimension, double threshold) {
     vector<double> partition;
     if(isPeriodic(dimension)) {
         const double period = period_[dimension];
-        const int images = images_[dimension];
         MethodsPeriodicGaussian mpg(params, period);
         vector<double> minima = mpg.findMinima();
         for(int i=0; i < minima.size(); i++) {
-            double val = periodicGaussianMixture(params, minima[i], period, images);
+            double val = periodicGaussianMixture(params, minima[i], period);
             if(val < threshold) {
                 partition.push_back(minima[i]);
             }
