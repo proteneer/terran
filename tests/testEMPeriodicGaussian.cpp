@@ -3,7 +3,9 @@
 #include <math.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
+#include <MethodsPeriodicGaussian.h>
 #include <EMPeriodicGaussian.h>
 #include <MathFunctions.h>
 
@@ -73,9 +75,6 @@ void testBimodalPeriodicGaussian() {
     Util::matchParameters(initParams, optimizedParams, 0.05);
 }
 
-#include <fstream>
-#include <MethodsPeriodicGaussian.h>
-using namespace std;
 
 void testOverfitPeriodicGaussian() {
     vector<double> data;
