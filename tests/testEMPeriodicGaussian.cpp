@@ -14,14 +14,6 @@
 using namespace std;
 using namespace Terran;
 
-void testSampleDomain() {
-    double period = 2*PI;
-    vector<double> data;
-    data.push_back(0);
-
-
-}
-
 void testUnimodalPeriodicGaussian() {
     vector<double> data;
     vector<Param> initParams(1);
@@ -82,7 +74,6 @@ void testBimodalPeriodicGaussian() {
     Util::plotPeriodicGaussian(initParams, period, "bimodal");
     Util::matchParameters(initParams, optimizedParams, 0.05);
 }
-
 
 void testOverfitPeriodicGaussian() {
     vector<double> data;
@@ -155,12 +146,6 @@ void testAdaptiveRun() {
     for(int i=0; i<5000*initParams[1].p; i++) {
         data.push_back(periodicGaussianSample(initParams[1].u,initParams[1].s,period));
     }
-    
-    ofstream d("data.txt");
-    for(int i=0; i<data.size(); i++) {
-         d << data[i] << endl;
-    }
-
     vector<Param> params;
     const int numSamples = 8;
     for(int i=0; i < numSamples; i++) {
@@ -207,9 +192,30 @@ void testAdaptiveRun() {
     Util::matchPoints(truthMinima, minima, tol2);
 }
 
+void testMultiAdaptiveRun() {
+    vector<double> data;
+    double period = 2*PI;
+    vector<Param> initParams(2);
+    initParams[0].p = 0.65;
+    initParams[0].u = -0.3;
+    initParams[0].s = 0.5;
+    for(int i=0; i<5000*initParams[0].p; i++) {
+        data.push_back(periodicGaussianSample(initParams[0].u,initParams[0].s,period));
+    }
+    initParams[1].p = 0.35;
+    initParams[1].u = 1.9;
+    initParams[1].s = 0.5;
+    for(int i=0; i<5000*initParams[1].p; i++) {
+        data.push_back(periodicGaussianSample(initParams[1].u,initParams[1].s,period));
+    }
+    EMPeriodicGaussian em(data, period);
+    em.multiAdaptiveRun(1000,0.01, 0.08, 10, 10);
+    vector<Param> optimizedParams = em.getParams();
+}
+
 int main() {
     try {
-        testSampleDomain();
+        /*
         srand(1);
         testUnimodalPeriodicGaussian();
         srand(1);
@@ -218,6 +224,10 @@ int main() {
         //testOverfitPeriodicGaussian();
         srand(1);
         testAdaptiveRun();
+        srand(1);
+        */
+        testMultiAdaptiveRun();
+        
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }

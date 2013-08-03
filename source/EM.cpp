@@ -3,6 +3,7 @@
 #include <limits>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 
 namespace Terran {
@@ -119,6 +120,11 @@ bool EM::run(int maxSteps, double tolerance) {
 }
 
 bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
+
+    if(params_.size() == 0) {
+        throw(std::runtime_error("Error in adaptiveRun(), params_ are not set"));
+    }
+
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld;
@@ -151,23 +157,41 @@ bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
     return (steps < maxSteps);
 }
 
+void plotPeriodicGaussian(const vector<Param> &params, double period, string filename) {
+    ofstream f1(filename.c_str());
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        f1 << xn << " " << periodicGaussianMixture(params, xn, period, 50) << endl;
+    }
+    ofstream f2((filename + "Dx").c_str());
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        f2 << xn << " " << periodicGaussianMixtureDx(params, xn, period, 50) << endl;
+    }
+}
+
 
 void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numTries) {
     vector<Param> bestParams;
     double bestLikelihood = numeric_limits<double>::min();
-    int iteration = 0;
+    int attempts = 0;
     do {
+        // initialize a set of random parameters
         vector<Param> params;
         vector<double> mean = sampleDomain(numParams);
         for(int i=0; i < mean.size(); i++) {
-            // generate a random number between 0 and 1
             Param p;
             p.p = 1.0/numParams;
             p.u = mean[i];
+            // todo, should s be variable as well?
             p.s = 0.3;
             params.push_back(p);
         }
-        
+
+        cout << "attempt: " << attempts << endl;
+        cout << "initial parameters: " << endl;
+        for(int i=0; i < params.size(); i++) {
+            cout << params[i].p << " " << params[i].u << " " << params[i].s << endl;
+        }
+
         setParameters(params);
         adaptiveRun(maxSteps, tolerance, cutoff);
         double newLikelihood = getLikelihood();
@@ -175,8 +199,17 @@ void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int num
             bestLikelihood = newLikelihood;
             bestParams = getParams(); 
         }
-        iteration++;
-    } while(iteration < numTries);
+        cout << "computed likelihood: " << newLikelihood << endl;
+        vector<Param> testParams = getParams(); 
+        for(int i=0; i < testParams.size(); i++) {
+            cout << testParams[i].p << " " << testParams[i].u << " " << testParams[i].s << endl;
+        }
+        stringstream ss;
+        ss << "multiAdaptiveRun" << attempts;
+        plotPeriodicGaussian(testParams, 2*PI, ss.str());
+        
+        attempts++;
+    } while(attempts < numTries);
     params_ = bestParams;
 }
 
