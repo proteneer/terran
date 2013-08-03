@@ -43,14 +43,19 @@ void testBimodalPeriodicGaussian() {
     initParams[0].p = 0.65;
     initParams[0].u = -0.3;
     initParams[0].s = 0.5;
-    for(int i=0; i<10000*initParams[0].p; i++) {
+    for(int i=0; i<5000*initParams[0].p; i++) {
         data.push_back(periodicGaussianSample(initParams[0].u,initParams[0].s,period));
     }
     initParams[1].p = 0.35;
     initParams[1].u = 1.9;
     initParams[1].s = 0.5;
-    for(int i=0; i<10000*initParams[1].p; i++) {
+    for(int i=0; i<5000*initParams[1].p; i++) {
         data.push_back(periodicGaussianSample(initParams[1].u,initParams[1].s,period));
+    }
+
+    ofstream fdata("data.txt");
+    for(int i=0; i<data.size(); i++) {
+        fdata << data[i] << endl;
     }
     
     vector<Param> params;
@@ -211,15 +216,21 @@ void testMultiAdaptiveRun() {
     EMPeriodicGaussian em(data, period);
     em.multiAdaptiveRun(1000,0.01, 0.08, 10, 10);
     vector<Param> optimizedParams = em.getParams();
+    cout << "bestparams found:" << endl;
+    for(int i=0; i < optimizedParams.size(); i++) {
+        cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
+    }
+    Util::plotPeriodicGaussian(optimizedParams, period, "bestParamsFound");
 }
 
 int main() {
     try {
-        /*
+        
         srand(1);
         testUnimodalPeriodicGaussian();
         srand(1);
         testBimodalPeriodicGaussian();
+        /*
         srand(1);
         //testOverfitPeriodicGaussian();
         srand(1);

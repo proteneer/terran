@@ -49,8 +49,8 @@ double EMGaussian::qkn(int k, int n) const {
 }
 
 std::vector<double> EMGaussian::sampleDomain(int count) const {
-    double min = numeric_limits<double>::min();
-    double max = numeric_limits<double>::max();
+    double min = -numeric_limits<double>::max();
+    double max =  numeric_limits<double>::max();
     for(int i=0; i < data_.size(); i++) {
         min = (data_[i] < min) ? data_[i] : min;
         max = (data_[i] > max) ? data_[i] : max;

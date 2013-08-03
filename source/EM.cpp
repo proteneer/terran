@@ -171,7 +171,7 @@ void plotPeriodicGaussian(const vector<Param> &params, double period, string fil
 
 void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numTries) {
     vector<Param> bestParams;
-    double bestLikelihood = numeric_limits<double>::min();
+    double bestLikelihood = -numeric_limits<double>::max();
     int attempts = 0;
     do {
         // initialize a set of random parameters
@@ -195,9 +195,12 @@ void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int num
         setParameters(params);
         adaptiveRun(maxSteps, tolerance, cutoff);
         double newLikelihood = getLikelihood();
+        cout << newLikelihood << " " << bestLikelihood << endl;
         if(newLikelihood > bestLikelihood) {
+            cout << "BETTER LIKELIHOOD FOUND" << endl;
             bestLikelihood = newLikelihood;
             bestParams = getParams(); 
+            cout << bestParams.size() << endl;
         }
         cout << "computed likelihood: " << newLikelihood << endl;
         vector<Param> testParams = getParams(); 
