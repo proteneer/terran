@@ -78,6 +78,9 @@ void testBimodalPeriodicGaussian() {
     vector<Param> optimizedParams = em.getParams();
     Util::plotPeriodicGaussian(initParams, period, "bimodal");
     Util::matchParameters(initParams, optimizedParams, 0.05);
+
+    cout << "bimodal likelihood: " << em.getLikelihood();
+
 }
 
 void testOverfitPeriodicGaussian() {
@@ -214,13 +217,20 @@ void testMultiAdaptiveRun() {
         data.push_back(periodicGaussianSample(initParams[1].u,initParams[1].s,period));
     }
     EMPeriodicGaussian em(data, period);
-    em.multiAdaptiveRun(1000,0.01, 0.08, 10, 10);
+
+    int numInitialParams = 10;
+    int numTries = 20;
+
+
+    em.multiAdaptiveRun(1000,0.01, 0.08, numInitialParams, numTries);
     vector<Param> optimizedParams = em.getParams();
     cout << "bestparams found:" << endl;
     for(int i=0; i < optimizedParams.size(); i++) {
         cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
     }
     Util::plotPeriodicGaussian(optimizedParams, period, "bestParamsFound");
+
+    cout << "testMultiAdaptive likelihood: " << em.getLikelihood();
 }
 
 int main() {
