@@ -19,6 +19,8 @@ void matchPoints(const std::vector<double> &p1, const std::vector<double> &p2, c
 
 void matchPeriodicPoints(const std::vector<double> &p1, const std::vector<double> &p2, double period, double threshold, int count = -1);
 
+void matchPeriodicPoints(const std::vector<double> &p1, const std::vector<double> &p2, double period, const std::vector<double> &threshold);
+
 }
 
 #endif
