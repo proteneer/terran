@@ -9,6 +9,8 @@
 #include <MathFunctions.h>
 #include <Cluster.h>
 
+#include <ClusterTree.h>
+
 #include "util.h"
 
 using namespace std;
@@ -128,9 +130,63 @@ void testEasyCase2D() {
 
 }
 
+int testClusterTree() {
+
+    vector<vector<double> > dataset;
+    vector<double> periodset;
+    // setup 0th cluster;
+    {
+        double u1 = -PI/2;
+        double u2 =  PI/2;
+        double s = 0.5;
+        double period = 2*PI;
+        for(int i=0; i < 2000; i++) {
+            vector<double> point(2);
+            point[0] = periodicGaussianSample(u1, s, period);
+            point[1] = periodicGaussianSample(u2, s, period);
+            dataset.push_back(point);
+            periodset.push_back(period);
+        }
+    }
+
+    // setup 1st cluster
+    {
+        double u1 = -PI/2;
+        double u2 = -PI/2;
+        double s = 0.5;
+        double period = 2*PI;
+        for(int i=0; i < 2000; i++) {
+            vector<double> point(2);
+            point[0] = periodicGaussianSample(u1, s, period);
+            point[1] = periodicGaussianSample(u2, s, period);
+            dataset.push_back(point);
+            periodset.push_back(period);
+        }
+    }
+
+    // setup 2nd cluster
+    {
+        double u1 = PI/3;
+        double u2 = 0;
+        double s = 0.5;
+        double period = 2*PI;
+        for(int i=0; i < 2000; i++) {
+            vector<double> point(2);
+            point[0] = periodicGaussianSample(u1, s, period);
+            point[1] = periodicGaussianSample(u2, s, period);
+            dataset.push_back(point);
+            periodset.push_back(period);
+        }
+    }
+
+    ClusterTree ct(dataset, periodset);
+    ct.stepBFS();
+}
+
 int main() {
     try{
-        testEasyCase2D();
+        //testEasyCase2D();
+        testClusterTree();
         cout << "done" << endl;
     } catch(const exception &e) {
         cout << e.what();

@@ -13,16 +13,6 @@
 // 4. (Optional) Repeat 1-3 for each cluster until each degree of freedom has exactly 1 partition//    This is done by invoking the Cluster class recursively until no more DOFs can be found
 
 // The Cluster class should not be responsible for doing the actual EM, this overlaps with the duties of the various EM classes.
-
-// The resulting tree might look like:
-//                     *
-//                     0
-//           __________|_________*
-//           0         1         2
-//                           *___|___*
-//                           0   1   2
-//                          / \     / \
-//                         0   1   0   1
 // 
 // The leaves of tree are clusters
 

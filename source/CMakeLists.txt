@@ -1,1 +1,1 @@
-add_library(EM EM.cpp EMGaussian.cpp EMPeriodicGaussian.cpp MethodsPeriodicGaussian.cpp Cluster.cpp)
+add_library(EM EM.cpp EMGaussian.cpp EMPeriodicGaussian.cpp MethodsPeriodicGaussian.cpp Cluster.cpp ClusterTree.cpp)
