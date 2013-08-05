@@ -34,6 +34,8 @@ public:
 
     Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period, const std::vector<std::vector<Param> > &initialParams);
 
+    Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period);
+
     ~Cluster();
 
     // returns number of dimensions in the dataset
@@ -53,10 +55,13 @@ public:
     std::vector<double> getPoint(int n) const;
 
     // return marginalized values for dimension d
-    std::vector<double> getDimension(int d) const;
+    std::vector<double> getMarginalValues(int d) const;
 
     // returns the set of parameters in the mixture model fitting dimension d
     std::vector<Param> getParameters(int d) const;
+
+    // returns the partitions
+    std::vector<double> getPartitions(int d) const;
 
     // set the parameters of the mixture model for dimension d
     void setParameters(int d, const std::vector<Param> &params);
@@ -64,16 +69,15 @@ public:
     // set the partitions of dimension d
     void setPartitions(int d, const std::vector<double> &p);
 
+    // optimizes parameters in dimension d
+    // if parameters are given, EM::run() is called
+    // else if no parameters are given, EM::multiAdaptiveRun() is called
+    void optimizeParameters(int d);
+
     // returns an assignment of points into clusters
     // each dimension must have been partitioned either by means of:
     // setPartitions() or invoking partition()
     std::vector<int> cluster();
-
-    // simple algorithm to optimize the parameters on a given dimension d using EM
-
-    // if parameters are given, EM::run() is called
-    // else if no parameters are given, EM::multiAdaptiveRun() is called
-    void optimizeParameters(int d);
 
 private:
 

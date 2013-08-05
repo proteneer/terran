@@ -19,28 +19,39 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
 
 }
 
+Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period) : 
+    dataset_(data),
+    period_(period) {
+    if(data.size() == 0) 
+        throw(std::runtime_error("cluster() constructor error: input data size cannot 0"));
+    vector<vector<double> > temp(data[0].size());
+    vector<vector<Param> > temp2(data[0].size());
+    partitions_ = temp;
+    paramset_ = temp2;
+}
+
 int Cluster::getNumDimensions() const {
-    return paramset_.size();
+    return dataset_[0].size();
 }
 
 int Cluster::getNumPoints() const {
     return dataset_.size();
 }
 
-bool Cluster::isPeriodic(int dimension) const {
-    if(period_[dimension] == 0)
+bool Cluster::isPeriodic(int d) const {
+    if(period_[d] == 0)
         return true;
     else
         return false;
 }
 
-double Cluster::getPeriod(int dimension) const {
-    if(!isPeriodic(dimension)) {
+double Cluster::getPeriod(int d) const {
+    if(!isPeriodic(d)) {
         stringstream msg;
-        msg << "getPeriod() exception, dimension " << dimension << " is not periodic!";
+        msg << "getPeriod() exception, dimension " << d << " is not periodic!";
         throw(std::runtime_error(msg.str()));
     }
-    return period_[dimension];
+    return period_[d];
 }
 
 vector<double> Cluster::getPoint(int n) const {
@@ -50,9 +61,9 @@ vector<double> Cluster::getPoint(int n) const {
     return dataset_[n];
 }
 
-vector<double> Cluster::getDimension(int d) const {
+vector<double> Cluster::getMarginalValues(int d) const {
     if(d >= getNumDimensions()) {
-        throw(std::runtime_error("Cluster::getDimension() out of bounds!"));   
+        throw(std::runtime_error("Cluster::getMarginalValues() out of bounds!"));   
     }
     vector<double> data(getNumPoints());
     for(int i=0; i<getNumPoints(); i++) {
@@ -61,15 +72,19 @@ vector<double> Cluster::getDimension(int d) const {
     return data;
 }
 
-vector<Param> Cluster::getParameters(int dimension) const {
-    return paramset_[dimension];
+vector<Param> Cluster::getParameters(int d) const {
+    return paramset_[d];
 }
 
-void Cluster::partition(int dimension, double threshold) {
-    vector<Param> params = paramset_[dimension];
+vector<double> Cluster::getPartitions(int d) const {
+    return partitions_[d];
+}
+
+void Cluster::partition(int d, double threshold) {
+    vector<Param> params = paramset_[d];
     vector<double> partition;
-    if(isPeriodic(dimension)) {
-        const double period = period_[dimension];
+    if(isPeriodic(d)) {
+        const double period = period_[d];
         MethodsPeriodicGaussian mpg(params, period);
         vector<double> minima = mpg.findMinima();
         for(int i=0; i < minima.size(); i++) {
@@ -79,20 +94,28 @@ void Cluster::partition(int dimension, double threshold) {
             }
         }
     } else {
-        // implement code to partition non periodic mixture models
+        // TODO: implement code to partition non periodic mixture models
 
     }
-    partitions_[dimension] = partition;
+    partitions_[d] = partition;
 }
 
-void Cluster::setPartitions(int dimension, const vector<double> &p) {
-    if(dimension > getNumDimensions() - 1) {
+void Cluster::setParameters(int d, const vector<Param> &p) {
+    if(d > getNumDimensions() - 1) {
         throw(std::runtime_error("Dimension out of bounds\n"));
     }
-    partitions_[dimension] = p;
+    paramset_[d] = p;
+}
+
+void Cluster::setPartitions(int d, const vector<double> &p) {
+    if(d > getNumDimensions() - 1) {
+        throw(std::runtime_error("Dimension out of bounds\n"));
+    }
+    partitions_[d] = p;
 }
 
 vector<int> Cluster::cluster() {
+    
     for(int d = 0; d < getNumDimensions(); d++) {
         if(partitions_[d].size() == 0) {
             stringstream msg;
