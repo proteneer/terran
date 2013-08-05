@@ -97,6 +97,11 @@ void testEasyCase2D() {
         cout << endl;
     } 
 
+    vector<int> assignment = cc.cluster();
+    for(int i=0; i<assignment.size(); i++) {
+        cout << assignment[i] << endl;
+    }
+
     // First dimension
     /*
     vector<vector<double> > intervals;
