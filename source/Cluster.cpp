@@ -93,22 +93,6 @@ void Cluster::setPartitions(int dimension, const vector<double> &p) {
 }
 
 vector<int> Cluster::cluster() {
-
-    // todo: parallelize on multiple threads
-    /*
-    for(int d = 0; d < getNumDimensions(); d++) {
-        if(paramset_[d].size() == 0) {    
-            stringstream ss;
-            ss << "Fatal! Parameters not set for dimension " << d <<endl;
-            throw(std::runtime_error(ss.str()));
-        }
-        // optimize the parameters
-        optimizeParameters(d);
-        // partition each dimension using parameters optimized by EM
-        partition(d, 0.05);
-    }
-    */
-
     for(int d = 0; d < getNumDimensions(); d++) {
         if(partitions_[d].size() == 0) {
             stringstream msg;
@@ -135,11 +119,12 @@ vector<int> Cluster::cluster() {
         }
         clusterIndex++;
     }
-
     return assignment;
 }
 
 void Cluster::optimizeParameters(int d) {
+
+    // get the marginal distribution for dimension d
     vector<double> data;
     for(int n = 0; n < getNumPoints(); n++) {
         data.push_back(dataset_[n][d]);
@@ -148,23 +133,23 @@ void Cluster::optimizeParameters(int d) {
     const vector<Param> &initialParams = paramset_[d];
 
     if(isPeriodic(d)) {
-        if(paramset_[d].size() == 0) {
-            //EMPeriodicGaussian epg(data, period_[d]);
-
-            //epg.multiAdaptiveRun()
+        EMPeriodicGaussian epg(data, period_[d]);
+        if(initialParams.size() == 0) {
+            epg.multiAdaptiveRun(100, 0.1, 0.08, 15, 15);
         } else {
-            EMPeriodicGaussian epg(data, initialParams, period_[d]);
+            epg.setParameters(initialParams);
             epg.run();
         }
-        //paramset_[d] = epg.getParams();
+        paramset_[d] = epg.getParams();
     } else {
-        //EMGaussian eg(data, initialParams);
-        if(paramset_[d].size() == 0) {
-        
+        EMGaussian eg(data, initialParams);
+        if(initialParams.size() == 0) {
+            eg.multiAdaptiveRun(100, 0.1, 0.08, 15, 15);
         } else { 
-            //eg.run();
+            eg.setParameters(initialParams);
+            eg.run();
         }
-        //paramset_[d] = eg.getParams();
+        paramset_[d] = eg.getParams();
     }
 }
 
