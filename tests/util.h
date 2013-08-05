@@ -13,6 +13,10 @@ void matchParameters(const std::vector<Terran::Param> &p1, const std::vector<Ter
 
 void matchPoints(const std::vector<double> &p1, const std::vector<double> &p2, double threshold, int count = -1);
 
+// compares vector p2 against vector p1, using errors from threshold corresponding to p1
+// assumes p1 is sorted
+void matchPoints(const std::vector<double> &p1, const std::vector<double> &p2, const std::vector<double> &threshold);
+
 void matchPeriodicPoints(const std::vector<double> &p1, const std::vector<double> &p2, double period, double threshold, int count = -1);
 
 }

@@ -5,6 +5,9 @@
 #include <vector>
 #include "Param.h"
 
+#ifdef _WINDOWS
+#define isnan(x) _isnan(x) 
+#endif
 
 #include <iostream>
 using namespace std;
@@ -38,12 +41,11 @@ inline double fabsp(double x1, double x2, double period) {
     return fabs(periodicDifference(x1,x2,period));
 }
 
-
 // ******************
 // Canonical Gaussian
 // ******************
 //
-// The following 4 functions expression gaussians, gaussian mixtures, and their derivatives
+// The following 4 functions expression define gaussian, gaussian mixtures, and their derivatives
 
 inline double gaussian(double uk, double sk, double xn) {
     return 1.0/(sqrt(2*PI)*sk)*exp(-(0.5)*pow((xn-uk)/sk,2));

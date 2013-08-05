@@ -163,7 +163,7 @@ void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int num
     int attempts = 0;
     do {
         // initialize a set of random parameters
-        cout << attempts << endl;
+        // cout << attempts << endl;
         vector<Param> params;
         vector<double> mean = sampleDomain(numParams);
         for(int i=0; i < mean.size(); i++) {
@@ -174,14 +174,22 @@ void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int num
             p.s = 0.3;
             params.push_back(p);
         }
+       
         setParameters(params);
         adaptiveRun(maxSteps, tolerance, cutoff);
         double newLikelihood = getLikelihood();
+
         if(newLikelihood > bestLikelihood) {
             bestLikelihood = newLikelihood;
             bestParams = getParams(); 
         }
+        /*
         vector<Param> testParams = getParams(); 
+        for(int i=0; i < testParams.size(); i++) {
+            cout << testParams[i].p << " " << testParams[i].u << " " << testParams[i].s << endl;
+        }
+        cout << "Likelihood: " << getLikelihood() << endl;
+        */
         attempts++;
     } while(attempts < numTries);
     params_ = bestParams;
