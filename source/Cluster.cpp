@@ -17,6 +17,15 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
     paramset_(initialParams),
     partitions_(paramset_.size()) {
 
+    for(int i=0; i < period_.size(); i++) {
+        if(period_[i] < 0) {
+            throw(std::runtime_error("period cannot be less than 0"));
+        }
+    }
+
+    if(data[0].size() != period.size()) {
+        throw(std::runtime_error("number of dimensions in data does not match number of dimensions in period!"));
+    }
 }
 
 Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period) : 
@@ -30,6 +39,10 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
     paramset_ = temp2;
 }
 
+Cluster::~Cluster() {
+
+}
+
 int Cluster::getNumDimensions() const {
     return dataset_[0].size();
 }
@@ -40,9 +53,9 @@ int Cluster::getNumPoints() const {
 
 bool Cluster::isPeriodic(int d) const {
     if(period_[d] == 0)
-        return true;
-    else
         return false;
+    else
+        return true;
 }
 
 double Cluster::getPeriod(int d) const {
@@ -82,6 +95,9 @@ vector<double> Cluster::getPartitions(int d) const {
 
 void Cluster::partition(int d, double threshold) {
     vector<Param> params = paramset_[d];
+    if(params.size() == 0) {
+        throw(std::runtime_error("partition() error: Parameters for dimension 0 have not been optimized!"));
+    }
     vector<double> partition;
     if(isPeriodic(d)) {
         const double period = period_[d];
@@ -158,7 +174,7 @@ void Cluster::optimizeParameters(int d) {
     if(isPeriodic(d)) {
         EMPeriodicGaussian epg(data, period_[d]);
         if(initialParams.size() == 0) {
-            epg.multiAdaptiveRun(100, 0.1, 0.08, 15, 15);
+            epg.multiAdaptiveRun(100, 0.1, 0.08, 5, 5);
         } else {
             epg.setParameters(initialParams);
             epg.run();
@@ -167,7 +183,7 @@ void Cluster::optimizeParameters(int d) {
     } else {
         EMGaussian eg(data, initialParams);
         if(initialParams.size() == 0) {
-            eg.multiAdaptiveRun(100, 0.1, 0.08, 15, 15);
+            eg.multiAdaptiveRun(100, 0.1, 0.08, 5, 5);
         } else { 
             eg.setParameters(initialParams);
             eg.run();

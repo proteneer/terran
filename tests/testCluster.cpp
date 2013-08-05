@@ -1,14 +1,15 @@
 #include <math.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 #include <EMGaussian.h>
 #include <EMPeriodicGaussian.h>
 #include <MethodsPeriodicGaussian.h>
 #include <MathFunctions.h>
+#include <Cluster.h>
 
 #include "util.h"
-#include "assign.h"
 
 using namespace std;
 
@@ -28,10 +29,12 @@ using namespace std;
 // |       *
 //-PI-------------------PI
 
+using namespace Terran;
 
 void testEasyCase2D() {
 
     vector<vector<double> > dataset;
+    vector<double> periodset;
     // setup 0th cluster;
     {
         double u1 = -PI/2;
@@ -43,6 +46,7 @@ void testEasyCase2D() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
+            periodset.push_back(period);
         }
     }
 
@@ -57,6 +61,7 @@ void testEasyCase2D() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
+            periodset.push_back(period);
         }
     }
 
@@ -71,10 +76,29 @@ void testEasyCase2D() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
+            periodset.push_back(period);
         }
     }
 
+    Cluster cc(dataset, periodset);
+
+    ofstream fdata("fdata.txt");
+    for(int i=0; i < dataset.size(); i++) {
+        fdata << dataset[i][0] << " " << dataset[i][1] << endl;
+    }
+
+    for(int d = 0; d < cc.getNumDimensions(); d++) {
+        cc.optimizeParameters(d);
+        cc.partition(d, 0.05);
+        vector<double> partitions = cc.getPartitions(d);
+        for(int i=0; i<partitions.size(); i++) {
+            cout << partitions[i] << " ";
+        }
+        cout << endl;
+    } 
+
     // First dimension
+    /*
     vector<vector<double> > intervals;
     {
         vector<double> d0;
@@ -146,7 +170,7 @@ void testEasyCase2D() {
         }
         cout << endl;
     }
-
+    */
     // uncomment if visualization is desired, you can 
     // plot the output using xmgrace directly using:
     // ./testAssignment > data.txt; xmgrace data.txt
@@ -159,6 +183,10 @@ void testEasyCase2D() {
 }
 
 int main() {
-    testEasyCase2D();
-
+    try{
+        testEasyCase2D();
+        cout << "done" << endl;
+    } catch(const exception &e) {
+        cout << e.what();
+    }
 }

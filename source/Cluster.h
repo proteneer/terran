@@ -74,15 +74,15 @@ public:
     // else if no parameters are given, EM::multiAdaptiveRun() is called
     void optimizeParameters(int d);
 
+    // partition the dimension into disjoint intervals
+    void partition(int dimension, double threshold);
+
     // returns an assignment of points into clusters
     // each dimension must have been partitioned either by means of:
     // setPartitions() or invoking partition()
     std::vector<int> cluster();
 
 private:
-
-    // partition the dimension into disjoint intervals
-    void partition(int dimension, double threshold);
 
     // assigns a given point to a bucket
     std::vector<short> assign(int point) const;
