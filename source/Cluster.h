@@ -64,7 +64,7 @@ public:
     // else if no parameters are given, EM::multiAdaptiveRun() is called
     void optimizeParameters(int d);
 
-    // partition the dimension into disjoint intervals
+    // partition the dimension into disjoint intervals by disjoint intervals
     void partition(int dimension, double threshold);
 
     // returns an assignment of points into clusters

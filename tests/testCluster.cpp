@@ -181,6 +181,7 @@ int testClusterTree() {
 
     ClusterTree ct(dataset, periodset);
     ct.stepBFS();
+    ct.stepBFS();
 }
 
 int main() {

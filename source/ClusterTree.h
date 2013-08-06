@@ -29,13 +29,12 @@ public:
     ClusterTree(const std::vector<std::vector<double> > &dataset, const std::vector<double> &period);
     ~ClusterTree();
 
-    // bfs search of the tree
-    // returns true if more can be done
-    // returns false if all clusters are complete
-    bool stepBFS();
+    int getNumPoints() const;
 
-    // dfs search of the tree
-    void stepDFS();
+    // bfs search of the tree
+    // returns true if nothing more can be done
+    // returns false if there is more work to be done
+    bool stepBFS();
 
     void printTree();
 

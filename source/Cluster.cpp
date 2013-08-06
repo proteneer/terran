@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <map>
+#include <algorithm>
 
 #include "Cluster.h"
 #include "MethodsPeriodicGaussian.h"
@@ -86,10 +87,16 @@ vector<double> Cluster::getMarginalValues(int d) const {
 }
 
 vector<Param> Cluster::getParameters(int d) const {
+    if(d > getNumDimensions() || d < 0) {
+        throw(std::runtime_error("getParameters(), invalid dimension"));
+    }
     return paramset_[d];
 }
 
 vector<double> Cluster::getPartitions(int d) const {
+    if(d > getNumDimensions() || d < 0) {
+        throw(std::runtime_error("getPartitions(), invalid dimension"));
+    }
     return partitions_[d];
 }
 
@@ -113,6 +120,8 @@ void Cluster::partition(int d, double threshold) {
         // TODO: implement code to partition non periodic mixture models
 
     }
+    // this is important
+    sort(partition.begin(), partition.end());
     partitions_[d] = partition;
 }
 
@@ -144,6 +153,11 @@ vector<int> Cluster::cluster() {
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {
         vector<short> bucket = assign(n);
+        cout << n << " ";
+        for(int i=0; i < bucket.size(); i++) {
+            cout << bucket[i];
+        }
+        cout << endl;
         clusters[bucket].push_back(n);
     }
 
