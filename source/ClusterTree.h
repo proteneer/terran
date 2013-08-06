@@ -39,16 +39,15 @@ public:
 
 private:
 
+    // N x D
     std::vector<std::vector<double> > dataset_;
     std::vector<double> period_;
-    // specifies the cluster each point belongs to
-    std::vector<int> assignment_;
-    // rootNode in the BFS tree
-    Node *rootNode_;
 
-    std::vector<bool> skip_;
+    // Each cluster is comprised of point Ids, and a boolean skip flag where: 
+    // true  - denotes the cluster can be skipped
+    // false - denotes the cluster still needs to be searched
+    std::vector<std::pair<std::vector<int>, bool> > clusters_; 
 
-    int counter_;
 };
 
 }
