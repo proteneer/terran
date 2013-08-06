@@ -8,7 +8,7 @@
 //           __________|_________*                
 //           0         1         2
 //                           *___|___*
-//                           0   1   2
+//                           0   1   2a
 //                          / \     / \
 //                         0   1   0   1
 //
@@ -30,7 +30,9 @@ public:
     ~ClusterTree();
 
     // bfs search of the tree
-    void stepBFS();
+    // returns true if more can be done
+    // returns false if all clusters are complete
+    bool stepBFS();
 
     // dfs search of the tree
     void stepDFS();
@@ -44,10 +46,11 @@ private:
     std::vector<double> period_;
 
     // Each cluster is comprised of point Ids, and a boolean skip flag where: 
+    // TODO: change to enums later
     // true  - denotes the cluster can be skipped
     // false - denotes the cluster still needs to be searched
     std::vector<std::pair<std::vector<int>, bool> > clusters_; 
-
+    //std::vector<std::vector<int>, bool> > clusters_; 
 };
 
 }
