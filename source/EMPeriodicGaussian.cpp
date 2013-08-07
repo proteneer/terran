@@ -138,6 +138,33 @@ vector<double> EMPeriodicGaussian::sampleDomain(int count) const {
     return points;
 }
 
+vector<double> EMPeriodicGaussian::sampleDomain(int count, double left, double right) const {
+    if(left < -period_/2 || left > period_/2) {
+        throw(std::runtime_error("sampleDomain() left is not in the domain period"));
+    }
+    if(right < -period_/2 || right > period_/2) {
+        throw(std::runtime_error("sampleDomain() left is not in the domain period"));
+    }
+    if(left == right) {
+        throw(std::runtime_error("sampelDomain() left cannot be equal to right")); 
+    }
+    vector<double> points;
+    double domainLength;
+    if(left > right) {
+        domainLength = period_-right+left;
+    } else {
+        domainLength = right-left; 
+    }
+
+    for(int i=0; i < count; i++) {
+        double frac = (double) rand() / (double) RAND_MAX;
+        double val = -period_/2 + frac*domainLength;
+        normalize(val);
+        points.push_back(val);
+    }
+    return points;
+}
+
 double EMPeriodicGaussian::qkn(int k, int n) const {
     double xn = data_[n];
     double pk = params_[k].p;

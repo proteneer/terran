@@ -18,8 +18,11 @@ private:
     double qkn(int k, int n) const;
 
     // given min and max of the domain
-    // samples a set of points in the interal [min, max]
+    // samples a set of points in the interval [min, max]
     std::vector<double> sampleDomain(int count) const;
+
+    // samples a set of poitns in the interval [left, right]
+    std::vector<double> sampleDomain(int count, double left, double right) const;
 
 };
 

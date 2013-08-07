@@ -19,7 +19,10 @@ class EMPeriodicGaussian : public EM {
 
     private:
         // sample points in the periodic domain
-        virtual vector<double> sampleDomain(int count) const;
+        vector<double> sampleDomain(int count) const;
+
+        // if left > right, sample points in the wrapped region
+        vector<double> sampleDomain(int count, double left, double right) const;
 
         double qkn(int k, int n) const; 
 

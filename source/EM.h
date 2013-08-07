@@ -47,7 +47,6 @@ class EM {
         // This is determined by the probability weight component p
         bool adaptiveRun(int maxSteps = 100, double tolerance = 0.1, double cutoff = 0.05);
 
-
         // Multiadaptive run generates a set of parameters by random repeatedly
         // and sees which results in the highest likelihood
         void multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numTries);
@@ -80,6 +79,8 @@ class EM {
         // Generate random samples in the domain
         virtual std::vector<double> sampleDomain(int count) const = 0;
 
+        // Generates random samples in the region [left, right]
+        virtual std::vector<double> sampleDomain(int count, double left, double right) const = 0;
 };
 
 }

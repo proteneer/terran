@@ -65,4 +65,24 @@ std::vector<double> EMGaussian::sampleDomain(int count) const {
     return points;
 }
 
+std::vector<double> EMGaussian::sampleDomain(int count, double left, double right) const {
+    if(left > right) { 
+        throw(std::runtime_error("sampleDomain(int c, double left, double right) error: left > right"));
+    }
+    double min = left;
+    double max = right;
+    for(int i=0; i < data_.size(); i++) {
+        min = (data_[i] < min) ? data_[i] : min;
+        max = (data_[i] > max) ? data_[i] : max;
+    }
+    double range = max-min;
+    vector<double> points;
+    for(int i=0; i < count; i++) {
+        double frac = (double) rand() / (double) RAND_MAX;
+        double val = min + frac*range;
+        points.push_back(val);
+    }
+    return points;
+}
+
 }
