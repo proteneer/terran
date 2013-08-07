@@ -31,6 +31,12 @@ public:
 
     int getNumPoints() const;
 
+    int getNumClusters() const;
+
+    std::vector<int> getPointsInCluster(int clusterIndex) const;
+
+    std::vector<int> getAssignment() const;
+
     // bfs search of the tree
     // returns true if nothing more can be done
     // returns false if there is more work to be done

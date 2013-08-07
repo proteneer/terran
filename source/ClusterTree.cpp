@@ -4,6 +4,7 @@
 #include <utility>
 #include <algorithm>
 #include <fstream>
+#include <stdexcept>
 
 using namespace std;
 using namespace Terran;
@@ -27,6 +28,27 @@ ClusterTree::~ClusterTree() {
 
 int ClusterTree::getNumPoints() const {
     return dataset_.size();
+}
+
+int ClusterTree::getNumClusters() const {
+    return clusters_.size();
+}
+
+vector<int> ClusterTree::getPointsInCluster(int clusterIndex) const {
+    return clusters_[clusterIndex].first;
+}
+
+vector<int> ClusterTree::getAssignment() const {
+    vector<int> allIndices(getNumPoints());
+    int clusterIndex = 0;
+    for(int i=0; i < clusters_.size(); i++) {
+        vector<int> points = clusters_[i].first;
+        for(int j=0; j < points.size(); j++) {
+            allIndices[points[i]] = clusterIndex;
+        }
+        clusterIndex++;
+    }
+    return allIndices;
 }
 
 ofstream log2("log2.txt");

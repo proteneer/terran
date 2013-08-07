@@ -12,7 +12,6 @@ void testFindPeriodicMaxima() {
     const double tol = 1e-3;
     int testCount = 0;
     const double period = 2*PI;
-    const double images = 15;
     // Bimodal
     {
         vector<Param> p;
@@ -148,7 +147,6 @@ void testFindPeriodicMinima() {
     const double tol = 5e-3;
     int testCount = 0;
     const double period = 2*PI;
-    const double images = 15;
 
     // Unimodal
     {
