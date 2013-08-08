@@ -45,7 +45,7 @@ public:
     std::vector<double> getPoint(int n) const;
 
     // return marginalized values for dimension d
-    std::vector<double> getMarginalValues(int d) const;
+    std::vector<double> getDimension(int d) const;
 
     // returns the set of parameters in the mixture model fitting dimension d
     std::vector<Param> getParameters(int d) const;

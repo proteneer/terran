@@ -75,7 +75,7 @@ vector<double> Cluster::getPoint(int n) const {
     return dataset_[n];
 }
 
-vector<double> Cluster::getMarginalValues(int d) const {
+vector<double> Cluster::getDimension(int d) const {
     if(d >= getNumDimensions()) {
         throw(std::runtime_error("Cluster::getMarginalValues() out of bounds!"));   
     }
