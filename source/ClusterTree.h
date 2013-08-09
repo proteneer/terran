@@ -8,7 +8,7 @@
 //           __________|_________*                
 //           0         1         2
 //                           *___|___*
-//                           0   1   2a
+//                           0   1   2
 //                          / \     / \
 //                         0   1   0   1
 //
@@ -37,7 +37,7 @@ public:
 
     std::vector<int> getAssignment() const;
 
-    // bfs search of the tree
+    // BFS search of the tree
     // returns true if nothing more can be done
     // returns false if there is more work to be done
     bool stepBFS();

@@ -16,25 +16,13 @@ EM::~EM() {
 
 EM::EM(const std::vector<double> &data) : 
     data_(data),
-    pikn_(data.size(), std::vector<double>(0)) {
+    pikn_(data.size(), std::vector<double>(0)),
+    maxSteps_(100),
+    tolerance_(0.1) {
 
     if(data_.size() == 0)
         throw(std::runtime_error("Cannot initialize EM with empty dataset"));
 
-    double psum = 0;
-
-    for(int i=0; i<params_.size(); i++) {
-        psum += params_[i].p;
-        if(params_[i].p <= 0)
-            throw(std::runtime_error("Cannot have p <= 0 in parameters"));
-        if(params_[i].p > 1)
-            throw(std::runtime_error("Cannot have p > 1 in parameters"));
-        if(params_[i].s <= 0)
-            throw(std::runtime_error("Cannot have s <= 0 in parameters"));
-    }
-    if(psum > 1.0001) {
-        throw(std::runtime_error("Initial probabilities sum to greater than 1"));
-    }
 }
 
 EM::EM(const std::vector<double> &data, const std::vector<Param> &params) : 
@@ -45,23 +33,23 @@ EM::EM(const std::vector<double> &data, const std::vector<Param> &params) :
     if(data_.size() == 0)
         throw(std::runtime_error("Cannot initialize EM with empty dataset"));
 
-    double psum = 0;
-
-    for(int i=0; i<params_.size(); i++) {
-        psum += params_[i].p;
-        if(params_[i].p <= 0)
-            throw(std::runtime_error("Cannot have p <= 0 in parameters"));
-        if(params_[i].p > 1)
-            throw(std::runtime_error("Cannot have p > 1 in parameters"));
-        if(params_[i].s <= 0)
-            throw(std::runtime_error("Cannot have s <= 0 in parameters"));
-    }
-    if(psum > 1.0001) {
-        throw(std::runtime_error("Initial probabilities sum to greater than 1"));
-    }
+    setParameters(params);
 }
 
 void EM::setParameters(const std::vector<Param> &input) {
+    double psum = 0;
+    for(int i=0; i<input.size(); i++) {
+        psum += input[i].p;
+        if(input[i].p <= 0)
+            throw(std::runtime_error("Cannot have p <= 0 in parameters"));
+        if(input[i].p > 1)
+            throw(std::runtime_error("Cannot have p > 1 in parameters"));
+        if(input[i].s <= 0)
+            throw(std::runtime_error("Cannot have s <= 0 in parameters"));
+    }
+    if(psum > 1.0000001) {
+        throw(std::runtime_error("Initial probabilities sum to greater than 1"));
+    }
     params_ = input;
     vector<vector<double> > temp(data_.size(), std::vector<double>(params_.size(),0));
     pikn_ = temp; 
@@ -87,7 +75,26 @@ double EM::getLikelihood() const {
     return lambda;
 }
 
-bool EM::run(int maxSteps, double tolerance) {
+void EM::setMaxSteps(int maxSteps) {
+    maxSteps_ = maxSteps;
+}
+
+int EM::getMaxSteps() const {
+    return maxSteps_;
+}
+
+void EM::setTolerance(double tol) {
+    tolerance_ = tol;
+}
+
+double EM::getTolerance() const {
+    return tolerance_;
+}
+
+bool EM::run() {
+    if(params_.size() == 0) {
+        throw(std::runtime_error("EM::run(), parameters are not set"));
+    }
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld;
@@ -114,15 +121,15 @@ bool EM::run(int maxSteps, double tolerance) {
     // Stop EM if:
     // a. likelihood reaches the specified tolerance
     // b. maxmimum number of steps reached
-    } while(likelihood - likelihoodOld > tolerance && steps < maxSteps);
+    } while(likelihood - likelihoodOld > tolerance_ && steps < maxSteps_);
 
-    return (steps < maxSteps);
+    return (steps < maxSteps_);
 }
 
-bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
+bool EM::adaptiveRun(double cutoff) {
 
     if(params_.size() == 0) {
-        throw(std::runtime_error("Error in adaptiveRun(), params_ are not set"));
+        throw(std::runtime_error("EM::adaptiveRun(), parameters are not set"));
     }
 
     int steps = 0;
@@ -152,12 +159,12 @@ bool EM::adaptiveRun(int maxSteps, double tolerance, double cutoff) {
     // Stop EM if:
     // a. likelihood reaches the specified tolerance
     // b. maxmimum number of steps reached
-    } while(likelihood-likelihoodOld > tolerance && steps < maxSteps);
+    } while(likelihood-likelihoodOld > tolerance_ && steps < maxSteps_);
 
-    return (steps < maxSteps);
+    return (steps < maxSteps_);
 }
 
-void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numTries) {
+void EM::multiAdaptiveRun(double cutoff, int numParams, int numTries) {
     vector<Param> bestParams;
     double bestLikelihood = -numeric_limits<double>::max();
     int attempts = 0;
@@ -176,7 +183,7 @@ void EM::multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int num
         }
        
         setParameters(params);
-        adaptiveRun(maxSteps, tolerance, cutoff);
+        adaptiveRun(cutoff);
         double newLikelihood = getLikelihood();
 
         if(newLikelihood > bestLikelihood) {

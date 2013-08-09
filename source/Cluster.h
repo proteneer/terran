@@ -22,7 +22,8 @@ class Cluster {
 
 public:
 
-    Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period, const std::vector<std::vector<Param> > &initialParams);
+   // get rid of
+    // Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period, const std::vector<std::vector<Param> > &initialParams);
 
     Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period);
 
@@ -41,20 +42,20 @@ public:
     // else an exception is thrown
     double getPeriod(int d) const;
 
-    // return point n
+    // return point n of length D
     std::vector<double> getPoint(int n) const;
 
-    // return marginalized values for dimension d
+    // return marginalized values for dimension d of length N
     std::vector<double> getDimension(int d) const;
 
     // returns the set of parameters in the mixture model fitting dimension d
-    std::vector<Param> getParameters(int d) const;
+    // std::vector<Param> getParameters(int d) const;
 
     // returns the partitions
     std::vector<double> getPartitions(int d) const;
 
     // set the parameters of the mixture model for dimension d
-    void setParameters(int d, const std::vector<Param> &params);
+    // void setParameters(int d, const std::vector<Param> &params);
 
     // set the partitions of dimension d
     void setPartitions(int d, const std::vector<double> &p);
@@ -62,14 +63,14 @@ public:
     // optimizes parameters in dimension d
     // if parameters are given, EM::run() is called
     // else if no parameters are given, EM::multiAdaptiveRun() is called
-    void optimizeParameters(int d);
+    // void optimizeParameters(int d);
 
     // partition the dimension into disjoint intervals by disjoint intervals
-    void partition(int dimension, double threshold);
+    // void partition(int dimension, double threshold);
 
     // returns an assignment of points into clusters
     // each dimension must have been partitioned either by means of:
-    // setPartitions() or invoking partition()
+    // setPartitions() or invoking partition() of length
     std::vector<int> cluster();
 
 private:
@@ -86,7 +87,7 @@ private:
     const std::vector<double> period_;
 
     // the mixture model used to describe each DOF, size D x variable
-    std::vector<std::vector<Param> > paramset_;
+    // std::vector<std::vector<Param> > paramset_;
 
     // disjoint partitions of the domain
     std::vector<std::vector<double> > partitions_;

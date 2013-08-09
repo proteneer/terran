@@ -12,6 +12,7 @@ using namespace std;
 
 namespace Terran {
 
+/*
 Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period, const vector<vector<Param> > &initialParams) : 
     dataset_(data),
     period_(period),
@@ -28,6 +29,7 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
         throw(std::runtime_error("number of dimensions in data does not match number of dimensions in period!"));
     }
 }
+*/
 
 Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period) : 
     dataset_(data),
@@ -35,9 +37,7 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
     if(data.size() == 0) 
         throw(std::runtime_error("cluster() constructor error: input data size cannot 0"));
     vector<vector<double> > temp(data[0].size());
-    vector<vector<Param> > temp2(data[0].size());
     partitions_ = temp;
-    paramset_ = temp2;
 }
 
 Cluster::~Cluster() {
@@ -86,12 +86,14 @@ vector<double> Cluster::getDimension(int d) const {
     return data;
 }
 
+/*
 vector<Param> Cluster::getParameters(int d) const {
     if(d > getNumDimensions() || d < 0) {
         throw(std::runtime_error("getParameters(), invalid dimension"));
     }
     return paramset_[d];
 }
+*/
 
 vector<double> Cluster::getPartitions(int d) const {
     if(d > getNumDimensions() || d < 0) {
@@ -100,6 +102,7 @@ vector<double> Cluster::getPartitions(int d) const {
     return partitions_[d];
 }
 
+/*
 void Cluster::partition(int d, double threshold) {
     vector<Param> params = paramset_[d];
     if(params.size() == 0) {
@@ -124,13 +127,16 @@ void Cluster::partition(int d, double threshold) {
     sort(partition.begin(), partition.end());
     partitions_[d] = partition;
 }
+*/
 
+/*
 void Cluster::setParameters(int d, const vector<Param> &p) {
     if(d > getNumDimensions() - 1) {
         throw(std::runtime_error("Dimension out of bounds\n"));
     }
     paramset_[d] = p;
 }
+*/
 
 void Cluster::setPartitions(int d, const vector<double> &p) {
     if(d > getNumDimensions() - 1) {
@@ -175,6 +181,7 @@ vector<int> Cluster::cluster() {
     return assignment;
 }
 
+/*
 void Cluster::optimizeParameters(int d) {
 
     // get the marginal distribution for dimension d
@@ -205,6 +212,7 @@ void Cluster::optimizeParameters(int d) {
         paramset_[d] = eg.getParams();
     }
 }
+*/
 
 vector<short> Cluster::assign(int pointIndex) const {
     vector<short> bucket(getNumDimensions());

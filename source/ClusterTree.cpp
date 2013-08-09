@@ -100,11 +100,24 @@ bool ClusterTree::stepBFS() {
             }
 
             // optimize the parameters for each dimension
+
+            // alternative API:
+            // for each dimension
+            // 1. data = Cluster::getDimension(d); // get marginalized data for the d'th dimension
+            // 2. vec2 = Partition(data); (either EM Partition or GKDE Partition)
+            // 3. Cluster::setPartition(d);
+            // 4. Cluster::cluster(); 
+
+            // this way the Cluster class doesn't have to know about parameters, only the partitions;
             Cluster cc(clusterPointData, period_);
+
+            /*
+            // TODO FIGURE OUT HOW TO SET PARAMETERS HERE!
             for(int d=0; d < cc.getNumDimensions(); d++) {
                 cc.optimizeParameters(d);
                 cc.partition(d,0.05);
             }
+            */
 
             log2 << "partitions: " << endl;
             vector<double> p0 = cc.getPartitions(0);

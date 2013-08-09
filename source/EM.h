@@ -22,6 +22,7 @@ namespace Terran {
 
 class EM { 
     public:
+
         EM(const std::vector<double> &data, const std::vector<Param> &params);
         EM(const std::vector<double> &data);
         virtual ~EM();
@@ -38,18 +39,33 @@ class EM {
         // Compute the log likelihood given current parameters
         double getLikelihood() const;
 
+        // Set maximum number of steps in any given EM run
+        void setMaxSteps(int maxSteps);
+
+        // Get the maximum number of steps
+        int getMaxSteps() const;
+
+        // Set the tolerance for the log likelihood convergence criteria
+        void setTolerance(double tol);
+
+        // Return the tolerance
+        double getTolerance() const;
+
         // Run the canonical EM algorithm 
         // Returns true if executed successfully, false otherwise
-    	bool run(int maxSteps = 100, double tolerance = 0.1);
+        // bool run(int maxSteps = 100, double tolerance = 0.1, const vector<Param> &params_);
+        // Requires parameters to be set explicitly
+    	bool run();
 
         // Run the adaptive EM algorithm
         // The number of parameters that overfit will be pruned away automatically
         // This is determined by the probability weight component p
-        bool adaptiveRun(int maxSteps = 100, double tolerance = 0.1, double cutoff = 0.05);
+        // Requires parameters to be set explicitly
+        bool adaptiveRun(double cutoff);
 
         // Multiadaptive run generates a set of parameters by random repeatedly
         // and sees which results in the highest likelihood
-        void multiAdaptiveRun(int maxSteps, double tolerance, double cutoff, int numParams, int numTries);
+        void multiAdaptiveRun(double cutoff, int numParams, int numTries);
 
         // Compute the Expectation based on current parameters
         void EStep();
@@ -61,7 +77,7 @@ class EM {
 
         // The sum over k for each n in p(k|n) should be 1
         void testIntegrity() const;
-
+        
         const std::vector<double> data_;
         std::vector<Param> params_;
 
@@ -72,6 +88,12 @@ class EM {
         std::vector<std::vector<double> > pikn_;
 
     private:
+
+        // maximum number of steps in each EM run
+        int maxSteps_;
+
+        // tolerance threshold
+        double tolerance_;
 
         // Used by the EStep to compute the expectation
         virtual double qkn(int k, int n) const = 0;

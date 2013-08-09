@@ -11,7 +11,7 @@ public:
         double period);
 
     // Partition the domain into disjoint intervals
-    std::vector<double> partition(double threshold) const;
+    // std::vector<double> partition(double threshold) const;
 
     // Find the maxima for a periodic gaussian mixture model
     std::vector<double> findMaxima() const;
