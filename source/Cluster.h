@@ -65,7 +65,7 @@ public:
     // else if no parameters are given, EM::multiAdaptiveRun() is called
     // void optimizeParameters(int d);
 
-    // partition the dimension into disjoint intervals by disjoint intervals
+    // partition the dimension into disjoint intervals
     // void partition(int dimension, double threshold);
 
     // returns an assignment of points into clusters
@@ -73,7 +73,16 @@ public:
     // setPartitions() or invoking partition() of length
     std::vector<int> cluster();
 
+    // set the type of partitioning to be done (periodic versions are determined automatically)
+    // available methods: Gaussian Kernel Density Estimation, and Expectation Maximization
+    void setPartitionMethod(int d, /*partitionTool*/);
+
+    //PartitionTool getPartitionMethod(int d);
+
 private:
+
+    // describes the type of partitioning used by this cluster
+    // vector<PartitionTool> partitionMethod_;
 
     // assigns a given point to a bucket
     std::vector<short> assign(int point) const;
