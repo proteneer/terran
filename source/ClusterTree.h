@@ -21,17 +21,18 @@ class ClusterTree {
 
 public:
 
-    struct ClusterTreeNode {
-        ~ClusterTreeNode() {
+    struct Node {
+        Node() {};
+        ~Node() {
             for(int i=0;i<children.size(); i++)
                 delete children[i];
-        }
+        };
         // points that belong to this cluster
         std::vector<int> indices; 
         // partition dividers
         std::vector<std::vector<double> > partitions;
         // the clusters results from this
-        std::vector<ClusterTreeNode*> children;
+        std::vector<Node*> children;
     };
 
     ClusterTree(const std::vector<std::vector<double> > &dataset, const std::vector<double> &period);
@@ -49,6 +50,8 @@ public:
 
     int getNumClusters() const;
 
+
+
     // std::vector<int> getPointsInCluster(int clusterIndex) const;
 
     // int getPopulation(int clusterIndex);
@@ -56,32 +59,22 @@ public:
     // get the current assignment of points into clusters
     std::vector<int> getAssignment() const;
 
+
+    Node* getRoot();
+
     // take one step in BFS
     // returns true if successful
     // returns false otherwise
     bool step();
 
-    void getTree();
     
 private:
 
     // N x D
-    std::vector<std::vector<double> > dataset_;
+    std::vector<std::vector<double> > dataset_; 
     std::vector<double> period_;
-
-    // Each cluster is comprised of point Ids, and a boolean skip flag where: 
-    // TODO: change to enums later
-    // true  - denotes the cluster can be skipped
-    // false - denotes the cluster still needs to be searched
-    //std::vector<std::pair<std::vector<int>, bool> > clusters_; 
-    //std::vector<std::vector<int>, bool> > clusters_; 
-
-    // used in BFS search
-    // elements in the queue
-    std::queue<ClusterTreeNode*> queue_;
-
-    // the root of the tree
-    ClusterTreeNode* root_;
+    std::queue<Node*> queue_;
+    Node* root_;
     
 };
 

@@ -75,7 +75,7 @@ public:
 
     // set the type of partitioning to be done (periodic versions are determined automatically)
     // available methods: Gaussian Kernel Density Estimation, and Expectation Maximization
-    void setPartitionMethod(int d, /*partitionTool*/);
+    void setPartitionMethod(int d /*partitionTool*/);
 
     //PartitionTool getPartitionMethod(int d);
 

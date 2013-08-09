@@ -18,7 +18,7 @@ ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<do
     for(int i=0; i<points.size(); i++) {
         points[i]=i;
     }
-    root_ = new ClusterTreeNode;
+    root_ = new Node;
     root_->indices = points;
     queue_.push(root_);
 }
@@ -31,9 +31,6 @@ int ClusterTree::getNumPoints() const {
     return dataset_.size();
 }
 
-int ClusterTree::getNumClusters() const {
-
-}
 
 /*
 vector<int> ClusterTree::getPointsInCluster(int clusterIndex) const {
@@ -42,8 +39,9 @@ vector<int> ClusterTree::getPointsInCluster(int clusterIndex) const {
 
 */
 
+/*
 vector<int> ClusterTree::getAssignment() const {
-    /*
+    
     vector<int> allIndices(getNumPoints());
     int clusterIndex = 0;
     for(int i=0; i < clusters_.size(); i++) {
@@ -54,15 +52,16 @@ vector<int> ClusterTree::getAssignment() const {
         clusterIndex++;
     }
     return allIndices;
-    */
+    
 }
+*/
 
 ofstream log2("log2.txt");
 
 bool ClusterTree::step() {
     if(queue_.size() == 0) 
         return false;
-    ClusterTreeNode* node = queue_.front();
+    Node* node = queue_.front();
     queue_.pop();
 
     // nodes in the queue have the property:
@@ -74,9 +73,10 @@ bool ClusterTree::step() {
         throw(std::runtime_error("ClusterTree::step() - node partition not empty"));
     if(node->children.size() > 0)
         throw(std::runtime_error("ClusterTree::step() - node children not empty"));
-    // if this node doesn't have enough points to give a good representation of the points
+    
+    // if this node doesn't have data points then break
     if(node->indices.size() < 500)
-        return;
+        return true;
 
     vector<vector<double> > subset;
     const vector<int> &indices = node->indices;
@@ -97,11 +97,15 @@ bool ClusterTree::step() {
         }
         // for each new cluster
         for(int j=0; j < subsetIndices.size(); j++) {
-            ClusterTreeNode* newNode = new ClusterTreeNode;
+            Node* newNode = new Node;
             newNode->indices = subsetIndices[j];
             // set the children for this cluster
             node->children.push_back(newNode);
         }
     }
     return true;
+}
+
+ClusterTree::Node* ClusterTree::getRoot() {
+    return root_;
 }
