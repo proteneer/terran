@@ -87,7 +87,6 @@ bool ClusterTree::finished() const {
 
 
 void ClusterTree::setCurrentCluster() {
-    
     if(queue_.size() == 0) 
         throw(std::runtime_error("ClusterTree::step - invoked setCluster() on an empty queue"));
     if(currentCluster_ != NULL)
@@ -101,11 +100,7 @@ void ClusterTree::setCurrentCluster() {
         throw(std::runtime_error("ClusterTree::step() - currentNode_ partition not empty"));
     if(currentNode_->children.size() > 0)
         throw(std::runtime_error("ClusterTree::step() - currentNode_ children not empty"));
-
-    //if(queue_.size() < 1000) {
-    //    return false;
-    //} 
-
+    
     vector<vector<double> > subset;
     const vector<int> &indices = currentNode_->indices;
     for(int i=0; i<indices.size(); i++) {
@@ -165,6 +160,6 @@ void ClusterTree::step() {
     divideCurrentCluster();
 }
 
-ClusterTree::Node* ClusterTree::getRoot() {
-    return root_;
+ClusterTree::Node& ClusterTree::getRoot() {
+    return *root_;
 }

@@ -31,7 +31,7 @@ void testUnimodalPeriodicGaussian() {
     vector<Param> params;
     params.push_back(p);
     EMPeriodicGaussian em(data, params, period);
-    em.run(100, 0.1);
+    em.run();
     vector<Param> optimizedParams = em.getParams();
     Util::matchParameters(initParams, optimizedParams, 0.05);
 }
@@ -92,7 +92,8 @@ void testBimodalPeriodicGaussian() {
             params.push_back(p);
         }
         em.setParameters(params);
-        em.run(100,0.01);
+        em.setTolerance(0.01);
+        em.run();
         vector<Param> optimizedParams = em.getParams();
         Util::matchParameters(initParams, optimizedParams, 0.05);
         MethodsPeriodicGaussian mpg(optimizedParams, period);
@@ -116,7 +117,7 @@ void testBimodalPeriodicGaussian() {
             params.push_back(p);
         }
         em.setParameters(params);
-        em.adaptiveRun(100, 0.01, 0.08);
+        em.adaptiveRun(0.08);
         vector<Param> optimizedParams = em.getParams();
         Util::plotPeriodicGaussian(optimizedParams, period, "adaptive");
         MethodsPeriodicGaussian mpg(optimizedParams, period);
@@ -133,10 +134,10 @@ void testBimodalPeriodicGaussian() {
         vector<Param> params;
         em.setParameters(params);
         EMPeriodicGaussian em(data, period);
+        double cutoff = 0.08;
         int numInitialParams = 15;
         int numTries = 10;
-        cout << "multAdaptiveRun started" << endl;
-        em.multiAdaptiveRun(100,0.01, 0.08, numInitialParams, numTries);
+        em.multiAdaptiveRun(cutoff, numInitialParams, numTries);
         vector<Param> optimizedParams = em.getParams();
         Util::plotPeriodicGaussian(optimizedParams, period, "adaptive");
         MethodsPeriodicGaussian mpg(optimizedParams, period);

@@ -65,10 +65,8 @@ public:
     // get the current assignment of points into clusters
     std::vector<int> getAssignment() const;
 
-    Node* getRoot();
+    Node& getRoot();
 
-    void prepareStep();
-    
     // take one step in BFS
     // returns true if successful
     // returns false otherwise
@@ -84,18 +82,12 @@ public:
     // check the partitions for each dimension to see how well behaved they are
     // divide the cluster into new smaller clusters
     
-    // pops the queue and assigns current cluster 
-    // returns true if cluster has been set successfully
-    // returns false if cluster has not been set successfully (due to lack of data points, etc.)
+    // pops the queue and assigns current cluster, this removes the head element
     void setCurrentCluster();
 
     void partitionCurrentCluster();
     
-    // divide up the points in the current cluster into multiple subclusters
-    // the cluster is then deleted and we move to the next cluster.
     void divideCurrentCluster();
-
-
 
     Cluster* getCurrentCluster();
     

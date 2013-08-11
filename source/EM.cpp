@@ -28,7 +28,9 @@ EM::EM(const std::vector<double> &data) :
 EM::EM(const std::vector<double> &data, const std::vector<Param> &params) : 
     data_(data),
     params_(params),
-    pikn_(data.size(), std::vector<double>(params.size(),0)) {
+    pikn_(data.size(), std::vector<double>(params.size(),0)),
+    maxSteps_(100),
+    tolerance_(0.1) {
 
     if(data_.size() == 0)
         throw(std::runtime_error("Cannot initialize EM with empty dataset"));
