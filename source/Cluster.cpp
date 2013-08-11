@@ -157,26 +157,22 @@ vector<int> Cluster::cluster() {
 }
 
 vector<short> Cluster::assign(int pointIndex) const {
-    vector<short> bucket(getNumDimensions());
+    // the initialization to the zero for each dimension in the bucket is important
+    // as it takes care of the case when no partitions exist for that dimension
+    vector<short> bucket(getNumDimensions(), 0);
     vector<double> point = dataset_[pointIndex];
 
     // for each dimension in the point
     for(int d=0; d<getNumDimensions(); d++) {
-
-        // if no partitioning points were found, then it belongs in the zero'th bin
-        if(partitions_[d].size() == 0) {
-            bucket[d] = 0;
-        } else {
-            for(int j=0; j<partitions_[d].size(); j++) {
-                if(point[d] < partitions_[d][j]) {
-                    bucket[d] = j;
-                    break;
-                }
-                if(isPeriodic(d))
-                    bucket[d] = 0;
-                else
-                    bucket[d] = j+1;
+        for(int j=0; j<partitions_[d].size(); j++) {
+            if(point[d] < partitions_[d][j]) {
+                bucket[d] = j;
+                break;
             }
+            if(isPeriodic(d))
+                bucket[d] = 0;
+            else
+                bucket[d] = j+1;
         }
     }
     return bucket;

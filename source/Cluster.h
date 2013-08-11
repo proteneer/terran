@@ -59,7 +59,7 @@ public:
         return partitioners_[d];
     };
 
-    // partition dimension d, store result in partititions_
+    // attempt to partition dimension d
     void partition(int d);
 
     // returns an assignment of points into clusters
