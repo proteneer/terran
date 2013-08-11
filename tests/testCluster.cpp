@@ -95,24 +95,11 @@ void testEasyCase2D() {
     }
 
     vector<vector<double> > testPartitions;
-
     
     for(int d = 0; d < cc.getNumDimensions(); d++) {
-        cout << d << endl;
         cc.partition(d);
         vector<double> partitions = cc.getPartition(d);
         testPartitions.push_back(partitions);
-    
-    
-        PartitionerEM *pem = dynamic_cast<PartitionerEM *>(cc.getPartitioner(d));
-        vector<Param> par = pem->getEM().getParams();
-
-     
-        stringstream ss;
-        ss << "ppgtest" << d;
-
-        Util::plotPeriodicGaussian(par, 2*PI, ss.str());
-    
     }
 
     vector<double> truthPartition0;

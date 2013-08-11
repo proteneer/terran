@@ -120,6 +120,17 @@ void Cluster::setPartition(int d, const vector<double> &p) {
     partitions_[d] = p;
 }
 
+// set the method used to find the partition for dimension d
+void Cluster::setPartitioner(int d, Partitioner *partitioner) {
+    delete partitioners_[d];
+    partitioners_[d] = partitioner;
+};
+
+// return a pointer to the partitioner used to partition dimension d
+Partitioner& Cluster::getPartitioner(int d) {
+    return *(partitioners_[d]);
+};
+
 vector<int> Cluster::cluster() {
     
     for(int d = 0; d < getNumDimensions(); d++) {

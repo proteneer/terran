@@ -12,9 +12,6 @@ class Cluster {
 
 public:
 
-   // get rid of
-    // Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period, const std::vector<std::vector<Param> > &initialParams);
-
     Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period);
 
     // todo: delete partitions!
@@ -38,10 +35,7 @@ public:
 
     // return marginalized values for dimension d of length N
     std::vector<double> getDimension(int d) const;
-
-    // returns the set of parameters in the mixture model fitting dimension d
-    // std::vector<Param> getParameters(int d) const;
-
+    
     // returns the partition for dimension d
     std::vector<double> getPartition(int d) const;
 
@@ -49,15 +43,11 @@ public:
     void setPartition(int d, const std::vector<double> &p);
 
     // set the method used to find the partition for dimension d
-    void setPartitioner(int d, Partitioner *partitioner) {
-        delete partitioners_[d];
-        partitioners_[d] = partitioner;
-    };
+    // gives ownership of the partitioner to the Cluster object
+    void setPartitioner(int d, Partitioner *partitioner);
 
-    // return a pointer to the partitioner used to partition dimension d
-    Partitioner* getPartitioner(int d) {
-        return partitioners_[d];
-    };
+    // return a reference to the partitioner used to partition dimension d
+    Partitioner& getPartitioner(int d);
 
     // attempt to partition dimension d
     void partition(int d);
@@ -68,9 +58,6 @@ public:
     std::vector<int> cluster();
 
 private:
-
-    // describes the type of partitioning used by this cluster
-    // vector<PartitionTool> partitionMethod_;
 
     // assigns a given point to a bucket
     std::vector<short> assign(int point) const;
@@ -83,19 +70,12 @@ private:
     // period of 0 indicates the dimension is not periodic
     const std::vector<double> period_;
 
-    // the mixture model used to describe each DOF, size D x variable
-    // std::vector<std::vector<Param> > paramset_;
-
     // disjoint partitions of each domain
     std::vector<std::vector<double> > partitions_;  
 
-    // partitioners help partition a given dimension
+    // Partitioners help partition a given dimension
     std::vector<Partitioner*> partitioners_;
 
-    // a tool that partitions the domain
-    /*
-    Partition* partitionTool_;
-    */
 };
 
 } // namespace Terran
