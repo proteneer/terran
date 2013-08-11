@@ -105,14 +105,6 @@ vector<double> Cluster::getDimension(int d) const {
 void Cluster::partition(int d) {
     partitions_[d] = partitioners_[d]->partition();
 };
-/*
-vector<Param> Cluster::getParameters(int d) const {
-    if(d > getNumDimensions() || d < 0) {
-        throw(std::runtime_error("getParameters(), invalid dimension"));
-    }
-    return paramset_[d];
-}
-*/
 
 vector<double> Cluster::getPartition(int d) const {
     if(d > getNumDimensions() || d < 0) {
@@ -120,42 +112,6 @@ vector<double> Cluster::getPartition(int d) const {
     }
     return partitions_[d];
 }
-
-/*
-void Cluster::partition(int d, double threshold) {
-    vector<Param> params = paramset_[d];
-    if(params.size() == 0) {
-        throw(std::runtime_error("partition() error: Parameters for dimension 0 have not been optimized!"));
-    }
-    vector<double> partition;
-    if(isPeriodic(d)) {
-        const double period = period_[d];
-        MethodsPeriodicGaussian mpg(params, period);
-        vector<double> minima = mpg.findMinima();
-        for(int i=0; i < minima.size(); i++) {
-            double val = periodicGaussianMixture(params, minima[i], period);
-            if(val < threshold) {
-                partition.push_back(minima[i]);
-            }
-        }
-    } else {
-        // TODO: implement code to partition non periodic mixture models
-
-    }
-    // this is important
-    sort(partition.begin(), partition.end());
-    partitions_[d] = partition;
-}
-*/
-
-/*
-void Cluster::setParameters(int d, const vector<Param> &p) {
-    if(d > getNumDimensions() - 1) {
-        throw(std::runtime_error("Dimension out of bounds\n"));
-    }
-    paramset_[d] = p;
-}
-*/
 
 void Cluster::setPartition(int d, const vector<double> &p) {
     if(d > getNumDimensions() - 1) {
@@ -200,55 +156,27 @@ vector<int> Cluster::cluster() {
     return assignment;
 }
 
-/*
-void Cluster::optimizeParameters(int d) {
-
-    // get the marginal distribution for dimension d
-    vector<double> data;
-    for(int n = 0; n < getNumPoints(); n++) {
-        data.push_back(dataset_[n][d]);
-    }
-    // load initial set of parameters
-    const vector<Param> &initialParams = paramset_[d];
-
-    if(isPeriodic(d)) {
-        EMPeriodicGaussian epg(data, period_[d]);
-        if(initialParams.size() == 0) {
-            epg.multiAdaptiveRun(100, 0.1, 0.08, 5, 5);
-        } else {
-            epg.setParameters(initialParams);
-            epg.run();
-        }
-        paramset_[d] = epg.getParams();
-    } else {
-        EMGaussian eg(data, initialParams);
-        if(initialParams.size() == 0) {
-            eg.multiAdaptiveRun(100, 0.1, 0.08, 5, 5);
-        } else { 
-            eg.setParameters(initialParams);
-            eg.run();
-        }
-        paramset_[d] = eg.getParams();
-    }
-}
-*/
-
 vector<short> Cluster::assign(int pointIndex) const {
     vector<short> bucket(getNumDimensions());
     vector<double> point = dataset_[pointIndex];
 
     // for each dimension in the point
     for(int d=0; d<getNumDimensions(); d++) {
-        // loop over the intervals
-        for(int j=0; j<partitions_[d].size(); j++) {
-            if(point[d] < partitions_[d][j]) {
-                bucket[d] = j;
-                break;
+
+        // if no partitioning points were found, then it belongs in the zero'th bin
+        if(partitions_[d].size() == 0) {
+            bucket[d] = 0;
+        } else {
+            for(int j=0; j<partitions_[d].size(); j++) {
+                if(point[d] < partitions_[d][j]) {
+                    bucket[d] = j;
+                    break;
+                }
+                if(isPeriodic(d))
+                    bucket[d] = 0;
+                else
+                    bucket[d] = j+1;
             }
-            if(isPeriodic(d))
-                bucket[d] = 0;
-            else
-                bucket[d] = j+1;
         }
     }
     return bucket;

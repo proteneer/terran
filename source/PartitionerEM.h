@@ -12,6 +12,7 @@ public:
     
     PartitionerEM(const std::vector<double> &dataset, double period);
     ~PartitionerEM();
+
     // default method uses multiAdaptiveRun in EM.
     void optimizeParameters();
 

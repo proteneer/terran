@@ -72,7 +72,6 @@ vector<double> PartitionerEM::findLowMinima() const {
     }
 
     // if no minima at all, then just add in a partition randomly for periodic domains
-
     // for nonperiodic domain, do not add in a partition
 
     // 
