@@ -25,11 +25,14 @@ ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<do
 
 ClusterTree::~ClusterTree() {
     delete root_;
+    delete currentCluster_;
 }
 
 int ClusterTree::getNumPoints() const {
     return dataset_.size();
 }
+
+/*
 
 std::vector<std::vector<double> > ClusterTree::getStepPoints() const {
 
@@ -45,6 +48,7 @@ std::vector<std::vector<double> > ClusterTree::getStepPoints() const {
     }
     return subset;
 }
+*/
 
 /*
 vector<int> ClusterTree::getPointsInCluster(int clusterIndex) const {
@@ -72,37 +76,57 @@ vector<int> ClusterTree::getAssignment() const {
 
 ofstream log2("log2.txt");
 
-bool ClusterTree::step() {
-    if(queue_.size() == 0) 
+
+bool ClusterTree::finished() const {
+    if(queue_.size() == 0) {
+        return true;
+    } else {
         return false;
-    Node* node = queue_.front();
+    }
+}
+
+
+void ClusterTree::setCurrentCluster() {
+    
+    if(queue_.size() == 0) 
+        throw(std::runtime_error("ClusterTree::step - invoked setCluster() on an empty queue"));
+    if(currentCluster_ != NULL)
+        throw(std::runtime_error("ClusterTree::currentCluster_ is not set to NULL, has divideCluster() been called?"));
+    currentNode_ = queue_.front();
     queue_.pop();
 
-    // nodes in the queue have the property:
-    // 1. partitions are not set
-    // 2. children do not exist
-    if(node->indices.size() == 0) 
-        throw(std::runtime_error("ClusterTree::step() - node has no points"));
-    if(node->partitions.size() > 0)
-        throw(std::runtime_error("ClusterTree::step() - node partition not empty"));
-    if(node->children.size() > 0)
-        throw(std::runtime_error("ClusterTree::step() - node children not empty"));
-    
-    // if this node doesn't have data points then break
-    if(node->indices.size() < 500)
-        return true;
+    if(currentNode_->indices.size() == 0) 
+        throw(std::runtime_error("ClusterTree::step() - currentNode_ has no points"));
+    if(currentNode_->partitions.size() > 0)
+        throw(std::runtime_error("ClusterTree::step() - currentNode_ partition not empty"));
+    if(currentNode_->children.size() > 0)
+        throw(std::runtime_error("ClusterTree::step() - currentNode_ children not empty"));
+
+    //if(queue_.size() < 1000) {
+    //    return false;
+    //} 
 
     vector<vector<double> > subset;
-    const vector<int> &indices = node->indices;
+    const vector<int> &indices = currentNode_->indices;
     for(int i=0; i<indices.size(); i++) {
         subset.push_back(dataset_[indices[i]]);
     }
-    Cluster cluster(subset, period_);
 
-    // setup partition tools
+    currentCluster_ = new Cluster(subset, period_);
+}
 
-    vector<int> assignment = cluster.cluster();
+// this can be implemented differently if desired to use alternative tools
+void ClusterTree::partitionCurrentCluster() {
+    for(int d=0; d < currentCluster_->getNumDimensions(); d++) {
+        currentCluster_->partition(d);
+    }
+}
+
+void ClusterTree::divideCurrentCluster() {
+    vector<int> assignment = currentCluster_->cluster();
     int maxAssignmentId = *(max_element(assignment.begin(), assignment.end()));
+
+    const vector<int> &indices = currentNode_->indices;
 
     if(maxAssignmentId > 0) {
         vector<vector<int> > subsetIndices(maxAssignmentId+1);
@@ -114,10 +138,31 @@ bool ClusterTree::step() {
             Node* newNode = new Node;
             newNode->indices = subsetIndices[j];
             // set the children for this cluster
-            node->children.push_back(newNode);
+            currentNode_->children.push_back(newNode);
         }
     }
-    return true;
+    delete currentCluster_;
+    currentCluster_ = NULL;
+}
+
+void ClusterTree::step() {
+
+    if(finished()) 
+        return;
+
+    setCurrentCluster();
+
+    if(currentCluster_->getNumPoints() < 1000) {
+        delete currentCluster_;
+        return;
+    }
+
+    partitionCurrentCluster();
+
+    // inspect partitions via getPartition and getPartitioner
+    // getCurrentCluster()->getPartitioner(d) etc.
+
+    divideCurrentCluster();
 }
 
 ClusterTree::Node* ClusterTree::getRoot() {
