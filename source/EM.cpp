@@ -19,10 +19,8 @@ EM::EM(const std::vector<double> &data) :
     pikn_(data.size(), std::vector<double>(0)),
     maxSteps_(100),
     tolerance_(0.1) {
-
     if(data_.size() == 0)
         throw(std::runtime_error("Cannot initialize EM with empty dataset"));
-
 }
 
 EM::EM(const std::vector<double> &data, const std::vector<Param> &params) : 
@@ -67,7 +65,14 @@ int EM::getDataSize() const {
 
 double EM::getLikelihood() const {
     double lambda = 0;
+
+    cout << "data size" << endl;
+    cout << data_.size() << endl;
+
     for(int n=0; n<data_.size(); n++) {
+        
+
+
         double sum = 0;
         for(int k=0; k<params_.size(); k++) {
             sum += qkn(k,n);
@@ -135,8 +140,11 @@ bool EM::adaptiveRun(double cutoff) {
     }
 
     int steps = 0;
+
+
     double likelihood = getLikelihood();
     double likelihoodOld;
+
     // keep an old copy of params
     vector<Param> paramsOld;
 
@@ -160,7 +168,7 @@ bool EM::adaptiveRun(double cutoff) {
         }
     // Stop EM if:
     // a. likelihood reaches the specified tolerance
-    // b. maxmimum number of steps reached
+    // b. maximimum number of steps reached
     } while(likelihood-likelihoodOld > tolerance_ && steps < maxSteps_);
 
     return (steps < maxSteps_);
@@ -168,8 +176,10 @@ bool EM::adaptiveRun(double cutoff) {
 
 void EM::multiAdaptiveRun(double cutoff, int numParams, int numTries) {
     vector<Param> bestParams;
+
     double bestLikelihood = -numeric_limits<double>::max();
     int attempts = 0;
+
     do {
         // initialize a set of random parameters
         // cout << attempts << endl;
@@ -181,9 +191,12 @@ void EM::multiAdaptiveRun(double cutoff, int numParams, int numTries) {
             p.u = mean[i];
             // todo, should s be variable as well?
             p.s = 0.3;
+
+            cout << "entry" << endl;
+            cout << p.p << " " << p.u << " " << p.s << endl;
+
             params.push_back(p);
         }
-       
         setParameters(params);
         adaptiveRun(cutoff);
         double newLikelihood = getLikelihood();

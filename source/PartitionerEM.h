@@ -35,8 +35,6 @@ private:
     // Minima whose value is less than partitionCutoff_ is 
     // considered to be a partition point
     double partitionCutoff_;
-
-    double period_;
     EM* em_; 
 
 };

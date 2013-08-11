@@ -10,17 +10,17 @@ using namespace std;
 using namespace Terran;
 
 PartitionerEM::PartitionerEM(const vector<double> &dataset, double period) : 
-    period_(period),
-    em_(NULL),
+    Partitioner(dataset, period),
     MARThreshold_(0.05), 
     MARNumParams_(12),
     MARNumTries_(5),
-    partitionCutoff_(0.05) {
+    partitionCutoff_(0.05),
+    em_(NULL) {
 
-    if(period_ != 0) {
-        em_ = new EMPeriodicGaussian(dataset, period_);
+    if(isPeriodic()) {
+        em_ = new EMPeriodicGaussian(dataset_, period_);
     } else {
-        em_ = new EMGaussian(dataset);
+        em_ = new EMGaussian(dataset_);
     }
 
 }

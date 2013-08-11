@@ -89,6 +89,8 @@ void testEasyCase2D() {
 
     Cluster cc(dataset, periodset);
 
+
+
     ofstream fdata("fdata.txt");
     for(int i=0; i < dataset.size(); i++) {
         fdata << dataset[i][0] << " " << dataset[i][1] << endl;
@@ -97,6 +99,8 @@ void testEasyCase2D() {
     vector<vector<double> > testPartitions;
     
     for(int d = 0; d < cc.getNumDimensions(); d++) {
+        cout << d << endl;
+        PartitionerEM& emp = dynamic_cast<PartitionerEM &>(cc.getPartitioner(d));
         cc.partition(d);
         vector<double> partitions = cc.getPartition(d);
         testPartitions.push_back(partitions);

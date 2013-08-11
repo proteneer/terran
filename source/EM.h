@@ -81,7 +81,7 @@ class EM {
         // The sum over k for each n in p(k|n) should be 1
         void testIntegrity() const;
         
-        const std::vector<double> data_;
+        const std::vector<double> &data_;
         std::vector<Param> params_;
 
         // pikn_ is a matrix of conditional probabilities: 

@@ -15,10 +15,15 @@ class Partitioner {
 
 public:
 
-    Partitioner() {};
+    Partitioner(const std::vector<double> dataset, double period) : dataset_(dataset), period_(period) {};
     virtual ~Partitioner() {};
 
     virtual std::vector<double> partition() = 0;
+    
+protected:
+
+    const std::vector<double> dataset_;
+    double period_;
 
 };
 
