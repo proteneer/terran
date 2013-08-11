@@ -5,6 +5,11 @@
 
 namespace Terran {
 
+EMGaussian::EMGaussian(const std::vector<double> &data) : 
+    EM(data) {
+
+}
+
 EMGaussian::EMGaussian(const std::vector<double> &data, const std::vector<Param> &params) : 
     EM(data, params) {
 

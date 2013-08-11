@@ -3,18 +3,8 @@
 
 #include <vector>
 #include "Param.h"
-
-/* Main interface class of the Cluster clustering algorithm */
-
-// Usage:
-// 1. Invoke EM on each degree of freedom to partition the domain into disjoint intervals.
-// 2. Assign each point to a bucket using a map
-// 3. Return a clustering based on the map
-// 4. (Optional) Repeat 1-3 for each cluster until each degree of freedom has exactly 1 partition//    This is done by invoking the Cluster class recursively until no more DOFs can be found
-
-// The Cluster class should not be responsible for doing the actual EM, this overlaps with the duties of the various EM classes.
-// 
-// The leaves of tree are clusters
+#include "Partitioner.h"
+#include "PartitionerEM.h"
 
 namespace Terran {
 
@@ -27,6 +17,7 @@ public:
 
     Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period);
 
+    // todo: delete partitions!
     ~Cluster();
 
     // returns number of dimensions in the dataset
@@ -51,33 +42,32 @@ public:
     // returns the set of parameters in the mixture model fitting dimension d
     // std::vector<Param> getParameters(int d) const;
 
-    // returns the partitions
-    std::vector<double> getPartitions(int d) const;
+    // returns the partition for dimension d
+    std::vector<double> getPartition(int d) const;
 
-    // set the parameters of the mixture model for dimension d
-    // void setParameters(int d, const std::vector<Param> &params);
+    // set the partition info explicitly for dimension d
+    void setPartition(int d, const std::vector<double> &p);
 
-    // set the partitions of dimension d
-    void setPartitions(int d, const std::vector<double> &p);
+    // set the method used to find the partition for dimension d
+    void setPartitioner(int d, Partitioner *partitioner) {
+        delete partitioners_[d];
+        partitioners_[d] = partitioner;
+    };
 
-    // optimizes parameters in dimension d
-    // if parameters are given, EM::run() is called
-    // else if no parameters are given, EM::multiAdaptiveRun() is called
-    // void optimizeParameters(int d);
+    // return a pointer to the partitioner used to partition dimension d
+    Partitioner* getPartitioner(int d) {
+        return partitioners_[d];
+    };
 
-    // partition the dimension into disjoint intervals
-    // void partition(int dimension, double threshold);
+    // partition dimension d
+    std::vector<double> partition(int d) {
+        return partitioners_[d]->partition();
+    };
 
     // returns an assignment of points into clusters
     // each dimension must have been partitioned either by means of:
-    // setPartitions() or invoking partition() of length
+    // setPartitions() or invoking partition()
     std::vector<int> cluster();
-
-    // set the type of partitioning to be done (periodic versions are determined automatically)
-    // available methods: Gaussian Kernel Density Estimation, and Expectation Maximization
-    void setPartitionMethod(int d /*partitionTool*/);
-
-    //PartitionTool getPartitionMethod(int d);
 
 private:
 
@@ -98,9 +88,16 @@ private:
     // the mixture model used to describe each DOF, size D x variable
     // std::vector<std::vector<Param> > paramset_;
 
-    // disjoint partitions of the domain
-    std::vector<std::vector<double> > partitions_;
-    
+    // disjoint partitions of each domain
+    std::vector<std::vector<double> > partitions_;  
+
+    // partitioners help partition a given dimension
+    std::vector<Partitioner*> partitioners_;
+
+    // a tool that partitions the domain
+    /*
+    Partition* partitionTool_;
+    */
 };
 
 } // namespace Terran

@@ -50,7 +50,8 @@ public:
 
     int getNumClusters() const;
 
-
+    // get the set of points step() will operate on
+    std::vector<std::vector<double> > getStepPoints() const;
 
     // std::vector<int> getPointsInCluster(int clusterIndex) const;
 
@@ -59,12 +60,14 @@ public:
     // get the current assignment of points into clusters
     std::vector<int> getAssignment() const;
 
-
     Node* getRoot();
 
     // take one step in BFS
     // returns true if successful
     // returns false otherwise
+    // can be easily used by a GUI system
+    // 1. Given a set of points, find Partitions
+    // 2. Given partitions, generate new sets of points
     bool step();
 
     

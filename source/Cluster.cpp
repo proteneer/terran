@@ -38,6 +38,11 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
         throw(std::runtime_error("cluster() constructor error: input data size cannot 0"));
     vector<vector<double> > temp(data[0].size());
     partitions_ = temp;
+    for(int d=0; d < getNumDimensions(); d++) {
+        partitioners_[d] = new PartitionerEM(getDimension(d), period_[d]);
+
+    }
+    // set partitioners by default to EM    
 }
 
 Cluster::~Cluster() {
@@ -95,7 +100,7 @@ vector<Param> Cluster::getParameters(int d) const {
 }
 */
 
-vector<double> Cluster::getPartitions(int d) const {
+vector<double> Cluster::getPartition(int d) const {
     if(d > getNumDimensions() || d < 0) {
         throw(std::runtime_error("getPartitions(), invalid dimension"));
     }
@@ -138,7 +143,7 @@ void Cluster::setParameters(int d, const vector<Param> &p) {
 }
 */
 
-void Cluster::setPartitions(int d, const vector<double> &p) {
+void Cluster::setPartition(int d, const vector<double> &p) {
     if(d > getNumDimensions() - 1) {
         throw(std::runtime_error("Dimension out of bounds\n"));
     }

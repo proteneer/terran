@@ -21,6 +21,7 @@
 namespace Terran {
 
 class EM { 
+
     public:
 
         EM(const std::vector<double> &data, const std::vector<Param> &params);
@@ -65,6 +66,8 @@ class EM {
 
         // Multiadaptive run generates a set of parameters by random repeatedly
         // and sees which results in the highest likelihood
+
+        // make it possible to set the left and right of the sample domain
         void multiAdaptiveRun(double cutoff, int numParams, int numTries);
 
         // Compute the Expectation based on current parameters

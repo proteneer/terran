@@ -31,6 +31,20 @@ int ClusterTree::getNumPoints() const {
     return dataset_.size();
 }
 
+std::vector<std::vector<double> > ClusterTree::getStepPoints() const {
+
+    Node* node = queue_.front();
+
+    if(node->indices.size() == 0) 
+        throw(std::runtime_error("ClusterTree::step() - node has no points"));
+
+    vector<vector<double> > subset;
+    const vector<int> &indices = node->indices;
+    for(int i=0; i<indices.size(); i++) {
+        subset.push_back(dataset_[indices[i]]);
+    }
+    return subset;
+}
 
 /*
 vector<int> ClusterTree::getPointsInCluster(int clusterIndex) const {
