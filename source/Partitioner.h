@@ -16,11 +16,9 @@ class Partitioner {
 public:
 
     Partitioner() {};
-    ~Partitioner() {};
+    virtual ~Partitioner() {};
 
     virtual std::vector<double> partition() = 0;
-    
-    virtual double evaluate(double x) const = 0;
 
 };
 

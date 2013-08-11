@@ -13,6 +13,9 @@
 
 #include "util.h"
 
+
+#include <sstream>
+
 using namespace std;
 
 // A three-cluster dataset looking something like this:
@@ -33,10 +36,10 @@ using namespace std;
 
 using namespace Terran;
 
+
 void testEasyCase2D() {
 
     vector<vector<double> > dataset;
-    vector<double> periodset;
     // setup 0th cluster;
     {
         double u1 = -PI/2;
@@ -48,7 +51,6 @@ void testEasyCase2D() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
-            periodset.push_back(period);
         }
     }
 
@@ -63,7 +65,6 @@ void testEasyCase2D() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
-            periodset.push_back(period);
         }
     }
 
@@ -78,9 +79,13 @@ void testEasyCase2D() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
-            periodset.push_back(period);
         }
     }
+
+
+    vector<double> periodset;
+    periodset.push_back(2*PI);
+    periodset.push_back(2*PI);
 
     Cluster cc(dataset, periodset);
 
@@ -91,11 +96,23 @@ void testEasyCase2D() {
 
     vector<vector<double> > testPartitions;
 
+    
     for(int d = 0; d < cc.getNumDimensions(); d++) {
-        cc.optimizeParameters(d);
-        cc.partition(d, 0.05);
-        vector<double> partitions = cc.getPartitions(d);
+        cout << d << endl;
+        cc.partition(d);
+        vector<double> partitions = cc.getPartition(d);
         testPartitions.push_back(partitions);
+    
+    
+        PartitionerEM *pem = dynamic_cast<PartitionerEM *>(cc.getPartitioner(d));
+        vector<Param> par = pem->getEM().getParams();
+
+     
+        stringstream ss;
+        ss << "ppgtest" << d;
+
+        Util::plotPeriodicGaussian(par, 2*PI, ss.str());
+    
     }
 
     vector<double> truthPartition0;
@@ -110,6 +127,13 @@ void testEasyCase2D() {
     // +- 0.15 is near the periodic boundary, so we need to test with matchPeriodicPoints
     truthPartition1.push_back(-3.1);
     truthPartition1Errors.push_back(0.15);
+
+    for(int i=0; i < testPartitions.size(); i++) {
+        for(int j=0; j < testPartitions[i].size(); j++) {
+            cout << testPartitions[i][j] << " ";
+        }
+        cout << endl;
+    }
 
     /*
     ofstream cluster0("cdata0.txt");
@@ -130,6 +154,7 @@ void testEasyCase2D() {
 
 }
 
+/*
 int testClusterTree() {
 
     vector<vector<double> > dataset;
@@ -184,11 +209,12 @@ int testClusterTree() {
     ct.stepBFS();
     ct.stepBFS();
 }
+*/
 
 int main() {
     try{
-        //testEasyCase2D();
-        testClusterTree();
+        testEasyCase2D();
+        //testClusterTree();
         cout << "done" << endl;
     } catch(const exception &e) {
         cout << e.what();

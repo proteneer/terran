@@ -15,14 +15,12 @@ public:
     // default method uses multiAdaptiveRun in EM.
     void optimizeParameters();
 
-    double evaluate(double x) const;
-
     std::vector<double> partition();
     
     EM& getEM();
 
     bool isPeriodic() const;
-
+    
 private:
     
     std::vector<double> findLowMinima() const;

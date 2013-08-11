@@ -33,11 +33,19 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
 
 Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period) : 
     dataset_(data),
-    period_(period) {
+    period_(period),
+    partitions_(period.size()),
+    partitioners_(period.size()) {
     if(data.size() == 0) 
-        throw(std::runtime_error("cluster() constructor error: input data size cannot 0"));
-    vector<vector<double> > temp(data[0].size());
-    partitions_ = temp;
+        throw(std::runtime_error("Cluster()::Cluster() - input data size cannot 0"));
+
+    cout << data[0].size() << " " << period.size() << endl;
+
+
+    if(data[0].size() != period.size())
+        throw(std::runtime_error("Cluster()::Cluster() - period size does not match data dimension"));
+
+
     for(int d=0; d < getNumDimensions(); d++) {
         partitioners_[d] = new PartitionerEM(getDimension(d), period_[d]);
 
@@ -46,7 +54,10 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
 }
 
 Cluster::~Cluster() {
-
+    for(int i=0; i < partitioners_.size(); i++) {
+        delete partitioners_[i];
+        // no need to set to NULL as whole thing will be destroyed.
+    }
 }
 
 int Cluster::getNumDimensions() const {
@@ -91,6 +102,9 @@ vector<double> Cluster::getDimension(int d) const {
     return data;
 }
 
+void Cluster::partition(int d) {
+    partitions_[d] = partitioners_[d]->partition();
+};
 /*
 vector<Param> Cluster::getParameters(int d) const {
     if(d > getNumDimensions() || d < 0) {
@@ -102,7 +116,7 @@ vector<Param> Cluster::getParameters(int d) const {
 
 vector<double> Cluster::getPartition(int d) const {
     if(d > getNumDimensions() || d < 0) {
-        throw(std::runtime_error("getPartitions(), invalid dimension"));
+        throw(std::runtime_error("Cluster::getPartitions() - invalid dimension"));
     }
     return partitions_[d];
 }

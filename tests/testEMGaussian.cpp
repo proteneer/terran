@@ -100,16 +100,7 @@ void testBimodalGaussian() {
     EMGaussian em(data, params);
     em.run();
     vector<Param> optimizedParams = em.getParams();
-    for(int i=0; i < optimizedParams.size(); i++) {
-        cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
-    }
-
-    cout << data[0] << endl;
     Util::matchParameters(initParams, optimizedParams, 0.1);
-}
-
-void testTrimodalGaussian() {
-
 }
 
 int main() {

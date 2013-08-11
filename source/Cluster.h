@@ -59,10 +59,8 @@ public:
         return partitioners_[d];
     };
 
-    // partition dimension d
-    std::vector<double> partition(int d) {
-        return partitioners_[d]->partition();
-    };
+    // partition dimension d, store result in partititions_
+    void partition(int d);
 
     // returns an assignment of points into clusters
     // each dimension must have been partitioned either by means of:
