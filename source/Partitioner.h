@@ -3,12 +3,15 @@
 
 #include <vector>
 
-// a partition tool takes a 1D dataset and finds the "dips"
+/* Abstract Class
 
-// currently this PartitionTool needs to be able to provide a function allowing for some
-// form of visualization via an evaluate function. 
+   Partitioner take a given set of 1d data, and a flag denoting the period of the data.
+   If the period is zero, then the data is assumed to be non-periodic.
 
-// all Partitioners must act on some marginalized data
+   Implementations of Partitioner must implement their own partition() functions. It is
+   safe to make references to dataset_ and period_ as needed. Semantically, a partitioner
+   can makes low density cuts in the dataset.
+*/
 namespace Terran {
 
 class Partitioner {
@@ -22,6 +25,14 @@ public:
     
 protected:
 
+    // The returned vector is defined as follows:
+    // - the resulting partitions must be sorted
+    // - empty vector implies no partitions
+    // - otherwise, for a periodic system, the returned vector of size
+    //   n is a partition into n parts, _0_|__1__|_0_
+    //   for a nonperiodic system, the returned vector of size n
+    //   is a partition into n+1 parts, _0_|__1__|_2_
+    //   where | denote the partition element
     const std::vector<double> dataset_;
     double period_;
 
