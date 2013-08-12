@@ -57,52 +57,43 @@ public:
     int getNumDimensions() const;
 
     // get number of clusters found so far, equal to number of leaves 
-    // currently found in the tree
-
     int getNumClusters() const;
 
     // return point n
     std::vector<double> getPoint(int n) const;
 
+    // returns true if queue_ is empty, false otherwise
     bool finished() const;
-
-    // get the set of points step() will operate on
-    /*
-    std::vector<std::vector<double> > getStepPoints() const;
-    */
 
     // get the current assignment of points into clusters
     std::vector<int> getAssignment() const;
 
+    // returns a reference to the root of the BFS tree
     Node& getRoot();
 
+    // returns a reference to the currently processed cluster
     Cluster& getCurrentCluster();
 
-    // take one step in BFS
-    // returns true if successful
-    // returns false otherwise
-    // can be easily used by a GUI system
-    // 1. Given a set of points, find Partitions
-    // 2. Given partitions, generate new sets of points
-
-    // for complete automation if no fine tuning is desired.
+    // process one cluster if no fine tuning is desired.
+    // step() also ignores clusters without sufficient points
     void step();
-
-    // pattern:
-    // call partition to inspect the dividers for each dimensions
-    // check the partitions for each dimension to see how well behaved they are
-    // divide the cluster into new smaller clusters
+    
+    // the following three methods provide fine grained control
     
     // pops the queue and assigns current cluster, this removes the head element
     void setCurrentCluster();
 
-    // partition the dth dimension in the cluster
+    // find partitions in dimension d
     void partitionCurrentCluster(int d);
     
+    // divide the current cluster possibly into more clusters if there are
+    // multiple points that can be assigned
     void divideCurrentCluster();
 
-    
 private:
+
+    // returns found leaves so far
+    std::vector<const Node*> getLeaves() const;
 
     // N x D
     std::vector<std::vector<double> > dataset_; 

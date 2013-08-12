@@ -189,12 +189,29 @@ void testClusterTree() {
     }
 
     vector<int> assignment = ct.getAssignment();
+    ofstream l0("log0.txt");
+    ofstream l1("log1.txt");
+    ofstream l2("log2.txt");
+
+    for(int i=0; i < assignment.size(); i++) {
+        if(assignment[i] == 0) {
+            l0 << ct.getPoint(i)[0] << " " << ct.getPoint(i)[1] << endl;
+        }
+        if(assignment[i] == 1) {
+            l1 << ct.getPoint(i)[0] << " " << ct.getPoint(i)[1] << endl;
+        }        
+        if(assignment[i] == 2) {
+            l2 << ct.getPoint(i)[0] << " " << ct.getPoint(i)[1] << endl;
+        }
+
+    }
 
     int numClusters = *(max_element(assignment.begin(), assignment.end()))+1;
 
     if(numClusters != 3) {
         throw(std::runtime_error("Wrong number of clusters!"));
     }
+
 }
 
 

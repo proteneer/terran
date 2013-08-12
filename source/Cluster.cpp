@@ -12,25 +12,6 @@ using namespace std;
 
 namespace Terran {
 
-/*
-Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period, const vector<vector<Param> > &initialParams) : 
-    dataset_(data),
-    period_(period),
-    paramset_(initialParams),
-    partitions_(paramset_.size()) {
-
-    for(int i=0; i < period_.size(); i++) {
-        if(period_[i] < 0) {
-            throw(std::runtime_error("period cannot be less than 0"));
-        }
-    }
-
-    if(data[0].size() != period.size()) {
-        throw(std::runtime_error("number of dimensions in data does not match number of dimensions in period!"));
-    }
-}
-*/
-
 Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period) : 
     dataset_(data),
     period_(period),
@@ -44,8 +25,7 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
 
     for(int d=0; d < getNumDimensions(); d++) {
         partitioners_[d] = new PartitionerEM(getDimension(d), period_[d]);
-    }
-    // set partitioners by default to EM    
+    } 
 }
 
 Cluster::~Cluster() {
@@ -115,13 +95,11 @@ void Cluster::setPartition(int d, const vector<double> &p) {
     partitions_[d] = p;
 }
 
-// set the method used to find the partition for dimension d
 void Cluster::setPartitioner(int d, Partitioner *partitioner) {
     delete partitioners_[d];
     partitioners_[d] = partitioner;
 };
 
-// return a pointer to the partitioner used to partition dimension d
 Partitioner& Cluster::getPartitioner(int d) {
     return *(partitioners_[d]);
 };
@@ -135,8 +113,8 @@ vector<int> Cluster::cluster() {
             throw(std::runtime_error(msg.str()));
         }
     }
+
     // assign each point to a bucket
-    // cannot parallelize easily due to push_back
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {
         vector<short> bucket = assign(n);
@@ -158,7 +136,7 @@ vector<int> Cluster::cluster() {
 }
 
 vector<short> Cluster::assign(int pointIndex) const {
-    // the initialization to the zero for each dimension in the bucket is important
+    // the initialization to zero for each dimension in the bucket is important
     // as it takes care of the case when no partitions exist for that dimension
     vector<short> bucket(getNumDimensions(), 0);
     vector<double> point = dataset_[pointIndex];

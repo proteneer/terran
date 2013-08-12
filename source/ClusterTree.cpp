@@ -44,23 +44,12 @@ bool ClusterTree::finished() const {
 // traverse down the to the leaves
 vector<int> ClusterTree::getAssignment() const {
 
-    queue<const Node*> bfsQueue;
-    bfsQueue.push(root_);
     vector<vector<int> > clusters;
-    while(bfsQueue.size() != 0) {
-        const Node* current = bfsQueue.front();
-        bfsQueue.pop();
-        for(int i=0; i<current->children.size(); i++) {
-            const Node* child = current->children[i];
-            if(child->children.size() == 0) {
-                vector<int> indices = child->indices;
-                clusters.push_back(indices);
-            } else {
-                bfsQueue.push(child);
-            }
-        }
-    }
+    vector<const Node*> leaves = getLeaves();
 
+    for(int i=0; i < leaves.size(); i++) {
+        clusters.push_back(leaves[i]->indices);
+    }
     // check that all points exist
     vector<int> allPoints;
     for(int i=0; i < clusters.size(); i++) {
@@ -89,6 +78,10 @@ vector<int> ClusterTree::getAssignment() const {
 
 vector<double> ClusterTree::getPoint(int n) const {
     return dataset_[n];
+}
+
+int ClusterTree::getNumClusters() const {
+    return getLeaves().size();
 }
 
 void ClusterTree::setCurrentCluster() {
@@ -141,6 +134,26 @@ void ClusterTree::divideCurrentCluster() {
     currentCluster_ = NULL;
 }
 
+std::vector<const ClusterTree::Node*> ClusterTree::getLeaves() const {
+    queue<const Node*> bfsQueue;
+    bfsQueue.push(root_);
+    vector<const Node*> leaves;
+    while(bfsQueue.size() != 0) {
+        const Node* current = bfsQueue.front();
+        bfsQueue.pop();
+
+        if(current->children.size() == 0) {
+            leaves.push_back(current);
+        } else {
+            for(int i=0; i<current->children.size(); i++) {
+                const Node* child = current->children[i];
+                bfsQueue.push(child);
+            }
+        }
+    }
+    return leaves;
+}
+
 void ClusterTree::step() {
 
     if(finished()) 
@@ -156,11 +169,10 @@ void ClusterTree::step() {
     for(int d=0; d < getNumDimensions(); d++)
         partitionCurrentCluster(d);
 
-    // inspect partitions via getPartition and getPartitioner
-    // getCurrentCluster()->getPartitioner(d) etc.
-
     divideCurrentCluster();
 }
+
+
 
 ClusterTree::Node& ClusterTree::getRoot() {
     return *root_;
