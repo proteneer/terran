@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include <EMGaussian.h>
 #include <EMPeriodicGaussian.h>
@@ -108,13 +109,6 @@ void testEasyCase2D() {
     truthPartition1.push_back(-3.1);
     truthPartition1Errors.push_back(0.15);
 
-    for(int i=0; i < testPartitions.size(); i++) {
-        for(int j=0; j < testPartitions[i].size(); j++) {
-            cout << testPartitions[i][j] << " ";
-        }
-        cout << endl;
-    }
-
     /*
     ofstream cluster0("cdata0.txt");
     ofstream cluster1("cdata1.txt");
@@ -188,30 +182,21 @@ void testClusterTree() {
     while(!ct.finished()) {
         ct.setCurrentCluster();
         for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
-            cout << "Partitioning " << i << endl;
             ct.partitionCurrentCluster(i);
             vector<double> partitions = ct.getCurrentCluster().getPartition(i);
-            for(int j=0; j < partitions.size(); j++) {
-                cout << partitions[j] << endl;
-            }
         }
         ct.divideCurrentCluster();
     }
 
+    vector<int> assignment = ct.getAssignment();
 
-    vector<int> foo = ct.getAssignment();
+    int numClusters = *(max_element(assignment.begin(), assignment.end()))+1;
 
-    for(int i=0; i < foo.size(); i++) {
-        cout << foo[i] << endl;
+    if(numClusters != 3) {
+        throw(std::runtime_error("Wrong number of clusters!"));
     }
-
-    /*
-    ct.stepBFS();
-    ct.stepBFS();
-    ct.stepBFS();
-    */
-
 }
+
 
 
 int main() {

@@ -44,19 +44,14 @@ bool ClusterTree::finished() const {
 // traverse down the to the leaves
 vector<int> ClusterTree::getAssignment() const {
 
-
     queue<const Node*> bfsQueue;
-
     bfsQueue.push(root_);
-
     vector<vector<int> > clusters;
-
     while(bfsQueue.size() != 0) {
         const Node* current = bfsQueue.front();
         bfsQueue.pop();
         for(int i=0; i<current->children.size(); i++) {
             const Node* child = current->children[i];
-            // no children!
             if(child->children.size() == 0) {
                 vector<int> indices = child->indices;
                 clusters.push_back(indices);
@@ -66,12 +61,11 @@ vector<int> ClusterTree::getAssignment() const {
         }
     }
 
-    // assert all points exist
+    // check that all points exist
     vector<int> allPoints;
     for(int i=0; i < clusters.size(); i++) {
         allPoints.insert(allPoints.end(),clusters[i].begin(),  clusters[i].end());
     }
-
     if(allPoints.size() != getNumPoints()) {
         throw(std::runtime_error("Wrong number of points!"));
     }
@@ -83,11 +77,6 @@ vector<int> ClusterTree::getAssignment() const {
         }
     }
 
-    cout << "NUMBER OF LEAVES" << endl;
-    cout << clusters.size() << endl;
-
-
-
     vector<int> assignment(getNumPoints());
     for(int i=0; i<clusters.size(); i++) {
         for(int j=0; j < clusters[i].size(); j++) {
@@ -96,6 +85,10 @@ vector<int> ClusterTree::getAssignment() const {
     }
     
     return assignment;
+}
+
+vector<double> ClusterTree::getPoint(int n) const {
+    return dataset_[n];
 }
 
 void ClusterTree::setCurrentCluster() {
@@ -129,9 +122,7 @@ void ClusterTree::partitionCurrentCluster(int d) {
 void ClusterTree::divideCurrentCluster() {
     vector<int> assignment = currentCluster_->cluster();
     int maxAssignmentId = *(max_element(assignment.begin(), assignment.end()));
-
     const vector<int> &indices = currentNode_->indices;
-
     if(maxAssignmentId > 0) {
         vector<vector<int> > subsetIndices(maxAssignmentId+1);
         for(int j=0; j < assignment.size(); j++) {
@@ -146,11 +137,6 @@ void ClusterTree::divideCurrentCluster() {
             queue_.push(newNode);
         }
     }
-
-    cout << "QUEUE SIZE" << endl;
-    cout << queue_.size() << endl;
-
-
     delete currentCluster_;
     currentCluster_ = NULL;
 }

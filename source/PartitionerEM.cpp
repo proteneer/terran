@@ -66,9 +66,7 @@ void PartitionerEM::optimizeParameters() {
 }
 
 std::vector<double> PartitionerEM::partition() {
-    cout << "optimizing parameters" << endl;
     optimizeParameters();
-    cout << "finding low minima points" << endl;
     return findLowMinima();
 }
 

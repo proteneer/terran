@@ -61,6 +61,9 @@ public:
 
     int getNumClusters() const;
 
+    // return point n
+    std::vector<double> getPoint(int n) const;
+
     bool finished() const;
 
     // get the set of points step() will operate on
