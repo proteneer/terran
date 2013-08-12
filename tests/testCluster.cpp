@@ -190,9 +190,6 @@ void testClusterTree() {
         for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
             cout << "Partitioning " << i << endl;
             ct.partitionCurrentCluster(i);
-        }
-        for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
-            cout << i << endl;
             vector<double> partitions = ct.getCurrentCluster().getPartition(i);
             for(int j=0; j < partitions.size(); j++) {
                 cout << partitions[j] << endl;
@@ -201,6 +198,12 @@ void testClusterTree() {
         ct.divideCurrentCluster();
     }
 
+
+    vector<int> foo = ct.getAssignment();
+
+    for(int i=0; i < foo.size(); i++) {
+        cout << foo[i] << endl;
+    }
 
     /*
     ct.stepBFS();
