@@ -45,9 +45,6 @@ void EMPeriodicGaussian::MStep() {
 
     // Compute new mean
     for(int k=0; k<params_.size(); k++) {
-    
-        cout << params_[k].p << " " << params_[k].u << " " << params_[k].s << endl;
-        
         // find two points ak and bk such that
         // ak < bk, and dldu(ak) > dldu(bk)
         // we just divide the domain into 8 equal parts
@@ -71,12 +68,6 @@ void EMPeriodicGaussian::MStep() {
                 ak = xvals[i];
                 bk = xvals[(i+1)%increment];
             }
-        }
-
-        // need to search account of periodic domains as well
-        ofstream loss("logCurve.txt");
-        for(double d = -PI; d < PI; d+=0.01) {
-            loss << dldu(d,k) << endl;
         }
 
         if(!found) {
@@ -138,9 +129,6 @@ void EMPeriodicGaussian::MStep() {
 vector<double> EMPeriodicGaussian::sampleDomain(int count) const {
     vector<double> points;
     for(int i=0; i < count; i++) {
-
-        cout << "PERIOD" << period_ << endl;
-
         double frac = (double) rand() / (double) RAND_MAX;
         double val = -period_/2 + frac*period_;
         points.push_back(val);

@@ -39,12 +39,8 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
     if(data.size() == 0) 
         throw(std::runtime_error("Cluster()::Cluster() - input data size cannot 0"));
 
-    cout << data[0].size() << " " << period.size() << endl;
-
-
     if(data[0].size() != period.size())
         throw(std::runtime_error("Cluster()::Cluster() - period size does not match data dimension"));
-
 
     for(int d=0; d < getNumDimensions(); d++) {
         partitioners_[d] = new PartitionerEM(getDimension(d), period_[d]);
@@ -145,11 +141,6 @@ vector<int> Cluster::cluster() {
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {
         vector<short> bucket = assign(n);
-        cout << n << " ";
-        for(int i=0; i < bucket.size(); i++) {
-            cout << bucket[i];
-        }
-        cout << endl;
         clusters[bucket].push_back(n);
     }
 

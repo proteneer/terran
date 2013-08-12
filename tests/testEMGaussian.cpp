@@ -70,8 +70,6 @@ void testBimodalGaussian() {
         data.push_back(z.y);
     }
 
-    
-
     initParams[1].p = 0.6;
     initParams[1].u = 7.4;
     initParams[1].s = 6.2;

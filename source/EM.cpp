@@ -65,14 +65,7 @@ int EM::getDataSize() const {
 
 double EM::getLikelihood() const {
     double lambda = 0;
-
-    cout << "data size" << endl;
-    cout << data_.size() << endl;
-
     for(int n=0; n<data_.size(); n++) {
-        
-
-
         double sum = 0;
         for(int k=0; k<params_.size(); k++) {
             sum += qkn(k,n);
@@ -191,10 +184,6 @@ void EM::multiAdaptiveRun(double cutoff, int numParams, int numTries) {
             p.u = mean[i];
             // todo, should s be variable as well?
             p.s = 0.3;
-
-            cout << "entry" << endl;
-            cout << p.p << " " << p.u << " " << p.s << endl;
-
             params.push_back(p);
         }
         setParameters(params);

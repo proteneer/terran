@@ -61,7 +61,6 @@ vector<double> PartitionerEM::findLowMinima() const {
         vector<double> minima = mpg.findMinima();
         for(int i=0; i < minima.size(); i++) {
             double val = periodicGaussianMixture(params, minima[i], period);
-            cout << val << " " << partitionCutoff_ << endl;
             if(val < partitionCutoff_) {
                 partition.push_back(minima[i]);
             }
