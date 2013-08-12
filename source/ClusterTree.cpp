@@ -12,7 +12,8 @@ using namespace Terran;
 ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<double> &period) : 
     dataset_(dataset),
     period_(period),
-    root_(NULL) {
+    root_(NULL),
+    currentCluster_(NULL) {
 
     vector<int> points(dataset.size());
     for(int i=0; i<points.size(); i++) {
@@ -32,51 +33,6 @@ int ClusterTree::getNumPoints() const {
     return dataset_.size();
 }
 
-/*
-
-std::vector<std::vector<double> > ClusterTree::getStepPoints() const {
-
-    Node* node = queue_.front();
-
-    if(node->indices.size() == 0) 
-        throw(std::runtime_error("ClusterTree::step() - node has no points"));
-
-    vector<vector<double> > subset;
-    const vector<int> &indices = node->indices;
-    for(int i=0; i<indices.size(); i++) {
-        subset.push_back(dataset_[indices[i]]);
-    }
-    return subset;
-}
-*/
-
-/*
-vector<int> ClusterTree::getPointsInCluster(int clusterIndex) const {
-    return clusters_[clusterIndex].indices;
-}
-
-*/
-
-/*
-vector<int> ClusterTree::getAssignment() const {
-    
-    vector<int> allIndices(getNumPoints());
-    int clusterIndex = 0;
-    for(int i=0; i < clusters_.size(); i++) {
-        vector<int> points = clusters_[i].indices;
-        for(int j=0; j < points.size(); j++) {
-            allIndices[points[i]] = clusterIndex;
-        }
-        clusterIndex++;
-    }
-    return allIndices;
-    
-}
-*/
-
-ofstream log2("log2.txt");
-
-
 bool ClusterTree::finished() const {
     if(queue_.size() == 0) {
         return true;
@@ -87,6 +43,7 @@ bool ClusterTree::finished() const {
 
 
 void ClusterTree::setCurrentCluster() {
+
     if(queue_.size() == 0) 
         throw(std::runtime_error("ClusterTree::step - invoked setCluster() on an empty queue"));
     if(currentCluster_ != NULL)
@@ -106,15 +63,11 @@ void ClusterTree::setCurrentCluster() {
     for(int i=0; i<indices.size(); i++) {
         subset.push_back(dataset_[indices[i]]);
     }
-
     currentCluster_ = new Cluster(subset, period_);
 }
 
-// this can be implemented differently if desired to use alternative tools
-void ClusterTree::partitionCurrentCluster() {
-    for(int d=0; d < currentCluster_->getNumDimensions(); d++) {
-        currentCluster_->partition(d);
-    }
+void ClusterTree::partitionCurrentCluster(int d) {
+    currentCluster_->partition(d);
 }
 
 void ClusterTree::divideCurrentCluster() {
@@ -134,8 +87,14 @@ void ClusterTree::divideCurrentCluster() {
             newNode->indices = subsetIndices[j];
             // set the children for this cluster
             currentNode_->children.push_back(newNode);
+            queue_.push(newNode);
         }
     }
+
+    cout << "QUEUE SIZE" << endl;
+    cout << queue_.size() << endl;
+
+
     delete currentCluster_;
     currentCluster_ = NULL;
 }
@@ -152,7 +111,8 @@ void ClusterTree::step() {
         return;
     }
 
-    partitionCurrentCluster();
+    for(int d=0; d < getNumDimensions(); d++)
+        partitionCurrentCluster(d);
 
     // inspect partitions via getPartition and getPartitioner
     // getCurrentCluster()->getPartitioner(d) etc.
@@ -162,4 +122,12 @@ void ClusterTree::step() {
 
 ClusterTree::Node& ClusterTree::getRoot() {
     return *root_;
+}
+
+Cluster& ClusterTree::getCurrentCluster() {
+    return *currentCluster_;
+}
+
+int ClusterTree::getNumDimensions() const {
+    return dataset_[0].size();
 }

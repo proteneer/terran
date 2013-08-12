@@ -3,20 +3,26 @@
 
 #include "Cluster.h"
 
-// A BFS based hierarchical clustering algorithm
+/* A BFS based ClusterTree class. 
 
-// The resulting tree might look like:
-//                     *                      
-//                     0                          
-//           __________|_________*                
-//           0         1         2
-//                           *___|___*
-//                           0   1   2
-//                          / \     / \
-//                         0   1   0   1
-//
-// Each level of the BFS tree uses at most O(N*d) space.
+ Usage:
 
+
+ ClusterTree ct(dataset, period);
+
+ The resulting tree might look like:
+                     *                      
+                     0                          
+           __________|_________*                
+           0         1         2
+                           *___|___*
+                           0   1   2
+                          / \     / \
+                         0   1   0   1
+
+ Each level of the BFS tree uses at most O(N*d) space.
+
+ */
 namespace Terran {
 
 class ClusterTree {
@@ -67,6 +73,8 @@ public:
 
     Node& getRoot();
 
+    Cluster& getCurrentCluster();
+
     // take one step in BFS
     // returns true if successful
     // returns false otherwise
@@ -85,11 +93,11 @@ public:
     // pops the queue and assigns current cluster, this removes the head element
     void setCurrentCluster();
 
-    void partitionCurrentCluster();
+    // partition the dth dimension in the cluster
+    void partitionCurrentCluster(int d);
     
     void divideCurrentCluster();
 
-    Cluster* getCurrentCluster();
     
 private:
 

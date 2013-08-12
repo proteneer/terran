@@ -44,7 +44,6 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
 
     for(int d=0; d < getNumDimensions(); d++) {
         partitioners_[d] = new PartitionerEM(getDimension(d), period_[d]);
-
     }
     // set partitioners by default to EM    
 }

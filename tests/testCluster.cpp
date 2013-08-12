@@ -8,11 +8,9 @@
 #include <MethodsPeriodicGaussian.h>
 #include <MathFunctions.h>
 #include <Cluster.h>
-
 #include <ClusterTree.h>
 
 #include "util.h"
-
 
 #include <sstream>
 
@@ -82,24 +80,15 @@ void testEasyCase2D() {
         }
     }
 
-
     vector<double> periodset;
     periodset.push_back(2*PI);
     periodset.push_back(2*PI);
 
     Cluster cc(dataset, periodset);
 
-
-
-    ofstream fdata("fdata.txt");
-    for(int i=0; i < dataset.size(); i++) {
-        fdata << dataset[i][0] << " " << dataset[i][1] << endl;
-    }
-
     vector<vector<double> > testPartitions;
     
     for(int d = 0; d < cc.getNumDimensions(); d++) {
-        cout << d << endl;
         PartitionerEM& emp = dynamic_cast<PartitionerEM &>(cc.getPartitioner(d));
         cc.partition(d);
         vector<double> partitions = cc.getPartition(d);
@@ -145,11 +134,10 @@ void testEasyCase2D() {
 
 }
 
-/*
-int testClusterTree() {
+
+void testClusterTree() {
 
     vector<vector<double> > dataset;
-    vector<double> periodset;
     // setup 0th cluster;
     {
         double u1 = -PI/2;
@@ -161,7 +149,6 @@ int testClusterTree() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
-            periodset.push_back(period);
         }
     }
 
@@ -176,7 +163,6 @@ int testClusterTree() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
-            periodset.push_back(period);
         }
     }
 
@@ -191,21 +177,44 @@ int testClusterTree() {
             point[0] = periodicGaussianSample(u1, s, period);
             point[1] = periodicGaussianSample(u2, s, period);
             dataset.push_back(point);
-            periodset.push_back(period);
         }
     }
 
+    vector<double> periodset;
+    periodset.push_back(2*PI);
+    periodset.push_back(2*PI);
     ClusterTree ct(dataset, periodset);
+
+    while(!ct.finished()) {
+        ct.setCurrentCluster();
+        for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
+            cout << "Partitioning " << i << endl;
+            ct.partitionCurrentCluster(i);
+        }
+        for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
+            cout << i << endl;
+            vector<double> partitions = ct.getCurrentCluster().getPartition(i);
+            for(int j=0; j < partitions.size(); j++) {
+                cout << partitions[j] << endl;
+            }
+        }
+        ct.divideCurrentCluster();
+    }
+
+
+    /*
     ct.stepBFS();
     ct.stepBFS();
     ct.stepBFS();
+    */
+
 }
-*/
+
 
 int main() {
     try{
-        testEasyCase2D();
-        //testClusterTree();
+        //testEasyCase2D();
+        testClusterTree();
         cout << "done" << endl;
     } catch(const exception &e) {
         cout << e.what();
