@@ -23,7 +23,7 @@ public:
     PartitionerEM(const std::vector<double> &dataset, double period);
     ~PartitionerEM();
 
-    // default method uses multiAdaptiveRun in EM.
+    // Executes EM::multiAdaptiveRun()
     void optimizeParameters();
 
     // invokes optimizeParameters and findLowMinima
@@ -31,16 +31,41 @@ public:
     
     EM& getEM();
     
+    // setters and getters for various parameters in MAR
+
+    void setMARThreshold(double val);
+
+    void setMARNumParams(int val);
+
+    void setMARNumTries(int val);
+
+    void setPartitionCutoff(double val);
+
+    double getMARThreshold() const;
+
+    int getMARNumParams() const;
+
+    int getMARNumTries() const;
+
+    double getPartitionCutoff() const;
+
 private:
 
     bool isPeriodic() const;
     
     std::vector<double> findLowMinima() const;
 
-    // Multi adaptive run parameters
-    // TODO: setters/getters for all these
+
+    // To do: establish left and right bounds for sampling the mean
+
+    // During MAR, when a given parameter for some mixture model
+    // has a weight < MARThreshold_, the parameter is purged
     double MARThreshold_;
+
+    // The number of parameters to start with for MAR
     int    MARNumParams_;
+
+    // Number of attempts
     int    MARNumTries_;
 
     // Minima whose value is less than partitionCutoff_ is 
