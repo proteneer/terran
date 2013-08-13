@@ -7,7 +7,6 @@
 
  Usage:
 
-
  ClusterTree ct(dataset, period);
 
  The resulting tree might look like:
