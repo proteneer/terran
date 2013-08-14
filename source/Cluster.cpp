@@ -106,6 +106,7 @@ Partitioner& Cluster::getPartitioner(int d) {
 
 vector<int> Cluster::cluster() {
     
+    /*
     for(int d = 0; d < getNumDimensions(); d++) {
         if(partitions_[d].size() == 0) {
             stringstream msg;
@@ -113,6 +114,7 @@ vector<int> Cluster::cluster() {
             throw(std::runtime_error(msg.str()));
         }
     }
+    */
 
     // assign each point to a bucket
     map<vector<short>, vector<int> > clusters;
