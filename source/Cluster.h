@@ -7,7 +7,7 @@
 #include "PartitionerEM.h"
 
 namespace Terran {
-
+    
 class Cluster {
 
 public:

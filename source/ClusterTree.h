@@ -71,6 +71,10 @@ public:
     Node& getRoot();
 
     // returns a reference to the currently processed cluster
+    // do not do something like Cluster cc = clustertree.getCurrentCluster()
+    // Cluster class does not have a copy constructor! so the vector<Partitioners> class
+    // instead, use references:
+
     Cluster& getCurrentCluster();
 
     // process one cluster if no fine tuning is desired.

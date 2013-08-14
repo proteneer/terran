@@ -31,7 +31,9 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
 Cluster::~Cluster() {
     for(int i=0; i < partitioners_.size(); i++) {
         delete partitioners_[i];
-        // no need to set to NULL as whole thing will be destroyed.
+        // this is currently needed in case the user decides to do something like
+        // Cluster cc = clusterTree.getCluster();
+        partitioners_[i] = 0;
     }
 }
 
@@ -104,18 +106,8 @@ Partitioner& Cluster::getPartitioner(int d) {
     return *(partitioners_[d]);
 };
 
-vector<int> Cluster::cluster() {
-    
-    /*
-    for(int d = 0; d < getNumDimensions(); d++) {
-        if(partitions_[d].size() == 0) {
-            stringstream msg;
-            msg << "Error in cluster(), partitions in dimension " << d << " not set!" << endl;
-            throw(std::runtime_error(msg.str()));
-        }
-    }
-    */
 
+vector<int> Cluster::cluster() {
     // assign each point to a bucket
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {

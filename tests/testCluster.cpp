@@ -297,8 +297,9 @@ void testMultiCluster() {
     periodset.push_back(2*PI);
     ClusterTree ct(dataset, periodset);
 
+    int count = 0;
 
-
+    //while(count < 2) {
     while(!ct.finished()) {
         ct.setCurrentCluster();
         for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
@@ -310,8 +311,41 @@ void testMultiCluster() {
             }
             cout << endl;
         }
+
+        // if we use a non reference, and we do something like
+        // Cluster cc = ct.getCurrentCluster();
+        // we will end up with a segfault as the references get destroyed
+
+        Cluster& cc = ct.getCurrentCluster();
+        vector<vector<double> > clusterPoints;
+        for(int i=0 ; i < cc.getNumPoints(); i++) {
+            clusterPoints.push_back(cc.getPoint(i));
+        }
+        vector<int> assign = cc.cluster();
+
+        for(int i=0; i < cc.getNumPoints(); i++) {
+            stringstream filename;
+            int j = assign[i];
+            filename << "paper" << count << j;
+            ofstream fname(filename.str().c_str(), ios::app);
+            fname << clusterPoints[i][0] << " " << clusterPoints[i][1] << endl;
+            fname.close();
+        }
         ct.divideCurrentCluster();
+        count++;
     }
+
+    vector<int> assignment = ct.getAssignment();
+
+    for(int i=0; i < ct.getNumPoints(); i++) {
+        stringstream filename;
+        int j = assignment[i];
+        filename << "final" << count << j;
+        ofstream fname(filename.str().c_str(), ios::app);
+        fname << dataset[i][0] << " " << dataset[i][1] << endl;
+        fname.close();
+    }
+
 
 /*
     ct.setCurrentCluster();
