@@ -32,7 +32,7 @@
 \usepackage{algorithm}
 \begin{document}
 
-\title{An automated hierarchical clustering algorithm for continuous high dimensional datasets
+\title{An marginal density based hierarchical clustering algorithm for high dimensional continuous datasets
 \titlenote{(Does NOT produce the permission block, copyright information nor page numbering). For use with ACM\_PROC\_ARTICLE-SP.CLS. Supported by ACM.}}
 \subtitle{[Extended Abstract]
 \titlenote{A full version of this paper is available as
@@ -89,18 +89,18 @@ Yutong Zhao\\
        \email{yutong.zhao@stanford.edu}
 % 2nd. author
 \alignauthor
-Vijay Pande\\
+???\\
       \affaddr{Stanford University}\\
        \affaddr{318 Campus Drive}\\
        \affaddr{Stanford, California, 94305}\\
-       \email{pande@stanford.edu}
+       \email{}
 % 3rd. author
-\alignauthor Siu-Wing Cheng\titlenote{This author is the
+\alignauthor ???\titlenote{This author is the
 one who did all the really hard work.}\\
        \affaddr{The Th{\o}rv{\"a}ld Group}\\
        \affaddr{1 Th{\o}rv{\"a}ld Circle}\\
        \affaddr{Hekla, Iceland}\\
-       \email{larst@affiliation.org}
+       \email{}
 }
 \maketitle
 \begin{abstract}
@@ -218,9 +218,10 @@ What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such
 \section{Clustering Algorithm}
 In many applications, a transformation to internal coordinates is more meaningful and easier to work with. For example, a 2D pendulum is naturally described by a single angle. A protein's primary degrees of freedom lie within the torsion angles. The internal coordinate space may often be in \(R^n \times C^m\) topological space. Our use of the parameter estimation allow us to effectively find the minima that correspond to a very low marginalized probability.
 
+Given a collection \($X$\) of \($N$\) points in \($D$\), the algorithm begins by fitting a 1 dimensional mixture model curve for each marginalized dimension. Afterwards, the algorithm finds the minima of the mixture model curve, and makes cuts in the domain based on the minima points with a cutoff less than \($c$\) (ex. 0.05). For non-periodic dimensions, at least one cut is needed to disjointly partition the domain. For periodic dimensions, at least two cuts are needed as periodic domains are connected at the boundary. The algorithm then loops over each point and assigns the points to a given bucket based on which partition each dimension belongs to. Therefore, there are at most N non-empty buckets (and usually much less than N). After dividing the points into different bucketse, the algorithm repeats for each bucket until each of its dimensions can no longer be partitioned. The search can be implemented easily using a BFS tree. The key observation is that using a subset of the points often results in deconvolution of the other dimensions. 
 
 \begin{algorithm}
-\caption{Assign points using EM}\label{euclid}
+\caption{Assign Points in a Cluster}\label{euclid}
 \begin{algorithmic}[1]
 \Procedure{AssignBucket}{point, partitions}
 \State new bucket $b$ \Comment size dimensions
@@ -289,16 +290,27 @@ In many applications, a transformation to internal coordinates is more meaningfu
 \end{algorithmic}
 \end{algorithm}
 
-There are several nice properties afforded by this algorithm. Unlike the \(k\)-based algorithms, there is no need to explicitly specify the number of cluster centers a priori. Each level in the hierarchical cluster tree takes at most \(O(Nd\) time to process, and the further you go down the tree, the fewer the points. There is no possibility to oversplit a given cluster, so for hard systems like the double circle density, it will simply report that it has one cluster. The resulting clusters can individually serve as input to other types of clustering algorithms such as DBSCAN individually, or be used collectively as an initial configuration for the k* based types of clustering algorithms. The resulting probability curves derived via EM allows one to estimate the highest density point in any given cluster if one can assume independence in the dimensions.
- 
-Admittedly, there are also several caveats to this algorithm. Firstly, it relies on knowledge that the marginal probably density along some dimension has distinct modes. However, in many physics based applications
+There are several nice properties afforded by this algorithm. Unlike \(k\)-based algorithms, there is no need to explicitly specify the number of cluster centers a priori. Each level in the hierarchical cluster tree takes at most \(O(Nd)\) time to process, and the further you go down the tree, the fewer the points. In addition, the algorithm also guarantees that the clusters are not oversplit. Unlike DBSCAN, there is no need to explicitly set a density estimation parameter and a min points. 
 
+ For hard systems like the double circle distribution, it will simply result in one cluster. The resulting clusters can individually serve as input to other types of clustering algorithms such as DBSCAN individually, or be used collectively as an initial configuration for the k* based types of clustering algorithms. The resulting probability curves derived via EM allows one to estimate the highest density point in any given cluster if one can assume independence in the dimensions.
+ 
+Admittedly, there are also several caveats to this algorithm. Firstly, it relies on knowledge that the marginal probably density along some dimension has distinct modes. However, in many physics based applications, one can reasonably infer that certain degrees of freedom has distinct multimodal distribution.
+
+Advantages:
 \begin{itemize}
-\item There is no need to specify the number of centers a priori
-\item Each level in the BFS tree takes at most \(O(Nd)\) time to process
-\item No over splitting of a single cluster
-\item Works effectively for periodic and nonperiodic systems
-\item No need to explicitly define a metric between two points
+\item No need to specify number of cluster centers a priori (compared to k* based ones)
+\item No need to define a distance metric (compared to pretty much all clustering algorithms)
+\item Guarantees no oversplitting within clusters
+\item Each level of the BFS tree takes at most $O(Md)$ time, where $M$ is the number of points remaining at the level.
+\item Linear in the number of dimensions and points 
+\end{itemize}
+
+Disadvantages:
+\begin{itemize}
+\item Assumes marginal distributions can be fit using a mixture model
+\item Need to set a single parameter: the density cutoff threshold
+\item Will undersplit distributions such as double circles, double spirals, etc.
+\item Relies on there existence of regions of very low density in the marginal distributions
 \end{itemize}
 
 The resulting clusters 
@@ -482,18 +494,19 @@ This sample document contains examples of \textbf{.eps}
 and \textbf{.ps} files to be displayable with \LaTeX.  More
 details on each of these is found in the \textit{Author's Guide}.
 
-\begin{figure}
-\centering
-\epsfig{file=fly.eps}
-\caption{A sample black and white graphic (.eps format).}
-\end{figure}
-
-\begin{figure}
-\centering
-\epsfig{file=fly.eps, height=1in, width=1in}
-\caption{A sample black and white graphic (.eps format)
-that has been resized with the \texttt{epsfig} command.}
-\end{figure}
+%
+%\begin{figure}
+%\centering
+%\epsfig{file=fly.eps}
+%\caption{A sample black and white graphic (.eps format).}
+%\end{figure}
+%
+%\begin{figure}
+%\centering
+%\epsfig{file=fly.eps, height=1in, width=1in}
+%\caption{A sample black and white graphic (.eps format)
+%that has been resized with the \texttt{epsfig} command.}
+%\end{figure}
 
 
 As was the case with tables, you may want a figure
@@ -540,7 +553,7 @@ forms is given in the
 
 \begin{figure*}
 \centering
-\epsfig{file=flies.eps}
+%\epsfig{file=flies.eps}
 \caption{A sample black and white graphic (.eps format)
 that needs to span two columns of text.}
 \end{figure*}
