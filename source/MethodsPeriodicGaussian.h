@@ -1,3 +1,6 @@
+#ifndef METHODS_PERIODIC_GAUSSIAN_H_
+#define METHODS_PERIODIC_GAUSSIAN_H_
+
 #include "MathFunctions.h"
 #include "Methods.h"
 
@@ -25,3 +28,5 @@ private:
 };
 
 }
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef METHODS_GAUSSIAN_H_
+#define METHODS_GAUSSIAN_H_
+
 #include "MathFunctions.h"
 #include "Methods.h"
 
@@ -21,3 +24,5 @@ public:
 };
 
 }
+
+#endif

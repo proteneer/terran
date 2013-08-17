@@ -1,3 +1,6 @@
+#ifndef METHODS_H_
+#define METHODS_H_
+
 #include <vector>
 #include "Param.h"
 
@@ -28,3 +31,5 @@ protected:
 };
 
 }
+
+#endif
