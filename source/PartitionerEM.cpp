@@ -81,7 +81,7 @@ bool PartitionerEM::isPeriodic() const {
 vector<double> PartitionerEM::findLowMinima() const {
     vector<Param> params = em_->getParams();
     if(params.size() == 0) {
-        throw(std::runtime_error("PartitionEM::partition() - Parameters have not been optimized!"));
+        throw(std::runtime_error("PartitionEM::findLowMinima() - Parameters do not exist!"));
     }
 
     vector<double> partition;

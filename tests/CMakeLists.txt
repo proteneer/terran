@@ -18,3 +18,7 @@ target_link_libraries(testMathFunctions EM)
 
 add_executable(testCluster testCluster.cpp util.cpp)
 target_link_libraries(testCluster EM)
+
+add_executable(testClusterTree testClusterTree.cpp util.cpp)
+target_link_libraries(testClusterTree EM)
+
