@@ -53,7 +53,7 @@ inline double gaussian(double uk, double sk, double xn) {
 
 inline double gaussianDx(double uk, double sk, double xn) {
     double multiplier = (uk-xn)/(sk*sk);
-    double suffix = multiplier*gaussian(uk, sk, xn);
+    double suffix = gaussian(uk, sk, xn);
     return multiplier*suffix;
 }
 

@@ -76,9 +76,6 @@ vector<double> MethodsPeriodicGaussian::findMinima() const {
         int iteration = 0;
         do {
             if(iteration > 1e5) {
-
-                plotPeriodicGaussian(params_, period_, 100);
-
                 throw(std::runtime_error("Error: findMinima maximized number of iterations reached."));
             }
             else
