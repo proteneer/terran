@@ -32,7 +32,7 @@
 \usepackage{algorithm}
 \begin{document}
 
-\title{An marginal density based hierarchical clustering algorithm for high dimensional continuous datasets
+\title{TERRAN: An marginal density hierarchical clustering algorithm for high dimensional continuous datasets
 \titlenote{(Does NOT produce the permission block, copyright information nor page numbering). For use with ACM\_PROC\_ARTICLE-SP.CLS. Supported by ACM.}}
 \subtitle{[Extended Abstract]
 \titlenote{A full version of this paper is available as
@@ -169,13 +169,13 @@ The periodic gaussian (otherwise known as a wrapped gaussian) is defined on some
 \begin{equation}
 g_p(x; u,s) = \sum_{r=-\infty}^{\infty} g(x; u+rD, s)
 \end{equation}
-where \textbf{$D$} is the period of \textbf{$M$}. The periodic gaussian has the same normalization constant as the standard gaussian, it is continuous everywhere in the domain, and is relatively cheap to evaluate despite the infinite summation due to the rapid exponentatial decay of the gaussian. In practice, the summation is bound between a very small range. The periodic gaussian is very similar to the von Mises distribution, but it has the advantage in that it can be easily defined for periods other than \textbf{$2\pi$}. The periodic gaussian has the derivative:
+where \textbf{$D$} is the period of \textbf{$M$}. The periodic gaussian has the same normalization constant as the standard gaussian, it is continuous everywhere in the domain, and is relatively cheap to evaluate despite the infinite summation due to the rapid exponentatial decay of the gaussian. In practice, the summation is bound between a very small range. The periodic gaussian is very similar to the von Mises distribution, but it has the advantage in that it can be accomodate for periods other than \textbf{$2\pi$}. The periodic gaussian has the derivative:
 
 \begin{equation}
 \dfrac{\partial g_p(x;u,s)}{\partial x} = \dfrac{1}{s^2} \sum_{r=-\infty}^{\infty} (u-x+rD) g(x; u+rD, s)
 \end{equation}
 
-Similar to standard gaussian, it is possible to define a \textbf{$K$} component periodic gaussian mixture given some set of parameters \textbf{$\theta$}:
+Similar to the standard gaussian, it is also possible to define a \textbf{$K$} component periodic gaussian mixture given some set of parameters \textbf{$\theta$}:
 \begin{equation}
 g_{pm}(x;\theta) = \sum_{k=1}^{K} p_k g_p(x; u_k, s_k)
 \end{equation}
@@ -184,6 +184,8 @@ A periodic gaussian mixture has at most \textbf{$K$} minima, whereas a gaussian 
 \begin{equation}
 \dfrac{\partial g_{pm}(x; \theta)}{\partial x} =  \sum_{k=1}^{K} p_k \dfrac{\partial g_p(x; u_k, s_k)}{\partial x}
 \end{equation}
+
+Maxima can be found using gradient ascent with the means $u_k$ as the starting guess, since the curvature is generally non-flat in the region near the maxima. For each adjacent pair of maxima $max_1$,  $max_2$, such that $max_1$ is periodically left of $max_2$, there must exist a minimum in between, which can then be found using bisection of the derivative with the starting bracket [$max_1+\epsilon$, $max_2-\epsilon$].
 
 \section{Expectation Maximization}
 
@@ -213,12 +215,15 @@ and,
 &\left. -\dfrac{2(x_n-u_k)D\sum\limits^{\infty}_{r=-\infty}rg}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} + \dfrac{D^2 \sum\limits^{\infty}_{r=-\infty}r^2g}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} \right)
 \end{split}
 \end{align}
-What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maxium  and minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
+What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maximum  and  a minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
+
+For higher dimensional periodic gaussians are less tractable as the number of images needed increases exponentially with the number of dimensions. s not well defined for higher dimensions. 
 
 \section{Clustering Algorithm}
-In many applications, a transformation to internal coordinates is more meaningful and easier to work with. For example, a 2D pendulum is naturally described by a single angle. A protein's primary degrees of freedom lie within the torsion angles. The internal coordinate space may often be in \(R^n \times C^m\) topological space. Our use of the parameter estimation allow us to effectively find the minima that correspond to a very low marginalized probability.
 
-Given a collection \($X$\) of \($N$\) points in \($D$\), the algorithm begins by fitting a 1 dimensional mixture model curve for each marginalized dimension. Afterwards, the algorithm finds the minima of the mixture model curve, and makes cuts in the domain based on the minima points with a cutoff less than \($c$\) (ex. 0.05). For non-periodic dimensions, at least one cut is needed to disjointly partition the domain. For periodic dimensions, at least two cuts are needed as periodic domains are connected at the boundary. The algorithm then loops over each point and assigns the points to a given bucket based on which partition each dimension belongs to. Therefore, there are at most N non-empty buckets (and usually much less than N). After dividing the points into different bucketse, the algorithm repeats for each bucket until each of its dimensions can no longer be partitioned. The search can be implemented easily using a BFS tree. The key observation is that using a subset of the points often results in deconvolution of the other dimensions. 
+We now showcase a  hierarchical clustering algorithm using only 1D gaussian-like mixture models.
+
+Given a collection \($X$\) of \($N$\) points in \($D$\), the algorithm begins by fitting a 1 dimensional mixture model curve for each marginalized dimension. Afterwards, the algorithm finds the minima of the mixture model curve, and makes cuts in the domain based on the minima points with a cutoff less than \($c$\) (ex. 0.05). For non-periodic dimensions, at least one cut is needed to disjointly partition the domain. For periodic dimensions, at least two cuts are needed as periodic domains are connected at the boundary. The algorithm then loops over each point and assigns the points to a given bucket based on which partition each dimension belongs to. Therefore, there are at most N non-empty buckets (and usually much less than N). After dividing the points into different buckets, the algorithm repeats for each bucket until each of its dimensions can no longer be partitioned. The search can be implemented easily using a BFS tree. The key observation is that using a subset of the points often results in deconvolution of the other dimensions.
 
 \begin{algorithm}
 \caption{Assign Points in a Cluster}\label{euclid}
@@ -296,13 +301,17 @@ There are several nice properties afforded by this algorithm. Unlike \(k\)-based
  
 Admittedly, there are also several caveats to this algorithm. Firstly, it relies on knowledge that the marginal probably density along some dimension has distinct modes. However, in many physics based applications, one can reasonably infer that certain degrees of freedom has distinct multimodal distribution.
 
+ In many applications, a transformation to internal coordinates is more meaningful and easier to work with. For example, a protein's primary degrees of freedom lie within torsion angles. The internal coordinate space may often be in \(R^n \times C^m\) topological space. The EM algorithm the parameter estimation allow us to efficiently find the minima that correspond to a very low marginalized probability.
+
+
 Advantages:
 \begin{itemize}
 \item No need to specify number of cluster centers a priori (compared to k* based ones)
-\item No need to define a distance metric (compared to pretty much all clustering algorithms)
+\item No need to define a distance metric between points, avoiding the dimensionality curse
 \item Guarantees no oversplitting within clusters
 \item Each level of the BFS tree takes at most $O(Md)$ time, where $M$ is the number of points remaining at the level.
 \item Linear in the number of dimensions and points 
+\item Parallelizable
 \end{itemize}
 
 Disadvantages:
@@ -312,6 +321,9 @@ Disadvantages:
 \item Will undersplit distributions such as double circles, double spirals, etc.
 \item Relies on there existence of regions of very low density in the marginal distributions
 \end{itemize}
+
+\section{Results}
+
 
 The resulting clusters 
 
@@ -362,6 +374,12 @@ non-English characters you need anywhere in your document;
 you can find a complete list of what is
 available in the \textit{\LaTeX\
 User's Guide}\cite{Lamport:LaTeX}.
+
+
+\section{Future Directions}
+
+Aside from the EM algorithm, there are a multitude of other ways to find the steep valleys in a marginalized density distribution. Gaussian Kernel Density Estimation (GKDE) is an alternative, which creates an N-component gaussian mixture model, whose minima can again be effectively found using bisection. However, one needs to be careful about the choice of $s$, as too small of a value would result in many spurious minima, and too big of a value would under represent the number of minima. Another candidate is histogram floodfill, where as a histogram of some bin width is created, and the valleys of the histrogram "flooded" with a height of some cutoff to find the minima. 
+
 
 \subsection{Math Equations}
 You may want to display math equations in three distinct styles:

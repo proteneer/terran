@@ -267,7 +267,7 @@ void testMultiCluster() {
     {
         double u1 = PI/8;
         double u2 = -PI/9;
-        double s = 0.5;
+        double s = 0.3;
 
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -281,8 +281,8 @@ void testMultiCluster() {
     {
         double u1 = 0;
         double u2 = 8*PI/9;
-        double s1 = 0.4;
-        double s2 = 0.7;
+        double s1 = 0.3;
+        double s2 = 0.8;
 
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
