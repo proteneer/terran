@@ -390,6 +390,11 @@ void testNonPeriodicMultiCluster() {
         fname.close();
     }
 
+    ofstream assignmentFile("assignment.log");
+    for(int i=0; i< assignment.size() ;i++) {
+        assignmentFile << assignment[i] << endl;
+    }
+
 
 }
 
