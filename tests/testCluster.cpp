@@ -41,35 +41,19 @@ void test50DGaussians() {
     vector<vector<double> > dataset;
     {
         double u = 3;
-        double s = 0.3;
+        double s = 0.2;
         for(int i=0; i < 2000; i++) {
             vector<double> point(numDimensions);
             for(int d=0; d < numDimensions; d++) {
                 point[d] = gaussianSample(u,s);
-            }
-            dataset.push_back(point);
-        }
-
-        // special case where one dimension is in a different mean
-        for(int i=0; i < 2000; i++) {
-            double u = 3;
-            double u_special = -6;
-            double s = 0.3;
-            vector<double> point(numDimensions);
-            for(int d=0; d < numDimensions; d++) {
-                if(d == 5) {
-                    point[d] = gaussianSample(u_special,s);
-                } else {
-                    point[d] = gaussianSample(u,s); 
-                }
             }
             dataset.push_back(point);
         }
     }
 
     {
-        double u = -3;
-        double s = 0.3;
+        double u = -6;
+        double s = 0.7;
         for(int i=0; i < 2000; i++) {
             vector<double> point(numDimensions);
             for(int d=0; d < numDimensions; d++) {
@@ -77,6 +61,30 @@ void test50DGaussians() {
             }
             dataset.push_back(point);
         }
+    }
+
+    // flip flop
+    {
+        double u = 12;
+        double s = 1.2;
+        for(int i=0; i < 2000; i++) {
+            vector<double> point(numDimensions);
+            for(int d=0; d < numDimensions; d++) {
+                point[d] = gaussianSample(u,s);
+            }
+            dataset.push_back(point);
+        }
+    }
+
+    ofstream highd("50d.txt");
+    for(int i=0; i < dataset.size(); i++) {
+        for(int j=0; j < dataset[i].size(); j++) {
+            highd << dataset[i][j];
+            if( j != dataset[i].size()-1) {
+                highd << " ";
+            }
+        }
+        highd << endl;
     }
 
     vector<double> periodset(numDimensions, 0);
@@ -90,19 +98,32 @@ void test50DGaussians() {
 
     vector<int> assignment = cc.cluster();
 
+    ofstream assignmentd("50dassign.txt");
+    for(int j=0; j < assignment.size(); j++) {
+        assignmentd << assignment[j] << endl;
+    }
+
     int numClusters = (*max_element(assignment.begin(), assignment.end()))+1;
+
+    cout << numClusters << endl;
 
     vector<vector<int> > output(numClusters);
     for(int i=0; i < assignment.size(); i++) {
         output[assignment[i]].push_back(i);
     }
 
+
+    for(int i=0; i < output.size(); i++) {
+        cout << output[i].size() << endl;
+    }
+
+
+
     if(numClusters != 3) {
         throw(std::runtime_error("test50DGaussians(): Number of clusters != 3"));
     }
 
 }
-
 
 void testEasyCase2D() {
 
