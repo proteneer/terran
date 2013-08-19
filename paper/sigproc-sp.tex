@@ -168,7 +168,7 @@ Suppose we have $N$ points in $D$ dimensions. Our first objective is to find val
 The algorithm begins by marginalizing each dimension, whose density is then estimated by fitting a 1D mixture model. The EM algorithm is initialized with an equally weighted $P$ component gaussian mixture model with the means randomly distributed in the range $[min_p, max_p]$, where $min_p$ and $max_p$ are the minimum and maximum coordinates in the set of points. During any iteration in the EM algorithm, if the weight of the $p$'th component is less than some tolerance $t$, then the $p$'th component is pruned. In addition, this process may repeat several times, returning the model with the highest likelihood. With a mixture model readily available, the resulting set of minima $M$ can be easily found. We then pick a subset of $M$ with a low probability cutoff $c$. These cutting points denote valleys which are then used to partition the domain. For non-periodic dimensions, at least one cut is needed to divide the domain into two connected partitions. For periodic dimensions (detailed later), at least two cuts are needed as periodic domains are connected at the boundary. In practice, $P=15$, $t=0.05$, $c=0.05$. In practice, these parameters are generally independent of the type and shape of data and need not be adjusted. 
 
 \subsection{Hierarchical Cluster Tree}
- Given a set of partitions for each dimension, the algorithm loops over each point and assigns the points to a given $D$ dimensional bucket resulting in at most $N$ non-empty buckets. Each bucket in essence, becomes a child cluster own its own, whose dimensions have a different marginalized density distribution. In many cases, the dimensions in the child cluster has more valleys than the parent cluster. The process repeats until each dimension in each cluster can no longer be partitioned. This results in a hierarchical cluster tree, whose creation can be implemented by Breadth First Search.
+ Given a set of partitions for each dimension, the algorithm loops over each point and assigns the points to a given $D$ dimensional bucket resulting in at most $N$ non-empty buckets. Each bucket in essence, becomes a child cluster own its own, whose dimensions have a different marginalized density distribution. In many cases, the dimensions in the child cluster has more valleys than the parent cluster. The process repeats until each dimension in each cluster can no longer be partitioned (which may result from either lack of minima or lack of points). This results in a hierarchical cluster tree, whose creation can be implemented by Breadth First Search.
 
 \subsection{Running Time}
 
@@ -253,11 +253,11 @@ We compare TERRAN against several other popular clustering algorithms: DBSCAN, S
 
 In contrast, TERRAN has only one cutting parameter that is generally insensitive to the type of data, and will not oversplit clusters. This is shown in the double moon, double circle, and uniform example distributions. In addition, TERRAN is unique in that it is essentially metricless, which shows its utility in high dimensional datasets as it avoids computing $D$ dimension metrics, thereby avoiding the curse of dimensionality.
 
-However, the algorithm generally depends on existence of these steep valleys in the marginalized densities. Otherwise it will undersplit the clusters. In addition, the EM component assumes that marginalized densities can indeed by fit using some mixture model (although this change if one were to use a different valley finding algorithm such as Kernel methods or histogram flood fill methods). We prefer the EM due to the simplicity of the resulting models. 
+However, the algorithm generally depends on existence of these steep valleys in the marginalized densities. In other words, it assumes that the underlying clusters are somewhat linearly separable. Otherwise the algorithm will undersplit the clusters. In addition, the EM component assumes that marginalized densities can indeed by fit using some mixture model (although this change if one were to use a different valley finding algorithm such as Kernel methods or histogram flood fill methods). We prefer the EM due to the simplicity of the resulting models. 
 
 \section{Clustering in Periodic Spaces}
 
-For many applications, such as clustering and density estimation of large molecules (eg. proteins), a transformation to internal coordinate space comprised of periodic dimensions (such as torsion angles and bond angles), and nonperiodic dimensions (such as bond lengths), results in a natural dimensionality reduction. However, this also implies a need to come with a robust periodic basis. Here, we introduce the periodic gaussian, also known as wrapped gaussians, and demonstrate the use of the EM algorithm with this basis
+For many applications, such as clustering and density estimation of large molecules (eg. proteins), a transformation to internal coordinate space comprised of periodic dimensions (such as torsion angles and bond angles), and nonperiodic dimensions (such as bond lengths), results in a natural dimensionality reduction. Surprisingly, this tranformation often results in linearly seperable degrees of freedom. However, this also implies a need to come with a robust periodic basis. Here, we introduce the periodic gaussian, also known as wrapped gaussians in other literature, and demonstrate the use of the EM algorithm with this basis
 
 \subsection{Periodic Gaussian}
 Recall the definition of the gaussian distribution,
@@ -340,6 +340,10 @@ available in the \textit{\LaTeX\
 User's Guide}\cite{Lamport:LaTeX}.
 
 \section{Conclusion}
+
+\section{Future Direction}
+
+There are several ways to expand this algorithm to make it more robust. The first major revamp is to introduce better density estimators such as gaussian kernel methods. 
 
 \section{NOT USEFUL STUFF BELOW THIS}
 
