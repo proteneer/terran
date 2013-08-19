@@ -35,6 +35,74 @@ using namespace std;
 
 using namespace Terran;
 
+// generate three 50 dimensional gaussians
+void test50DGaussians() {
+    const int numDimensions = 100;
+    vector<vector<double> > dataset;
+    {
+        double u = 3;
+        double s = 0.3;
+        for(int i=0; i < 2000; i++) {
+            vector<double> point(numDimensions);
+            for(int d=0; d < numDimensions; d++) {
+                point[d] = gaussianSample(u,s);
+            }
+            dataset.push_back(point);
+        }
+
+        // special case where one dimension is in a different mean
+        for(int i=0; i < 2000; i++) {
+            double u = 3;
+            double u_special = -6;
+            double s = 0.3;
+            vector<double> point(numDimensions);
+            for(int d=0; d < numDimensions; d++) {
+                if(d == 5) {
+                    point[d] = gaussianSample(u_special,s);
+                } else {
+                    point[d] = gaussianSample(u,s); 
+                }
+            }
+            dataset.push_back(point);
+        }
+    }
+
+    {
+        double u = -3;
+        double s = 0.3;
+        for(int i=0; i < 2000; i++) {
+            vector<double> point(numDimensions);
+            for(int d=0; d < numDimensions; d++) {
+                point[d] = gaussianSample(u,s);
+            }
+            dataset.push_back(point);
+        }
+    }
+
+    vector<double> periodset(numDimensions, 0);
+    Cluster cc(dataset, periodset);
+    vector<vector<double> > testPartitions;
+    for(int d = 0; d < cc.getNumDimensions(); d++) {
+        cc.partition(d);
+        vector<double> partitions = cc.getPartition(d);
+        testPartitions.push_back(partitions);
+    }
+
+    vector<int> assignment = cc.cluster();
+
+    int numClusters = (*max_element(assignment.begin(), assignment.end()))+1;
+
+    vector<vector<int> > output(numClusters);
+    for(int i=0; i < assignment.size(); i++) {
+        output[assignment[i]].push_back(i);
+    }
+
+    if(numClusters != 3) {
+        throw(std::runtime_error("test50DGaussians(): Number of clusters != 3"));
+    }
+
+}
+
 
 void testEasyCase2D() {
 
@@ -130,6 +198,8 @@ void testEasyCase2D() {
 
 int main() {
     try{
+        test50DGaussians();
+        srand(1);
         testEasyCase2D();
         cout << "done" << endl;
     } catch(const exception &e) {
