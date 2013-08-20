@@ -70,7 +70,7 @@ vector<double> Cluster::getPoint(int n) const {
 
 vector<double> Cluster::getDimension(int d) const {
     if(d >= getNumDimensions()) {
-        throw(std::runtime_error("Cluster::getMarginalValues() out of bounds!"));   
+        throw(std::runtime_error("Cluster::getDimension() out of bounds!"));   
     }
     vector<double> data(getNumPoints());
     for(int i=0; i<getNumPoints(); i++) {

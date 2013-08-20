@@ -35,48 +35,50 @@ using namespace std;
 
 using namespace Terran;
 
-// generate three 50 dimensional gaussians
-void test50DGaussians() {
+void test100DGaussiansMulti() {
+
     const int numDimensions = 100;
+    const int numModes = 6;
+
+    // generate 100 clusters with different means
     vector<vector<double> > dataset;
-    {
-        double u = 3;
-        double s = 0.2;
-        for(int i=0; i < 2000; i++) {
+    vector<double> us(numModes);
+    vector<double> ss(numModes);
+
+    // generate randomly
+    for(int i=0; i < numModes; i++) {
+        us[i] = 2*i;
+        if(i%2 == 0)
+            ss[i] = 0.25;
+        else
+            ss[i] = 0.15;
+    }
+
+    ofstream flabels_("100dMultiLabels.txt");
+
+    for(int k=0; k < 20; k++) {
+
+        vector<double> means(numDimensions);
+        vector<double> stddev(numDimensions);
+
+        for(int d=0; d < numDimensions; d++) {
+            int sample = rand() % numModes;
+            means[d] = us[sample];
+            stddev[d] = ss[sample];
+        }
+
+        for(int i=0; i < 1000; i++) {
             vector<double> point(numDimensions);
-            for(int d=0; d < numDimensions; d++) {
-                point[d] = gaussianSample(u,s);
+            for(int d = 0; d < numDimensions; d++) {
+                point[d] = gaussianSample(means[d], stddev[d]);
             }
             dataset.push_back(point);
+            flabels_ << k << endl;
         }
     }
 
-    {
-        double u = -6;
-        double s = 0.7;
-        for(int i=0; i < 2000; i++) {
-            vector<double> point(numDimensions);
-            for(int d=0; d < numDimensions; d++) {
-                point[d] = gaussianSample(u,s);
-            }
-            dataset.push_back(point);
-        }
-    }
-
-    // flip flop
-    {
-        double u = 12;
-        double s = 1.2;
-        for(int i=0; i < 2000; i++) {
-            vector<double> point(numDimensions);
-            for(int d=0; d < numDimensions; d++) {
-                point[d] = gaussianSample(u,s);
-            }
-            dataset.push_back(point);
-        }
-    }
-
-    ofstream highd("50d.txt");
+    // k means
+    ofstream highd("100dMulti.txt");
     for(int i=0; i < dataset.size(); i++) {
         for(int j=0; j < dataset[i].size(); j++) {
             highd << dataset[i][j];
@@ -89,23 +91,117 @@ void test50DGaussians() {
 
     vector<double> periodset(numDimensions, 0);
     Cluster cc(dataset, periodset);
+
     vector<vector<double> > testPartitions;
     for(int d = 0; d < cc.getNumDimensions(); d++) {
+        cout << "partitioning " << d << "...";
         cc.partition(d);
         vector<double> partitions = cc.getPartition(d);
+        cout << " found: " << partitions.size() << endl;
         testPartitions.push_back(partitions);
     }
 
     vector<int> assignment = cc.cluster();
 
-    ofstream assignmentd("50dassign.txt");
+    ofstream assignmentd("100dMultiTerranAssign.txt");
     for(int j=0; j < assignment.size(); j++) {
         assignmentd << assignment[j] << endl;
     }
 
     int numClusters = (*max_element(assignment.begin(), assignment.end()))+1;
 
-    cout << numClusters << endl;
+    cout << "number of clusters: " << numClusters << endl;
+
+    vector<vector<int> > output(numClusters);
+    for(int i=0; i < assignment.size(); i++) {
+        output[assignment[i]].push_back(i);
+    }
+
+    int realc = 0;
+    for(int i=0; i < output.size(); i++) {
+        if(output[i].size() > 100) {
+            cout << output[i].size() << endl;
+            realc++;
+        }
+    }
+
+    cout << "number of real clusters: " << realc << endl;
+
+
+}
+
+void test100DGaussians() {
+
+    const int numDimensions = 100;
+    const int numModes = 3;
+
+    // generate 100 clusters with different means
+    vector<vector<double> > dataset;
+    vector<double> us(numModes);
+    vector<double> ss(numModes);
+    
+    ofstream flabels_("100dLabels.txt");
+
+    // generate first set of points
+
+    for(int i=0; i < 1000; i++) {
+        // u= [0,0,...,0]
+        vector<double> point(numDimensions);
+        for(int d=0; d < numDimensions; d++) {
+            if(d == 0) {
+                point[d] = gaussianSample(0, 0.2);
+            } else {
+                point[d] = gaussianSample(0, 1.0);
+
+            }
+        }
+        dataset.push_back(point);
+        flabels_ << 0 << endl;
+    }
+
+    for(int i=0; i < 1000; i++) {
+        // su = [-1,-1,...,-1]
+        vector<double> point(numDimensions);
+        for(int d=0; d < numDimensions; d++) {
+            point[d] = gaussianSample(-1, 0.15);
+        }
+        dataset.push_back(point);
+        flabels_ << 1 << endl;
+    }
+
+    ofstream highd("100d.txt");
+    for(int i=0; i < dataset.size(); i++) {
+        for(int j=0; j < dataset[i].size(); j++) {
+            highd << dataset[i][j];
+            if( j != dataset[i].size()-1) {
+                highd << " ";
+            }
+        }
+        highd << endl;
+    }
+
+    vector<double> periodset(numDimensions, 0);
+    Cluster cc(dataset, periodset);
+
+    vector<vector<double> > testPartitions;
+    for(int d = 0; d < cc.getNumDimensions(); d++) {
+        cout << "partitioning " << d << "...";
+        cc.partition(d);
+        vector<double> partitions = cc.getPartition(d);
+        cout << " found: " << partitions.size() << endl;
+        testPartitions.push_back(partitions);
+    }
+
+    vector<int> assignment = cc.cluster();
+
+    ofstream assignmentd("100dTerranAssign.txt");
+    for(int j=0; j < assignment.size(); j++) {
+        assignmentd << assignment[j] << endl;
+    }
+
+    int numClusters = (*max_element(assignment.begin(), assignment.end()))+1;
+
+    cout << "number of clusters: " << numClusters << endl;
 
     vector<vector<int> > output(numClusters);
     for(int i=0; i < assignment.size(); i++) {
@@ -113,15 +209,16 @@ void test50DGaussians() {
     }
 
 
+    int realc = 0;
     for(int i=0; i < output.size(); i++) {
-        cout << output[i].size() << endl;
+        if(output[i].size() > 100) {
+            cout << output[i].size() << endl;
+            realc++;
+        }
     }
 
+    cout << "number of real clusters: " << realc << endl;
 
-
-    if(numClusters != 3) {
-        throw(std::runtime_error("test50DGaussians(): Number of clusters != 3"));
-    }
 
 }
 
@@ -219,7 +316,9 @@ void testEasyCase2D() {
 
 int main() {
     try{
-        test50DGaussians();
+        test100DGaussiansMulti();
+        srand(1);
+        test100DGaussians();
         srand(1);
         testEasyCase2D();
         cout << "done" << endl;
