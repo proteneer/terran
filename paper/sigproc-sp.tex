@@ -32,7 +32,7 @@
 \usepackage{algorithm}
 \begin{document}
 
-\title{TERRAN: An marginal density hierarchical clustering algorithm for high dimensional continuous datasets
+\title{An marginal density based hierarchical clustering algorithm for high dimensional continuous datasets
 \titlenote{(Does NOT produce the permission block, copyright information nor page numbering). For use with ACM\_PROC\_ARTICLE-SP.CLS. Supported by ACM.}}
 \subtitle{[Extended Abstract]
 \titlenote{A full version of this paper is available as
@@ -160,70 +160,21 @@ specifically available for denoting the structure of a
 proceedings paper, rather than with giving rigorous descriptions
 or explanations of such commands.
 
-\section{Periodic Gaussian}
-Recall the definition of the gaussian distribution,
-\begin{equation}
-g(x; u,s) = \dfrac{1}{s\sqrt{2\pi}} \exp\left(-\dfrac{1}{2} \left(\dfrac{x-u}{s}\right)^2\right)
-\end{equation}
-The periodic gaussian (otherwise known as a wrapped gaussian) is defined on some periodic manifold \textbf{$M$}:
-\begin{equation}
-g_p(x; u,s) = \sum_{r=-\infty}^{\infty} g(x; u+rD, s)
-\end{equation}
-where \textbf{$D$} is the period of \textbf{$M$}. The periodic gaussian has the same normalization constant as the standard gaussian, it is continuous everywhere in the domain, and is relatively cheap to evaluate despite the infinite summation due to the rapid exponentatial decay of the gaussian. In practice, the summation is bound between a very small range. The periodic gaussian is very similar to the von Mises distribution, but it has the advantage in that it can be accomodate for periods other than \textbf{$2\pi$}. The periodic gaussian has the derivative:
+\section{The Terran Algorithm}
 
-\begin{equation}
-\dfrac{\partial g_p(x;u,s)}{\partial x} = \dfrac{1}{s^2} \sum_{r=-\infty}^{\infty} (u-x+rD) g(x; u+rD, s)
-\end{equation}
+Suppose we have $N$ points in $D$ dimensions. Our first objective is to find valleys in each marginalized dimension. These valleys guarantee that there is some distinct density cluster that can be used to partition the points. We can find these valleys using the expectation maximization algorithm.
 
-Similar to the standard gaussian, it is also possible to define a \textbf{$K$} component periodic gaussian mixture given some set of parameters \textbf{$\theta$}:
-\begin{equation}
-g_{pm}(x;\theta) = \sum_{k=1}^{K} p_k g_p(x; u_k, s_k)
-\end{equation}
-A periodic gaussian mixture has at most \textbf{$K$} minima, whereas a gaussian mixture has at most \textbf{$K+1$} minima. The periodic gaussian mixture has the derivative:
+\subsection{Estimating the Marginalized Density}
+The algorithm begins by marginalizing each dimension, whose density is then estimated by fitting a 1D mixture model. The EM algorithm is initialized with an equally weighted $P$ component gaussian mixture model with the means randomly distributed in the range $[min_p, max_p]$, where $min_p$ and $max_p$ are the minimum and maximum coordinates in the set of points. During any iteration in the EM algorithm, if the weight of the $p$'th component is less than some tolerance $t$, then the $p$'th component is pruned. In addition, this process may repeat several times, returning the model with the highest likelihood. With a mixture model readily available, the resulting set of minima $M$ can be easily found. We then pick a subset of $M$ with a low probability cutoff $c$. These cutting points denote valleys which are then used to partition the domain. For non-periodic dimensions, at least one cut is needed to divide the domain into two connected partitions. For periodic dimensions (detailed later), at least two cuts are needed as periodic domains are connected at the boundary. In practice, $P=15$, $t=0.05$, $c=0.05$. In practice, these parameters are generally independent of the type and shape of data and need not be adjusted. 
 
-\begin{equation}
-\dfrac{\partial g_{pm}(x; \theta)}{\partial x} =  \sum_{k=1}^{K} p_k \dfrac{\partial g_p(x; u_k, s_k)}{\partial x}
-\end{equation}
+\subsection{Hierarchical Cluster Tree}
+ Given a set of partitions for each dimension, the algorithm loops over each point and assigns the points to a given $D$ dimensional bucket resulting in at most $N$ non-empty buckets. Each bucket in essence, becomes a child cluster own its own, whose dimensions have a different marginalized density distribution. In many cases, the dimensions in the child cluster has more valleys than the parent cluster. The process repeats until each dimension in each cluster can no longer be partitioned (which may result from either lack of minima or lack of points). This results in a hierarchical cluster tree, whose creation can be implemented by Breadth First Search.
 
-Maxima can be found using gradient ascent with the means $u_k$ as the starting guess, since the curvature is generally non-flat in the region near the maxima. For each adjacent pair of maxima $max_1$,  $max_2$, such that $max_1$ is periodically left of $max_2$, there must exist a minimum in between, which can then be found using bisection of the derivative with the starting bracket [$max_1+\epsilon$, $max_2-\epsilon$].
+\subsection{Running Time}
 
-\section{Expectation Maximization}
+Because EM is an iterative algorithm depending on convergence, it can difficult to categorize the algorithm's running time strictly using big O notation. However, in nearly all tests, we observe that fitting an EM curve to a single dimension takes roughly $O(N_c D)$ time, where $N_c$ is the number of points in a cluster $c$ and $D$ is the number of dimensions. Thus each level in the cluster tree takes at most $O(N_C D)$ time, where $N_C$ is the sum of all points in $C$ clusters on a level. In practice, the algorithm is linear with respect to the number of points and dimensions, with worst case being $O(K N D)$, where $K$ is the total number of ground truth cluster centers. 
 
-A natural tendency of gaussians is to form mixture models in order to fit data. In general, EM for gaussian mixture models is very well behaved and studied, and it makes natural sense derive equations for EM to accommodate periodic gaussians. We first define the log likelihood function for periodic gaussians for some 1D dataset \textbf{$X$} of size \textbf{$N$} with parameters \textbf{$\theta$} for the mixture model,
-\begin{equation}
-\lambda(X; \theta) = \sum_{n=1}^{N} \log \sum_{k=1}^{K} p_k g_p(x;u_k, s_k)
-\end{equation}
-In addition, define the membership probability expressed as the condititional probability,
-\begin{equation}
-p(k|n) = \dfrac{p_k g_p(x_n; u_k, s_k)}{\sum\limits^{K}_{m=1} p_m g_p(x_n; u_k, s_k)}
-\end{equation}
-it can then be shown that
-\begin{equation}
-\sum_{k=1}^{K} p(k|n) = 1
-\end{equation}
-The next step in EM is to derive the derivatives of the likelihood with respect to the parameters, for notational convenience, define
-\begin{align}
-g & \equiv g(x_n; u_k, s_k) \\
-g_p & \equiv g_p(x_n; u_k, s_k)
-\end{align}
-and,
-\begin{align}
-\dfrac{\partial \lambda}{\partial p_k} & = p_k - \dfrac{1}{N} \sum\limits^{N}_{n=1}p(k|n) \\
-\dfrac{\partial \lambda}{\partial u_k} &= \dfrac{1}{s_k^2} \sum_{n=1}^{N}p(k|n) \left(x_n - u_k - D \frac{\sum\limits^{\infty}_{r=-\infty} rg}{\sum\limits^{\infty}_{r=-\infty}g} \right) \\
-\begin{split}
-\dfrac{\partial \lambda}{\partial s_k} & = \sum\limits^{N}_{n=1}p(k|n) \left(-\dfrac{1}{s_k} + \dfrac{(x_n-u_k)^2}{s_k^3}\right. \\
-&\left. -\dfrac{2(x_n-u_k)D\sum\limits^{\infty}_{r=-\infty}rg}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} + \dfrac{D^2 \sum\limits^{\infty}_{r=-\infty}r^2g}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} \right)
-\end{split}
-\end{align}
-What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maximum  and  a minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
-
-For higher dimensional periodic gaussians are less tractable as the number of images needed increases exponentially with the number of dimensions. s not well defined for higher dimensions. 
-
-\section{Clustering Algorithm}
-
-We now showcase a  hierarchical clustering algorithm using only 1D gaussian-like mixture models.
-
-Given a collection \($X$\) of \($N$\) points in \($D$\), the algorithm begins by fitting a 1 dimensional mixture model curve for each marginalized dimension. Afterwards, the algorithm finds the minima of the mixture model curve, and makes cuts in the domain based on the minima points with a cutoff less than \($c$\) (ex. 0.05). For non-periodic dimensions, at least one cut is needed to disjointly partition the domain. For periodic dimensions, at least two cuts are needed as periodic domains are connected at the boundary. The algorithm then loops over each point and assigns the points to a given bucket based on which partition each dimension belongs to. Therefore, there are at most N non-empty buckets (and usually much less than N). After dividing the points into different buckets, the algorithm repeats for each bucket until each of its dimensions can no longer be partitioned. The search can be implemented easily using a BFS tree. The key observation is that using a subset of the points often results in deconvolution of the other dimensions.
+Currently, in practice, the algorithm is bottlenecked by the step that finds steep valleys in each dimension. However, because each dimension can be fit independently, the algorithm can be linearly parallelized up to the number of dimensions. 
 
 \begin{algorithm}
 \caption{Assign Points in a Cluster}\label{euclid}
@@ -295,60 +246,73 @@ Given a collection \($X$\) of \($N$\) points in \($D$\), the algorithm begins by
 \end{algorithmic}
 \end{algorithm}
 
-There are several nice properties afforded by this algorithm. Unlike \(k\)-based algorithms, there is no need to explicitly specify the number of cluster centers a priori. Each level in the hierarchical cluster tree takes at most \(O(Nd)\) time to process, and the further you go down the tree, the fewer the points. In addition, the algorithm also guarantees that the clusters are not oversplit. Unlike DBSCAN, there is no need to explicitly set a density estimation parameter and a min points. 
 
- For hard systems like the double circle distribution, it will simply result in one cluster. The resulting clusters can individually serve as input to other types of clustering algorithms such as DBSCAN individually, or be used collectively as an initial configuration for the k* based types of clustering algorithms. The resulting probability curves derived via EM allows one to estimate the highest density point in any given cluster if one can assume independence in the dimensions.
- 
-Admittedly, there are also several caveats to this algorithm. Firstly, it relies on knowledge that the marginal probably density along some dimension has distinct modes. However, in many physics based applications, one can reasonably infer that certain degrees of freedom has distinct multimodal distribution.
+\section{Properties}
 
- In many applications, a transformation to internal coordinates is more meaningful and easier to work with. For example, a protein's primary degrees of freedom lie within torsion angles. The internal coordinate space may often be in \(R^n \times C^m\) topological space. The EM algorithm the parameter estimation allow us to efficiently find the minima that correspond to a very low marginalized probability.
+We compare TERRAN against several other popular clustering algorithms: DBSCAN, Spectral Clustering, Mean Shift, and K Means. These popular clustering algorithms are highly dependent on the choice of parameters and a distance metric defined between two points. The $k$-based clustering algorithms heavily rely on the number of centers to be specified a priori. Mean shift and DBSCAN are both sensitive to some known density estimation parameters, but are superior in their ability to detect non-convex shapes. Quite often, these freebies are not available, especially in higher dimensions. The effect is that these parameter sensitive algorithms can easily result in oversplitting and/or undersplitting of clusters. 
 
+In contrast, TERRAN has only one cutting parameter that is generally insensitive to the type of data, and will not oversplit clusters. This is shown in the double moon, double circle, and uniform example distributions. In addition, TERRAN is unique in that it is essentially metricless, which shows its utility in high dimensional datasets as it avoids computing $D$ dimension metrics, thereby avoiding the curse of dimensionality.
 
-Advantages:
-\begin{itemize}
-\item No need to specify number of cluster centers a priori (compared to k* based ones)
-\item No need to define a distance metric between points, avoiding the dimensionality curse
-\item Guarantees no oversplitting within clusters
-\item Each level of the BFS tree takes at most $O(Md)$ time, where $M$ is the number of points remaining at the level.
-\item Linear in the number of dimensions and points 
-\item Parallelizable
-\end{itemize}
+However, the algorithm generally depends on existence of these steep valleys in the marginalized densities. In other words, it assumes that the underlying clusters are somewhat linearly separable. Otherwise the algorithm will undersplit the clusters. In addition, the EM component assumes that marginalized densities can indeed by fit using some mixture model (although this change if one were to use a different valley finding algorithm such as Kernel methods or histogram flood fill methods). We prefer the EM due to the simplicity of the resulting models. 
 
-Disadvantages:
-\begin{itemize}
-\item Assumes marginal distributions can be fit using a mixture model
-\item Need to set a single parameter: the density cutoff threshold
-\item Will undersplit distributions such as double circles, double spirals, etc.
-\item Relies on there existence of regions of very low density in the marginal distributions
-\end{itemize}
+\section{Clustering in Periodic Spaces}
 
-\section{Results}
+For many applications, such as clustering and density estimation of large molecules (eg. proteins), a transformation to internal coordinate space comprised of periodic dimensions (such as torsion angles and bond angles), and nonperiodic dimensions (such as bond lengths), results in a natural dimensionality reduction. Surprisingly, this tranformation often results in linearly seperable degrees of freedom. However, this also implies a need to come with a robust periodic basis. Here, we introduce the periodic gaussian, also known as wrapped gaussians in other literature, and demonstrate the use of the EM algorithm with this basis
 
+\subsection{Periodic Gaussian}
+Recall the definition of the gaussian distribution,
+\begin{equation}
+g(x; u,s) = \dfrac{1}{s\sqrt{2\pi}} \exp\left(-\dfrac{1}{2} \left(\dfrac{x-u}{s}\right)^2\right)
+\end{equation}
+The periodic gaussian (otherwise known as a wrapped gaussian) is defined on some periodic manifold \textbf{$M$}:
+\begin{equation}
+g_p(x; u,s) = \sum_{r=-\infty}^{\infty} g(x; u+rD, s)
+\end{equation}
+where \textbf{$D$} is the period of \textbf{$M$}. The periodic gaussian has the same normalization constant as the standard gaussian, it is continuous everywhere in the domain, and is relatively cheap to evaluate despite the infinite summation due to the rapid exponentatial decay of the gaussian. In practice, the summation is bound between a very small range. The periodic gaussian is very similar to the von Mises distribution, but it has the advantage in that it can be easily defined for periods other than \textbf{$2\pi$}. The periodic gaussian has the derivative:
+\begin{equation}
+\dfrac{\partial g_p(x;u,s)}{\partial x} = \dfrac{1}{s^2} \sum_{r=-\infty}^{\infty} (u-x+rD) g(x; u+rD, s)
+\end{equation}
 
-The resulting clusters 
+Similar to standard gaussian, it is possible to define a \textbf{$K$} component periodic gaussian mixture given some set of parameters \textbf{$\theta$}:
+\begin{equation}
+g_{pm}(x;\theta) = \sum_{k=1}^{K} p_k g_p(x; u_k, s_k)
+\end{equation}
+A periodic gaussian mixture has at most \textbf{$K$} minima, whereas a gaussian mixture has at most \textbf{$K+1$} minima. The periodic gaussian mixture has the derivative:
+\begin{equation}
+\dfrac{\partial g_{pm}(x; \theta)}{\partial x} =  \sum_{k=1}^{K} p_k \dfrac{\partial g_p(x; u_k, s_k)}{\partial x}
+\end{equation}
 
-Typically, the body of a paper is organized
-into a hierarchical structure, with numbered or unnumbered
-headings for sections, subsections, sub-subsections, and even
-smaller sections.  The command \texttt{{\char'134}section} that
-precedes this paragraph is part of such a
-hierarchy.\footnote{This is the second footnote.  It
-starts a series of three footnotes that add nothing
-informational, but just give an idea of how footnotes work
-and look. It is a wordy one, just so you see
-how a longish one plays out.} \LaTeX\ handles the numbering
-and placement of these headings for you, when you use
-the appropriate heading commands around the titles
-of the headings.  If you want a sub-subsection or
-smaller part to be unnumbered in your output, simply append an
-asterisk to the command name.  Examples of both
-numbered and unnumbered headings will appear throughout the
-balance of this sample document.
+In practice, these derivatives behave very well when used to find minima and maxima of the mixture models.
 
-Because the entire article is contained in
-the \textbf{document} environment, you can indicate the
-start of a new paragraph with a blank line in your
-input file; that is why this sentence forms a separate paragraph.
+\subsection{EM on Periodic Gaussians}
+
+A natural tendency of gaussians is to form mixture models in order to fit data. In general, EM for gaussian mixture models is very well behaved and studied, and it makes natural sense derive equations for EM to accommodate periodic gaussians. We first define the log likelihood function for periodic gaussians for some 1D dataset \textbf{$X$} of size \textbf{$N$} with parameters \textbf{$\theta$} for the mixture model,
+\begin{equation}
+\lambda(X; \theta) = \sum_{n=1}^{N} \log \sum_{k=1}^{K} p_k g_p(x;u_k, s_k)
+\end{equation}
+In addition, define the membership probability expressed as the condititional probability,
+\begin{equation}
+p(k|n) = \dfrac{p_k g_p(x_n; u_k, s_k)}{\sum\limits^{K}_{m=1} p_m g_p(x_n; u_k, s_k)}
+\end{equation}
+it can then be shown that
+\begin{equation}
+\sum_{k=1}^{K} p(k|n) = 1
+\end{equation}
+The next step in EM is to derive the derivatives of the likelihood with respect to the parameters, for notational convenience, define
+\begin{align}
+g & \equiv g(x_n; u_k, s_k) \\
+g_p & \equiv g_p(x_n; u_k, s_k)
+\end{align}
+and,
+\begin{align}
+\dfrac{\partial \lambda}{\partial p_k} & = p_k - \dfrac{1}{N} \sum\limits^{N}_{n=1}p(k|n) \\
+\dfrac{\partial \lambda}{\partial u_k} &= \dfrac{1}{s_k^2} \sum_{n=1}^{N}p(k|n) \left(x_n - u_k - D \frac{\sum\limits^{\infty}_{r=-\infty} rg}{\sum\limits^{\infty}_{r=-\infty}g} \right) \\
+\begin{split}
+\dfrac{\partial \lambda}{\partial s_k} & = \sum\limits^{N}_{n=1}p(k|n) \left(-\dfrac{1}{s_k} + \dfrac{(x_n-u_k)^2}{s_k^3}\right. \\
+&\left. -\dfrac{2(x_n-u_k)D\sum\limits^{\infty}_{r=-\infty}rg}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} + \dfrac{D^2 \sum\limits^{\infty}_{r=-\infty}r^2g}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} \right)
+\end{split}
+\end{align}
+What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maxium  and minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
 
 \subsection{Type Changes and {\subsecit Special} Characters}
 We have already seen several typeface changes in this sample.  You
@@ -375,11 +339,13 @@ you can find a complete list of what is
 available in the \textit{\LaTeX\
 User's Guide}\cite{Lamport:LaTeX}.
 
+\section{Conclusion}
 
-\section{Future Directions}
+\section{Future Direction}
 
-Aside from the EM algorithm, there are a multitude of other ways to find the steep valleys in a marginalized density distribution. Gaussian Kernel Density Estimation (GKDE) is an alternative, which creates an N-component gaussian mixture model, whose minima can again be effectively found using bisection. However, one needs to be careful about the choice of $s$, as too small of a value would result in many spurious minima, and too big of a value would under represent the number of minima. Another candidate is histogram floodfill, where as a histogram of some bin width is created, and the valleys of the histrogram "flooded" with a height of some cutoff to find the minima. 
+There are several ways to expand this algorithm to make it more robust. The first major revamp is to introduce better density estimators such as gaussian kernel methods. 
 
+\section{NOT USEFUL STUFF BELOW THIS}
 
 \subsection{Math Equations}
 You may want to display math equations in three distinct styles:
@@ -399,6 +365,32 @@ few examples of in-text equations in context. Notice how
 this equation: \begin{math}\lim_{n\rightarrow \infty}x=0\end{math},
 set here in in-line math style, looks slightly different when
 set in display style.  (See next section).
+
+
+The resulting clusters 
+
+Typically, the body of a paper is organized
+into a hierarchical structure, with numbered or unnumbered
+headings for sections, subsections, sub-subsections, and even
+smaller sections.  The command \texttt{{\char'134}section} that
+precedes this paragraph is part of such a
+hierarchy.\footnote{This is the second footnote.  It
+starts a series of three footnotes that add nothing
+informational, but just give an idea of how footnotes work
+and look. It is a wordy one, just so you see
+how a longish one plays out.} \LaTeX\ handles the numbering
+and placement of these headings for you, when you use
+the appropriate heading commands around the titles
+of the headings.  If you want a sub-subsection or
+smaller part to be unnumbered in your output, simply append an
+asterisk to the command name.  Examples of both
+numbered and unnumbered headings will appear throughout the
+balance of this sample document.
+
+Because the entire article is contained in
+the \textbf{document} environment, you can indicate the
+start of a new paragraph with a blank line in your
+input file; that is why this sentence forms a separate paragraph.
 
 \subsubsection{Display Equations}
 A numbered display equation -- one set off by vertical space

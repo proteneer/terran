@@ -53,7 +53,7 @@ inline double gaussian(double uk, double sk, double xn) {
 
 inline double gaussianDx(double uk, double sk, double xn) {
     double multiplier = (uk-xn)/(sk*sk);
-    double suffix = multiplier*gaussian(uk, sk, xn);
+    double suffix = gaussian(uk, sk, xn);
     return multiplier*suffix;
 }
 
@@ -209,6 +209,19 @@ inline double periodicGaussianSample(double u, double s, double period) {
     }
 }
 
+// draws a random sample from the periodic gaussian with mean u,
+// std. deviation s
+inline double gaussianSample(double u, double s) {
+    
+    double z1 = (double)rand()/(double)RAND_MAX;
+    double z2 = (double)rand()/(double)RAND_MAX;
+
+    double x = sqrt(-2*log(z1))*cos(2*PI*z2);
+    x *= s;
+    x += u;
+    return x;
 }
+
+} // namespace Terran
 
 #endif

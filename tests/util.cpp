@@ -77,7 +77,7 @@ void Util::matchPoints(const vector<double> &p1, const vector<double> &p2, doubl
         ss << "Unequal vector size!";
         if(count != -1)
             ss << " Test: " << count;
-        throw(std::runtime_error("Unequal Vector Size!"));
+        throw(std::runtime_error(ss.str()));
     }
     vector<double> list1(p1);
     vector<double> list2(p2);

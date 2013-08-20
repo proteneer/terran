@@ -2,9 +2,9 @@
 #include "EMGaussian.h"
 #include "EMPeriodicGaussian.h"
 #include "MethodsPeriodicGaussian.h"
+#include "MethodsGaussian.h"
 
 #include <algorithm>
-#include <vector>
 
 using namespace std;
 using namespace Terran;
@@ -81,7 +81,7 @@ bool PartitionerEM::isPeriodic() const {
 vector<double> PartitionerEM::findLowMinima() const {
     vector<Param> params = em_->getParams();
     if(params.size() == 0) {
-        throw(std::runtime_error("PartitionEM::partition() - Parameters have not been optimized!"));
+        throw(std::runtime_error("PartitionEM::findLowMinima() - Parameters do not exist!"));
     }
 
     vector<double> partition;
@@ -96,14 +96,16 @@ vector<double> PartitionerEM::findLowMinima() const {
             }
         }
     } else {
-        // TODO: implement code to partition non periodic mixture models
-
+        MethodsGaussian mg(params);
+        vector<double> minima = mg.findMinima();
+        for(int i=0; i < minima.size(); i++) {
+            double val = gaussianMixture(params, minima[i]);
+            if(val < partitionCutoff_) {
+                partition.push_back(minima[i]);
+            }
+        }
     }
 
-    // if no minima at all, then just add in a partition randomly for periodic domains
-    // for nonperiodic domain, do not add in a partition
-
-    // 
     sort(partition.begin(), partition.end());
     return partition;
 }

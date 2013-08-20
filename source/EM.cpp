@@ -175,7 +175,6 @@ void EM::multiAdaptiveRun(double cutoff, int numParams, int numTries) {
 
     do {
         // initialize a set of random parameters
-        // cout << attempts << endl;
         vector<Param> params;
         vector<double> mean = sampleDomain(numParams);
         for(int i=0; i < mean.size(); i++) {
