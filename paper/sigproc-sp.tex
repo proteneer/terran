@@ -247,7 +247,7 @@ Currently, in practice, the algorithm is bottlenecked by the step that finds ste
 \end{algorithm}
 
 
-\section{Properties}
+\section{Experiments}
 
 We compare TERRAN against several other popular clustering algorithms: DBSCAN, Spectral Clustering, Mean Shift, and K Means. These popular clustering algorithms are highly dependent on the choice of parameters and a distance metric defined between two points. The $k$-based clustering algorithms heavily rely on the number of centers to be specified a priori. Mean shift and DBSCAN are both sensitive to some known density estimation parameters, but are superior in their ability to detect non-convex shapes. Quite often, these freebies are not available, especially in higher dimensions. The effect is that these parameter sensitive algorithms can easily result in oversplitting and/or undersplitting of clusters. 
 
@@ -255,9 +255,12 @@ In contrast, TERRAN has only one cutting parameter that is generally insensitive
 
 However, the algorithm generally depends on existence of these steep valleys in the marginalized densities. In other words, it assumes that the underlying clusters are somewhat linearly separable. Otherwise the algorithm will undersplit the clusters. In addition, the EM component assumes that marginalized densities can indeed by fit using some mixture model (although this change if one were to use a different valley finding algorithm such as Kernel methods or histogram flood fill methods). We prefer the EM due to the simplicity of the resulting models. 
 
+We also compare our results in a 100 dimensional space
+
+
 \section{Clustering in Periodic Spaces}
 
-For many applications, such as clustering and density estimation of large molecules (eg. proteins), a transformation to internal coordinate space comprised of periodic dimensions (such as torsion angles and bond angles), and nonperiodic dimensions (such as bond lengths), results in a natural dimensionality reduction. Surprisingly, this tranformation often results in linearly seperable degrees of freedom. However, this also implies a need to come with a robust periodic basis. Here, we introduce the periodic gaussian, also known as wrapped gaussians in other literature, and demonstrate the use of the EM algorithm with this basis
+For many applications, such as clustering and density estimation of large molecules (eg. proteins), a transformation to internal coordinate space comprised of periodic dimensions (such as torsion angles and bond angles), and nonperiodic dimensions (such as bond lengths), results in a natural dimensionality reduction. Surprisingly, this tranformation often results in linearly seperable degrees of freedom in many physical systems. However, this also implies a need to come with a robust periodic basis. Here, we introduce the periodic gaussian, also known as wrapped gaussians in other literature, and demonstrate the use of the EM algorithm with this basis
 
 \subsection{Periodic Gaussian}
 Recall the definition of the gaussian distribution,
@@ -482,13 +485,11 @@ output of this document.
 
 \begin{table*}
 \centering
-\caption{Some Typical Commands}
-\begin{tabular}{|c|c|l|} \hline
-Command&A Number&Comments\\ \hline
-\texttt{{\char'134}alignauthor} & 100& Author alignment\\ \hline
-\texttt{{\char'134}numberofauthors}& 200& Author enumeration\\ \hline
-\texttt{{\char'134}table}& 300 & For tables\\ \hline
-\texttt{{\char'134}table*}& 400& For wider tables\\ \hline\end{tabular}
+\caption{Clustering in 100 Dimensions}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|l|} \hline
+DB e=1.0 & DB e=2.0 & S k=2 & S k=17 & S k=20 & S k=23 & KM k=2 & KM k=17 & KM k=20 & KM k=23 & Terran \\ \hline
+N/A & 0 & 0.01 & 0.792 & 0.286 & 0.250 & 0.073 & 0.862 & 1.0 & 0.959 & 0.996\\ \hline
+N/A & 0 & 0.996 & 0.065 & 0.049 & 0.338 & 1.0 & 0.534 & 0.530 & 0.524 & 0.992\\ \hline \end{tabular}
 \end{table*}
 % end the environment with {table*}, NOTE not {table}!
 

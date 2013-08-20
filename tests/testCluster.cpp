@@ -48,8 +48,13 @@ void test100DGaussiansMulti() {
     // generate randomly
     for(int i=0; i < numModes; i++) {
         us[i] = 2*i;
-        ss[i] = 0.3;
+        if(i%2 == 0)
+            ss[i] = 0.25;
+        else
+            ss[i] = 0.15;
     }
+
+    ofstream flabels_("100dMultiLabels.txt");
 
     for(int k=0; k < 20; k++) {
 
@@ -68,12 +73,11 @@ void test100DGaussiansMulti() {
                 point[d] = gaussianSample(means[d], stddev[d]);
             }
             dataset.push_back(point);
+            flabels_ << k << endl;
         }
     }
 
     // k means
-    random_shuffle(dataset.begin(), dataset.end());
-
     ofstream highd("100dMulti.txt");
     for(int i=0; i < dataset.size(); i++) {
         for(int j=0; j < dataset[i].size(); j++) {
@@ -99,7 +103,7 @@ void test100DGaussiansMulti() {
 
     vector<int> assignment = cc.cluster();
 
-    ofstream assignmentd("100dassign.txt");
+    ofstream assignmentd("100dMultiTerranAssign.txt");
     for(int j=0; j < assignment.size(); j++) {
         assignmentd << assignment[j] << endl;
     }
@@ -123,25 +127,20 @@ void test100DGaussiansMulti() {
 
     cout << "number of real clusters: " << realc << endl;
 
-    if(numClusters != 3) {
-        throw(std::runtime_error("test50DGaussians(): Number of clusters != 3"));
-    }
 
 }
 
 void test100DGaussians() {
 
-    const int numDimensions = 200;
+    const int numDimensions = 100;
     const int numModes = 3;
 
     // generate 100 clusters with different means
     vector<vector<double> > dataset;
     vector<double> us(numModes);
     vector<double> ss(numModes);
-
     
-    // k means is pwn3d easily with anisotropic distributions in lower dimensions
-
+    ofstream flabels_("100dLabels.txt");
 
     // generate first set of points
 
@@ -157,6 +156,7 @@ void test100DGaussians() {
             }
         }
         dataset.push_back(point);
+        flabels_ << 0 << endl;
     }
 
     for(int i=0; i < 1000; i++) {
@@ -166,10 +166,8 @@ void test100DGaussians() {
             point[d] = gaussianSample(-1, 0.15);
         }
         dataset.push_back(point);
+        flabels_ << 1 << endl;
     }
-
-    // randomize the points
-    random_shuffle(dataset.begin(), dataset.end());
 
     ofstream highd("100d.txt");
     for(int i=0; i < dataset.size(); i++) {
@@ -196,7 +194,7 @@ void test100DGaussians() {
 
     vector<int> assignment = cc.cluster();
 
-    ofstream assignmentd("100dassign.txt");
+    ofstream assignmentd("100dTerranAssign.txt");
     for(int j=0; j < assignment.size(); j++) {
         assignmentd << assignment[j] << endl;
     }
@@ -221,9 +219,6 @@ void test100DGaussians() {
 
     cout << "number of real clusters: " << realc << endl;
 
-    if(numClusters != 3) {
-        throw(std::runtime_error("test50DGaussians(): Number of clusters != 3"));
-    }
 
 }
 
