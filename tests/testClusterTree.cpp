@@ -346,10 +346,34 @@ void testNonPeriodicMultiCluster() {
     //while(count < 2) {
     while(!ct.finished()) {
         ct.setCurrentCluster();
+
+        Cluster& cc = ct.getCurrentCluster();
+
         for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
             ct.partitionCurrentCluster(i);
-            vector<double> partitions = ct.getCurrentCluster().getPartition(i);
+
             cout << "dim " << i << " ";
+
+            // PLOTTING
+            cout << "gaussian components" << endl;
+            try {
+
+                PartitionerEM &pem = dynamic_cast<PartitionerEM&>(cc.getPartitioner(i));
+                vector<Param> params = pem.getEM().getParams();
+
+                stringstream filename;
+                filename << "curves" << count << i;
+
+                if(i == 0) {
+                    Util::plotGaussian(params, -2, 4.5, filename.str());
+                } else if (i == 1) {
+                    Util::plotGaussian(params, -3.9, 5, filename.str());
+                }
+
+            } catch(...) {} 
+            vector<double> partitions = ct.getCurrentCluster().getPartition(i);
+
+
             for(int j=0; j < partitions.size(); j++) {
                 cout << partitions[j] << " ";
             }
@@ -360,20 +384,37 @@ void testNonPeriodicMultiCluster() {
         // Cluster cc = ct.getCurrentCluster();
         // we will end up with a segfault as the references get destroyed
 
-        Cluster& cc = ct.getCurrentCluster();
+
         vector<vector<double> > clusterPoints;
         for(int i=0 ; i < cc.getNumPoints(); i++) {
             clusterPoints.push_back(cc.getPoint(i));
         }
         vector<int> assign = cc.cluster();
 
+/*
+        stringstream f0;
+        f0 << "marginalized" << count << 0;
+        ofstream fname0(f0.str().c_str());
+
+        stringstream f1;
+        f1 << "marginalized" << count << 1;
+        ofstream fname1(f1.str().c_str());
+*/
+        stringstream filename;
+        filename << "X" << count;
+        ofstream X(filename.str().c_str());
+
         for(int i=0; i < cc.getNumPoints(); i++) {
-            stringstream filename;
+ 
+            X << clusterPoints[i][0] << " " << clusterPoints[i][1] << endl;
+/*
             int j = assign[i];
             filename << "paper" << count << j;
             ofstream fname(filename.str().c_str(), ios::app);
             fname << clusterPoints[i][0] << " " << clusterPoints[i][1] << endl;
             fname.close();
+*/
+
         }
         ct.divideCurrentCluster();
         count++;

@@ -104,24 +104,9 @@ one who did all the really hard work.}\\
 }
 \maketitle
 \begin{abstract}
-To do last
-This paper provides a sample of a \LaTeX\ document which conforms to
-the formatting guidelines for ACM SIG Proceedings.
-It complements the document \textit{Author's Guide to Preparing
-ACM SIG Proceedings Using \LaTeX$2_\epsilon$\ and Bib\TeX}. This
-source file has been written with the intention of being
-compiled under \LaTeX$2_\epsilon$\ and BibTeX.
 
-The developers have tried to include every imaginable sort
-of ``bells and whistles", such as a subtitle, footnotes on
-title, subtitle and authors, as well as in the text, and
-every optional component (e.g. Acknowledgments, Additional
-Authors, Appendices), not to mention examples of
-equations, theorems, tables and figures.
+To be done.
 
-To make best use of this sample document, run it through \LaTeX\
-and BibTeX, and compare this source code with the printed
-output produced by the dvi file.
 \end{abstract}
 
 % A category with the (minimum) three required fields
@@ -134,31 +119,8 @@ output produced by the dvi file.
 \keywords{Clustering, \LaTeX, text tagging} % NOT required for Proceedings
 
 \section{Introduction}
-The \textit{proceedings} are the records of a conference.
-ACM seeks to give these conference by-products a uniform,
-high-quality appearance.  To do this, ACM has some rigid
-requirements for the format of the proceedings documents: there
-is a specified format (balanced  double columns), a specified
-set of fonts (Arial or Helvetica and Times Roman) in
-certain specified sizes (for instance, 9 point for body copy),
-a specified live area (18 $\times$ 23.5 cm [7" $\times$ 9.25"]) centered on
-the page, specified size of margins (1.9 cm [0.75"]) top, (2.54 cm [1"]) bottom
-and (1.9 cm [.75"]) left and right; specified column width
-(8.45 cm [3.33"]) and gutter size (.83 cm [.33"]).
 
-The good news is, with only a handful of manual
-settings\footnote{Two of these, the {\texttt{\char'134 numberofauthors}}
-and {\texttt{\char'134 alignauthor}} commands, you have
-already used; another, {\texttt{\char'134 balancecolumns}}, will
-be used in your very last run of \LaTeX\ to ensure
-balanced column heights on the last page.}, the \LaTeX\ document
-class file handles all of this for you.
-
-The remainder of this document is concerned with showing, in
-the context of an ``actual'' document, the \LaTeX\ commands
-specifically available for denoting the structure of a
-proceedings paper, rather than with giving rigorous descriptions
-or explanations of such commands.
+To be done.
 
 \section{The Terran Algorithm}
 
@@ -168,13 +130,7 @@ Suppose we have $N$ points in $D$ dimensions. Our first objective is to find val
 The algorithm begins by marginalizing each dimension, whose density is then estimated by fitting a 1D mixture model. The EM algorithm is initialized with an equally weighted $P$ component gaussian mixture model with the means randomly distributed in the range $[min_p, max_p]$, where $min_p$ and $max_p$ are the minimum and maximum coordinates in the set of points. During any iteration in the EM algorithm, if the weight of the $p$'th component is less than some tolerance $t$, then the $p$'th component is pruned. In addition, this process may repeat several times, returning the model with the highest likelihood. With a mixture model readily available, the resulting set of minima $M$ can be easily found. We then pick a subset of $M$ with a low probability cutoff $c$. These cutting points denote valleys which are then used to partition the domain. For non-periodic dimensions, at least one cut is needed to divide the domain into two connected partitions. For periodic dimensions (detailed later), at least two cuts are needed as periodic domains are connected at the boundary. In practice, $P=15$, $t=0.05$, $c=0.05$. In practice, these parameters are generally independent of the type and shape of data and need not be adjusted. 
 
 \subsection{Hierarchical Cluster Tree}
- Given a set of partitions for each dimension, the algorithm loops over each point and assigns the points to a given $D$ dimensional bucket resulting in at most $N$ non-empty buckets. Each bucket in essence, becomes a child cluster own its own, whose dimensions have a different marginalized density distribution. In many cases, the dimensions in the child cluster has more valleys than the parent cluster. The process repeats until each dimension in each cluster can no longer be partitioned (which may result from either lack of minima or lack of points). This results in a hierarchical cluster tree, whose creation can be implemented by Breadth First Search.
-
-\subsection{Running Time}
-
-Because EM is an iterative algorithm depending on convergence, it can difficult to categorize the algorithm's running time strictly using big O notation. However, in nearly all tests, we observe that fitting an EM curve to a single dimension takes roughly $O(N_c D)$ time, where $N_c$ is the number of points in a cluster $c$ and $D$ is the number of dimensions. Thus each level in the cluster tree takes at most $O(N_C D)$ time, where $N_C$ is the sum of all points in $C$ clusters on a level. In practice, the algorithm is linear with respect to the number of points and dimensions, with worst case being $O(K N D)$, where $K$ is the total number of ground truth cluster centers. 
-
-Currently, in practice, the algorithm is bottlenecked by the step that finds steep valleys in each dimension. However, because each dimension can be fit independently, the algorithm can be linearly parallelized up to the number of dimensions. 
+ Given a set of partitions for each dimension, the algorithm loops over each point and assigns the points to a given $D$ dimensional bucket resulting in at most $N$ non-empty buckets. Each bucket in essence, becomes a child cluster own its own, whose dimensions each have a different marginalized density distribution from its parent. In Bayesian terms, a subset of the $D$ is essentially establishing a conditional, and it is not suprising that the marginalized distribution will change. In many cases, the dimensions in the child cluster has more valleys than the parent cluster. The process repeats until each dimension in each cluster can no longer be partitioned (which may result from either lack of minima or lack of points). The end results is a hierarchical cluster tree that can be searched by BFS.
 
 \begin{algorithm}
 \caption{Assign Points in a Cluster}\label{euclid}
@@ -246,16 +202,21 @@ Currently, in practice, the algorithm is bottlenecked by the step that finds ste
 \end{algorithmic}
 \end{algorithm}
 
+\subsection{Running Time}
+
+Because EM is an iterative algorithm depending on convergence, it can be difficult to categorize the algorithm's running time strictly using big O notation. However, in nearly all tests, we observe that fitting an EM curve to a single dimension takes roughly $O(N_c D)$ time, where $N_c$ is the number of points in a cluster $c$ and $D$ is the number of dimensions. In addition, it is possible to subsample $N_c$ so long as we have sufficient sampling in the domain of interest. Thus each level in the cluster tree takes at most $O(N_C D)$ time to execute, where $N_C$ is total number points in all $C$ clusters on a level. In practice, the algorithm is linear with respect to the number of points and dimensions, with worst case being $O(K N D)$, where $K$ is the total number of ground truth cluster centers (and there by representing the maximum depth if the BFS Tree were somehow linearized. 
+
+Currently, in practice, the algorithm is bottlenecked by the step that finds steep valleys in each dimension. However, because each dimension can be fit independently, the algorithm can be linearly parallelized up to the number of dimensions. 
 
 \section{Experiments}
 
-We compare TERRAN against several other popular clustering algorithms: DBSCAN, Spectral Clustering, Mean Shift, and K Means. These popular clustering algorithms are highly dependent on the choice of parameters and a distance metric defined between two points. The $k$-based clustering algorithms heavily rely on the number of centers to be specified a priori. Mean shift and DBSCAN are both sensitive to some known density estimation parameters, but are superior in their ability to detect non-convex shapes. Quite often, these freebies are not available, especially in higher dimensions. The effect is that these parameter sensitive algorithms can easily result in oversplitting and/or undersplitting of clusters. 
+We begin by comparing TERRAN against several other popular clustering algorithms: DBSCAN, Spectral Clustering, Mean Shift, and K Means in 2D. These popular clustering algorithms are highly dependent on the choice of parameters and a distance metric defined between two points. The $k$-based clustering algorithms heavily rely on the number of centers to be specified a priori. Mean shift and DBSCAN do not require the number of clusters to known a priori, instead opting for density parameters and are superior in their ability to detect non-convex shapes. Quite often, these freebies are not available, especially in higher dimensions. The effect is that these parameter sensitive algorithms can easily result in oversplitting and/or undersplitting of clusters. 
 
 In contrast, TERRAN has only one cutting parameter that is generally insensitive to the type of data, and will not oversplit clusters. This is shown in the double moon, double circle, and uniform example distributions. In addition, TERRAN is unique in that it is essentially metricless, which shows its utility in high dimensional datasets as it avoids computing $D$ dimension metrics, thereby avoiding the curse of dimensionality.
 
-However, the algorithm generally depends on existence of these steep valleys in the marginalized densities. In other words, it assumes that the underlying clusters are somewhat linearly separable. Otherwise the algorithm will undersplit the clusters. In addition, the EM component assumes that marginalized densities can indeed by fit using some mixture model (although this change if one were to use a different valley finding algorithm such as Kernel methods or histogram flood fill methods). We prefer the EM due to the simplicity of the resulting models. 
+In higher dimensions, we generated two datasets in 100 dimensions. The first dataset comprised of 2 clusters generated using gaussians where only one dimension had two modes upon marginalization. The second dataset comprised of 20 different clusters, with each dimension varying between three to five different modes upon marginalization. The results of the fit scored using the Adjusted Rand Index, which uses the ground truth labels to score the predicted labels. Guessing the density parameters for DBSCAN proved difficult, as the algorithm was not able to establish core points. In the 20 cluster test case, spectral clustering had trouble even if the number of clusters were given a priori. Surprisingly enough, the KMeans algorithm performed exceptionally well if the number of centers were given a priori, but this is presumably due to the fact we used convex gaussian-like clusters to start with, and Voronoization of high dimensional space exponentially increases the amount coverage for each centroid (SW: comment?). The Terran algorithm scored extremely high without any parameter tuning. 
 
-In higher dimensions, we generated two datasets in 100 dimensions. The first dataset comprised of 2 clusters generated using gaussians where only one dimension had two modes upon marginalization. The second dataset comprised of 20 different clusters, with each dimension varying between three to five different modes upon marginalization. The results of the fit scored using the adjusted rand index, which uses the ground truth labels to score the predicted labels. Guessing the density parameters for DBSCAN proved difficult, as the algorithm was not able to establish core points .In the 20 cluster case, spectral clustering had trouble even if the number of clusters were given a priori. Surprisingly enough, the KMeans algorithm performed exceptionally well if the number of centers were given a priori. The Terran algorithm scored extremely high without any parameter tuning. 
+However, the algorithm generally depends on existence of these steep valleys in the marginalized densities. In other words, it assumes that the underlying clusters are somewhat linearly separable by axes-aligned lines. Otherwise the algorithm will undersplit the clusters. In addition, the EM component assumes that marginalized densities can indeed be fit using some mixture model. We note that an alternative method to locate said minima is to form an $N$-component GMM using Gaussian Kernel Density Estimation, however, estimation of all the minima via bisection can become prohibitively expensive for large $N$. In addition, Kernel methods suffer from the need to accurately establish a good bandwidth parameter, as too small of bandwidth will over estimate the number of valleys, and too big a bandwidth will underestimate the number of valleys. 
 
 \begin{table*}
 \centering
@@ -326,36 +287,18 @@ and,
 \end{align}
 What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maxium  and minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
 
-\subsection{Type Changes and {\subsecit Special} Characters}
-We have already seen several typeface changes in this sample.  You
-can indicate italicized words or phrases in your text with
-the command \texttt{{\char'134}textit}; emboldening with the
-command \texttt{{\char'134}textbf}
-and typewriter-style (for instance, for computer code) with
-\texttt{{\char'134}texttt}.  But remember, you do not
-have to indicate typestyle changes when such changes are
-part of the \textit{structural} elements of your
-article; for instance, the heading of this subsection will
-be in a sans serif\footnote{A third footnote, here.
-Let's make this a rather short one to
-see how it looks.} typeface, but that is handled by the
-document class file. Take care with the use
-of\footnote{A fourth, and last, footnote.}
-the curly braces in typeface changes; they mark
-the beginning and end of
-the text that is to be in the different typeface.
-
-You can use whatever symbols, accented characters, or
-non-English characters you need anywhere in your document;
-you can find a complete list of what is
-available in the \textit{\LaTeX\
-User's Guide}\cite{Lamport:LaTeX}.
-
-\section{Conclusion}
+VJ, SW: Not sure what to do here, introduce another set of data? Large protein data? (Don't think CS conf will care as much)
 
 \section{Future Direction}
 
-There are several ways to expand this algorithm to make it more robust. The first major revamp is to introduce better density estimators such as gaussian kernel methods. In addition, algorithmic development rapid determination of the curves for the minima of 2D periodic and non periodic gaussian mixture models would take make the algorithm significantly more robust for higher dimensions. However, it becomes
+There are several ways to expand this algorithm to make it more robust. The first major revamp is to introduce better density estimators such as gaussian kernel density estimators. In addition, algorithmic development rapid determination of the curves for the minima of 2D periodic and non periodic gaussian mixture models would take make the algorithm significantly more robust for higher dimensions. Theoretically speaking, it should be possible to derive a level set formulation for 2D mixture models (either via EM or Kernel Density Estimation) to repeatedly partition the points, or perhaps using more classical methods so long as it guarantees that clusters are not oversplit. 
+
+VJ, SW: I want to emphasis that the key theoretical take home message from this paper is:
+
+1) It's critical that clustering algorithms do not oversplit because:
+2) Applying a conditional prior allows us to deconvolute the marginalized density distributions so as long as we can guarantee 1). There's nothing specific about us having to marginalize to 1 dimension, we only did it because it was easy! We could marginalize to 2 dimensions as well (eg. x,y,z,w,t,a,b -> marginalized to a 2D (x,y) given all possible z,w,t,a,b) so long as we can guarantee the clusters we find in two dimensions obey 1). We can probably even use DBSCAN etc. to deal with this in 2D. Whenever we can guarantee a good split, we deconvolute the data!
+
+I think this is by far the most valuable and novel part of the paper. 
 
 \section{NOT USEFUL STUFF BELOW THIS}
 
@@ -363,6 +306,52 @@ There are several ways to expand this algorithm to make it more robust. The firs
 You may want to display math equations in three distinct styles:
 inline, numbered or non-numbered display.  Each of
 the three are discussed in the next sections.
+
+To do last
+This paper provides a sample of a \LaTeX\ document which conforms to
+the formatting guidelines for ACM SIG Proceedings.
+It complements the document \textit{Author's Guide to Preparing
+ACM SIG Proceedings Using \LaTeX$2_\epsilon$\ and Bib\TeX}. This
+source file has been written with the intention of being
+compiled under \LaTeX$2_\epsilon$\ and BibTeX.
+
+The developers have tried to include every imaginable sort
+of ``bells and whistles", such as a subtitle, footnotes on
+title, subtitle and authors, as well as in the text, and
+every optional component (e.g. Acknowledgments, Additional
+Authors, Appendices), not to mention examples of
+equations, theorems, tables and figures.
+
+To make best use of this sample document, run it through \LaTeX\
+and BibTeX, and compare this source code with the printed
+output produced by the dvi file.
+
+
+The \textit{proceedings} are the records of a conference.
+ACM seeks to give these conference by-products a uniform,
+high-quality appearance.  To do this, ACM has some rigid
+requirements for the format of the proceedings documents: there
+is a specified format (balanced  double columns), a specified
+set of fonts (Arial or Helvetica and Times Roman) in
+certain specified sizes (for instance, 9 point for body copy),
+a specified live area (18 $\times$ 23.5 cm [7" $\times$ 9.25"]) centered on
+the page, specified size of margins (1.9 cm [0.75"]) top, (2.54 cm [1"]) bottom
+and (1.9 cm [.75"]) left and right; specified column width
+(8.45 cm [3.33"]) and gutter size (.83 cm [.33"]).
+
+The good news is, with only a handful of manual
+settings\footnote{Two of these, the {\texttt{\char'134 numberofauthors}}
+and {\texttt{\char'134 alignauthor}} commands, you have
+already used; another, {\texttt{\char'134 balancecolumns}}, will
+be used in your very last run of \LaTeX\ to ensure
+balanced column heights on the last page.}, the \LaTeX\ document
+class file handles all of this for you.
+
+The remainder of this document is concerned with showing, in
+the context of an ``actual'' document, the \LaTeX\ commands
+specifically available for denoting the structure of a
+proceedings paper, rather than with giving rigorous descriptions
+or explanations of such commands.
 
 \subsubsection{Inline (In-text) Equations}
 A formula that appears in the running text is called an
