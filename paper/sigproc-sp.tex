@@ -255,8 +255,17 @@ In contrast, TERRAN has only one cutting parameter that is generally insensitive
 
 However, the algorithm generally depends on existence of these steep valleys in the marginalized densities. In other words, it assumes that the underlying clusters are somewhat linearly separable. Otherwise the algorithm will undersplit the clusters. In addition, the EM component assumes that marginalized densities can indeed by fit using some mixture model (although this change if one were to use a different valley finding algorithm such as Kernel methods or histogram flood fill methods). We prefer the EM due to the simplicity of the resulting models. 
 
-We also compare our results in a 100 dimensional space
+In higher dimensions, we generated two datasets in 100 dimensions. The first dataset comprised of 2 clusters generated using gaussians where only one dimension had two modes upon marginalization. The second dataset comprised of 20 different clusters, with each dimension varying between three to five different modes upon marginalization. The results of the fit scored using the adjusted rand index, which uses the ground truth labels to score the predicted labels. Guessing the density parameters for DBSCAN proved difficult, as the algorithm was not able to establish core points .In the 20 cluster case, spectral clustering had trouble even if the number of clusters were given a priori. Surprisingly enough, the KMeans algorithm performed exceptionally well if the number of centers were given a priori. The Terran algorithm scored extremely high without any parameter tuning. 
 
+\begin{table*}
+\centering
+\caption{Clustering in 100 Dimensions}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|l|} \hline
+DB e=1.0 & DB e=2.0 & S k=2 & S k=17 & S k=20 & S k=23 & KM k=2 & KM k=17 & KM k=20 & KM k=23 & Terran \\ \hline
+N/A & N/A & 0.01 & 0.792 & 0.286 & 0.250 & 0.073 & 0.862 & 1.0 & 0.959 & 0.996\\ \hline
+N/A & N/A & 0.996 & 0.065 & 0.049 & 0.338 & 1.0 & 0.534 & 0.530 & 0.524 & 0.992\\ \hline \end{tabular}
+\end{table*}
+% end the environment with {table*}, NOTE not {table}!
 
 \section{Clustering in Periodic Spaces}
 
@@ -481,17 +490,6 @@ Table 2 is included in the input file; again, it is
 instructive to compare the placement of the
 table here with the table in the printed dvi
 output of this document.
-
-
-\begin{table*}
-\centering
-\caption{Clustering in 100 Dimensions}
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|l|} \hline
-DB e=1.0 & DB e=2.0 & S k=2 & S k=17 & S k=20 & S k=23 & KM k=2 & KM k=17 & KM k=20 & KM k=23 & Terran \\ \hline
-N/A & 0 & 0.01 & 0.792 & 0.286 & 0.250 & 0.073 & 0.862 & 1.0 & 0.959 & 0.996\\ \hline
-N/A & 0 & 0.996 & 0.065 & 0.049 & 0.338 & 1.0 & 0.534 & 0.530 & 0.524 & 0.992\\ \hline \end{tabular}
-\end{table*}
-% end the environment with {table*}, NOTE not {table}!
 
 \subsection{Figures}
 Like tables, figures cannot be split across pages; the
