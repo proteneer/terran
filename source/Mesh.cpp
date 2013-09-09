@@ -111,8 +111,7 @@ public:
 				if(!yPeriodic() && (y == visits_[x].size()-1))
 					break;
 
-				// start a path only if the edge has not been visited
-				// and it is a cutting edge
+				// start a path only if the edge has not been visited and it is a cutting edge
 				if(!visits_[x][y].x) {
 					Edge edge;
 					edge.coords.x = x;
@@ -145,7 +144,6 @@ public:
 
 	void test() {
 		{
-
 			double height = 0.5;
 
 			{
@@ -154,51 +152,20 @@ public:
 			e.coords.y = 1;
 			e.extend = RIGHT;
 
-			vector<double2> p = path(e, height);
-			cout << p.size() << endl;
-			}
 
-
-			{
-			Edge e;
-			e.coords.x = 1;
-			e.coords.y = 1;
-			e.extend = LEFT;
+			cout << e.coords.x << " " << e.coords.y << " " << e.extend << endl;
 
 			vector<double2> p = path(e, height);
-			cout << p.size() << endl;
-			}
+			//cout << p.size() << endl;
+
+			contour(height);
+		}
 
 		}
 		
-		/*
-		{
-			Edge e;
-			e.coords.x = 0;
-			e.coords.y = 0;
-			e.extend = UP;
-			cout << edgeCross(e, 0.5) << endl;
-		
-			Edge b = leftEdge(e);
-			cout << b.coords.x << " " << b.coords.y << " " << b.extend << endl;
-
-			Edge c = forwardEdge(e);
-			cout << c.coords.x << " " << c.coords.y << " " << c.extend << endl;
-
-			Edge d = rightEdge(e);
-			cout << d.coords.x << " " << d.coords.y << " " << d.extend << endl;
-		}
-		*/
-		
-		{
-
-
-		}
 	}
-//private:
-
-// testing
-//public:
+	
+private:
 
 	vector<double2> path(Edge startEdge, double height) {
 		// mark the start edge as having been visited
@@ -237,10 +204,10 @@ public:
 			cout << "left" << endl;
 			next = leftEdge(start);
 		} else if (edgeCross(forwardEdge(start), height, cut)) {
-						cout << "f" << endl;
+						cout << "forward" << endl;
 			next = forwardEdge(start);
 		} else if (edgeCross(rightEdge(start), height, cut)) {
-						cout << "r" << endl;
+						cout << "right" << endl;
 			next = rightEdge(start);
 		} else {
 			throw std::runtime_error("Mesh::findNextEdge() - No valid edge found!");
@@ -266,15 +233,17 @@ public:
 			throw(std::runtime_error("bad point extension!"));
 		}
 
-		// take into account of periodic conditions here		
+		// take into account of periodic conditions here
+		// xSize() is unsigned, so need to add to make sure a negative number
+		// isn't left of the mod operator
 		if(xPeriodic()) {
-			q.x = q.x % xSize();
+			q.x = (q.x+xSize()) % xSize();
 		} else if(q.x > xSize() - 1 || q.x < 0) {
 			throw(std::runtime_error("move() - x out of bounds"));
 		};
 
 		if(yPeriodic()) {
-			q.y = q.y % ySize();
+			q.y = (q.y+ySize()) % ySize();
 		} else if(q.y > ySize() - 1 || q.y < 0) {
 			throw(std::runtime_error("move() - y out of bounds"));
 		};
@@ -320,7 +289,13 @@ public:
 	// returns true if the edge crosses height h
 	bool edgeCross(const Edge &e, double h) const {
 		int2 a = e.coords;
+
+		cout << "edgeCross properties: " << endl;
+		cout << a.x << " " << a.y << endl;
+
 		int2 b = move(a, e.extend);
+
+		cout << b.x << " " << b.y << endl;
 		
 		double z1 = Z_[a.x][a.y];
 		double z2 = Z_[b.x][b.y];
@@ -376,8 +351,6 @@ public:
 	double xp_;
 	double yp_;		
 
-	// data_ uses up 3*X*Y space
-	// modify to use X*Y+X+Y SPACE!
 	vector<double> X_;
 	vector<double> Y_;
 	vector<vector<double> > Z_; 
@@ -389,6 +362,7 @@ public:
 
 int main() {
 
+/*
 	const int numX = 4;
 	const int numY = 3;
 
@@ -422,6 +396,38 @@ int main() {
 		cout << e.what() << endl;
 	}
 
+*/
+
+	const int numX = 3;
+	const int numY = 2;
+
+	double xp = 4;
+	double yp = 3;
+
+	vector<double> X(numX);
+	vector<double> Y(numY);
+	vector<vector<double> > Z(numX, vector<double>(numY));
+
+	X[0] = 0;
+	X[1] = 1;
+	X[2] = 2;
+	Y[0] = 0;
+	Y[1] = 1;
+	for(int x=0; x < numX; x++) {
+		for(int y=0; y < numY; y++) {
+			Z[x][y] = 0;
+		}
+	}
+	Z[1][1] = 1;
+	Z[2][1] = 1;
+
+	Mesh m(X,Y,Z,xp,yp);
+
+	try{
+		m.test();
+	} catch(const exception &e) {
+		cout << e.what() << endl;
+	}
 
 
 
