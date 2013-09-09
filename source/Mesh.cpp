@@ -102,33 +102,6 @@ unsigned int Mesh::ySize() const {
 	return Y_.size();
 }
 
-void Mesh::test() {
-	{
-		double height = 0.5;
-
-		{
-		Edge e;
-		e.coords.x = 0;
-		e.coords.y = 1;
-		e.extend = RIGHT;
-
-
-		cout << e.coords.x << " " << e.coords.y << " " << e.extend << endl;
-
-		vector<double2> p = path(e, height);
-		//cout << p.size() << endl;
-
-		for(int i=0; i < p.size(); i++) {
-			cout << p[i].x << " " << p[i].y << endl;
-		}
-
-//		contour(height);
-	}
-
-	}
-	
-}
-
 vector<double2> Mesh::path(Edge startEdge, double height) {
 	// mark the start edge as having been visited
 	markEdge(startEdge);
@@ -163,13 +136,10 @@ Mesh::Edge Mesh::findNextEdge(Mesh::Edge start, double height, double2 &cut) con
 	// TODO: Modify for four cut case
 	Edge next;
 	if(edgeCross(leftEdge(start), height, cut)) {
-		cout << "left" << endl;
 		next = leftEdge(start);
 	} else if (edgeCross(forwardEdge(start), height, cut)) {
-					cout << "forward" << endl;
 		next = forwardEdge(start);
 	} else if (edgeCross(rightEdge(start), height, cut)) {
-					cout << "right" << endl;
 		next = rightEdge(start);
 	} else {
 		throw std::runtime_error("Mesh::findNextEdge() - No valid edge found!");
@@ -264,35 +234,38 @@ bool Mesh::edgeCross(const Edge &e, double h) const {
 // returns true if the edge crosses height h,
 // stores the resulting value in coords
 bool Mesh::edgeCross(const Edge &e, double h, double2 &coords) const {
-	int2 a = e.coords;
-	int2 b = move(a, e.extend);
+	
+	// calculate the edge values
+	int2 first = e.coords;
+	int2 second = move(first, e.extend);
+	int2 a,b;
+	// if extends left, we need to reverse
+	if(e.extend == LEFT || e.extend == DOWN) {
+		a = second;
+		b = first;
+	} else {
+		a = first;
+		b = second;
+	}
+	// which one is left, which one is right?
 	double3 ap, bp;
 	ap.x = X_[a.x];
 	ap.y = Y_[a.y];
 	ap.z = Z_[a.x][a.y];
-
 	bp.x = X_[b.x];
 	bp.y = Y_[b.y];
 	bp.z = Z_[b.x][b.y];
-
-	cout << "Coords:" << endl;
-	cout << ap.x << " " << ap.y << endl;
-	cout << bp.x << " " << bp.y << endl;
-
 	if((ap.z < h && bp.z > h) || (ap.z > h && bp.z < h)) {
-		double dx = fabs(ap.x-bp.x);
-		double dy = fabs(ap.y-bp.y);
+		double dx = ap.x-bp.x;
+		double dy = ap.y-bp.y;
 		if(xPeriodic())
 			dx -= floor(dx/xp_+0.5)*xp_;
 		if(yPeriodic())
 			dy -= floor(dy/yp_+0.5)*yp_;		
 		const double dz = fabs(ap.z-bp.z);
 		const double dh = fabs(ap.z-h);
-		coords.x = ap.x + dx*(dh/dz);
-		coords.y = ap.y + dy*(dh/dz);
-
-		cout << coords.x << " " << coords.y << endl;
-
+		coords.x = ap.x + fabs(dx)*(dh/dz);
+		coords.y = ap.y + fabs(dy)*(dh/dz);
 		return true;
 	} else {
 		return false;
@@ -301,77 +274,3 @@ bool Mesh::edgeCross(const Edge &e, double h, double2 &coords) const {
 
 }
 
-using namespace Terran;
-
-int main() {
-
-
-	const int numX = 4;
-	const int numY = 3;
-
-	double xp = 0;
-	double yp = 0;
-
-	vector<double> X(numX);
-	vector<double> Y(numY);
-	vector<vector<double> > Z(numX, vector<double>(numY));
-
-	X[0] = 0;
-	X[1] = 1;
-	X[2] = 2;
-	X[3] = 3;
-	Y[0] = 0;
-	Y[1] = 1;
-	Y[2] = 2;
-	for(int x=0; x < numX; x++) {
-		for(int y=0; y < numY; y++) {
-			Z[x][y] = 0;
-		}
-	}
-	Z[1][1] = 1;
-	Z[2][1] = 1;
-
-	Mesh m(X,Y,Z,xp,yp);
-
-	try{
-		m.test();
-	} catch(const exception &e) {
-		cout << e.what() << endl;
-	}
-
-
-/* Periodic case
-
-	const int numX = 3;
-	const int numY = 2;
-
-	double xp = 4;
-	double yp = 3;
-
-	vector<double> X(numX);
-	vector<double> Y(numY);
-	vector<vector<double> > Z(numX, vector<double>(numY));
-
-	X[0] = 0;
-	X[1] = 1;
-	X[2] = 2;
-	Y[0] = 0;
-	Y[1] = 1;
-	for(int x=0; x < numX; x++) {
-		for(int y=0; y < numY; y++) {
-			Z[x][y] = 0;
-		}
-	}
-	Z[1][1] = 1;
-	Z[2][1] = 1;
-
-	Mesh m(X,Y,Z,xp,yp);
-
-	try{
-		m.test();
-	} catch(const exception &e) {
-		cout << e.what() << endl;
-	}
-*/
-
-} // namespace Terran

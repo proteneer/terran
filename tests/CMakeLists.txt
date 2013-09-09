@@ -1,5 +1,5 @@
-include_directories(${EM_SOURCE_DIR}/source)
-link_directories(${EM_BINARY_DIR}/source)
+include_directories(${Terran_SOURCE_DIR}/source)
+link_directories(${Terran_BINARY_DIR}/source)
 
 add_executable(testEMGaussian testEMGaussian.cpp util.cpp)
 target_link_libraries(testEMGaussian EM)
@@ -22,3 +22,5 @@ target_link_libraries(testCluster EM)
 add_executable(testClusterTree testClusterTree.cpp util.cpp)
 target_link_libraries(testClusterTree EM)
 
+add_executable(testMesh testMesh.cpp util.cpp)
+target_link_libraries(testMesh EM)
