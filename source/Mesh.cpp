@@ -118,7 +118,11 @@ void Mesh::test() {
 		vector<double2> p = path(e, height);
 		//cout << p.size() << endl;
 
-		contour(height);
+		for(int i=0; i < p.size(); i++) {
+			cout << p[i].x << " " << p[i].y << endl;
+		}
+
+//		contour(height);
 	}
 
 	}
@@ -268,8 +272,12 @@ bool Mesh::edgeCross(const Edge &e, double h, double2 &coords) const {
 	ap.z = Z_[a.x][a.y];
 
 	bp.x = X_[b.x];
-	bp.y = X_[b.y];
+	bp.y = Y_[b.y];
 	bp.z = Z_[b.x][b.y];
+
+	cout << "Coords:" << endl;
+	cout << ap.x << " " << ap.y << endl;
+	cout << bp.x << " " << bp.y << endl;
 
 	if((ap.z < h && bp.z > h) || (ap.z > h && bp.z < h)) {
 		double dx = fabs(ap.x-bp.x);
@@ -282,12 +290,18 @@ bool Mesh::edgeCross(const Edge &e, double h, double2 &coords) const {
 		const double dh = fabs(ap.z-h);
 		coords.x = ap.x + dx*(dh/dz);
 		coords.y = ap.y + dy*(dh/dz);
+
+		cout << coords.x << " " << coords.y << endl;
+
 		return true;
 	} else {
 		return false;
 	}
 }
 
+}
+
+using namespace Terran;
 
 int main() {
 
@@ -361,5 +375,3 @@ int main() {
 */
 
 } // namespace Terran
-
-}
