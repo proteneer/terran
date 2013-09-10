@@ -248,6 +248,11 @@ void EM::kernelAdaptiveRun() {
     // keep an old copy of params
     vector<Param> paramsOld;
 
+	    for(int i=0; i < params_.size(); i++) {
+			cout << params_[i].p << " " << params_[i].u << " " << params_[i].s <<  endl;
+		}
+		return;
+
     do {
 		// slowly increase params size as needed
 		cout << steps << " " << params_.size() << endl;
