@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 
 namespace Terran {
@@ -126,14 +127,18 @@ bool EM::run() {
     return (steps < maxSteps_);
 }
 
+// the number of components decrease. 
 bool EM::adaptiveRun(double cutoff) {
 
     if(params_.size() == 0) {
         throw(std::runtime_error("EM::adaptiveRun(), parameters are not set"));
     }
 
-    int steps = 0;
+	for(int i=0; i < data_.size(); i++) {
+		pikn_[i].resize(params_.size(), 0);
+	}
 
+    int steps = 0;
 
     double likelihood = getLikelihood();
     double likelihoodOld;
@@ -167,6 +172,7 @@ bool EM::adaptiveRun(double cutoff) {
     return (steps < maxSteps_);
 }
 
+// TODO: set pikn size properly!! 
 void EM::multiAdaptiveRun(double cutoff, int numParams, int numTries) {
     vector<Param> bestParams;
 
@@ -203,6 +209,79 @@ void EM::multiAdaptiveRun(double cutoff, int numParams, int numTries) {
         attempts++;
     } while(attempts < numTries);
     params_ = bestParams;
+}
+
+void EM::kernelAdaptiveRun() {
+
+	cout << "starting KAR" << endl;
+
+	// bandwidth estimation needs to be subclassed and computed
+	// periodic and nonperiodic spaces compute differently presumably
+	double bandwidth = 0.3;
+
+	vector<double> randsample = data_;
+	random_shuffle(randsample.begin(), randsample.end());
+	unsigned int numParams = min((int)randsample.size(), 100);
+
+	params_.resize(numParams);
+	for(int k=0; k < numParams; k++) {
+		Param p;
+		p.u = data_[k];
+		p.s = bandwidth;
+		p.p = (double) 1 / (double) params_.size();
+		params_[k] = p;
+	}
+
+	for(int i=0; i < data_.size(); i++) {
+		pikn_[i].resize(params_.size(), 0);
+	}
+
+	// adaptive run using a varying cutoff (slowly increasing);
+	// invariant: cutoff must always be > 1 / num_components
+	// cutoff set cutoff to 1/10th of 1/num_components?
+
+	int steps = 0;
+
+    double likelihood = getLikelihood();
+    double likelihoodOld;
+
+    // keep an old copy of params
+    vector<Param> paramsOld;
+
+    do {
+		// slowly increase params size as needed
+		cout << steps << " " << params_.size() << endl;
+
+		double cutoff = 0.5/params_.size();
+        likelihoodOld = getLikelihood();
+        paramsOld = params_;
+		cout << "e" << endl;
+        EStep();
+		cout << "m" << endl;
+        MStep(); 
+        steps++;
+        likelihood = getLikelihood(); 
+        vector<Param> newParams;
+		// slow as molasses - switch to linked list later so pruning is done instead
+        for(int i=0; i < params_.size(); i++) {
+			cout << params_[i].p << endl;
+            if(params_[i].p > cutoff)
+                newParams.push_back(params_[i]);
+		}
+
+        if(newParams.size() != params_.size()) {
+			cout << "deleted " << params_.size() - newParams.size() << " components." << endl;
+            params_ = newParams;
+        } else if(likelihood < likelihoodOld) {
+            params_ = paramsOld;
+            break; 
+        }
+    // Stop EM if:
+    // a. likelihood reaches the specified tolerance
+    // b. maximimum number of steps reached
+    } while(likelihood-likelihoodOld > tolerance_ && steps < maxSteps_);
+
+
 }
 
 void EM::EStep() {

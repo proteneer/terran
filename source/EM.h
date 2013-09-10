@@ -66,9 +66,12 @@ class EM {
 
         // Multiadaptive run generates a set of parameters by random repeatedly
         // and sees which results in the highest likelihood
-
-        // make it possible to set the left and right of the sample domain
+        // TODO: make it possible to set the left and right of the sample domain
         void multiAdaptiveRun(double cutoff, int numParams, int numTries);
+
+		// This is a highly experimental (and expensive) method
+		// K is initially set to the number of points!
+		void kernelAdaptiveRun();
 
         // Compute the Expectation based on current parameters
         void EStep();

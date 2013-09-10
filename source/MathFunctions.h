@@ -57,6 +57,10 @@ inline double gaussianDx(double uk, double sk, double xn) {
     return multiplier*suffix;
 }
 
+inline double gaussian2D(double u1, double u2, double s1, double s2, double x1, double x2, double p) {
+
+}
+
 inline double gaussianMixture(const std::vector<Param> &params, double xn) {
     double sum = 0;
     for(int k=0; k<params.size(); k++) {

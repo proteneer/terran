@@ -21,6 +21,7 @@ EMGaussian::~EMGaussian() {
 
 void EMGaussian::MStep() {
     for(int k=0; k<params_.size(); k++) {
+		cout << k << endl;
         // Compute new mean
         double numeratorSum = 0;
         double denominatorSum = 0;

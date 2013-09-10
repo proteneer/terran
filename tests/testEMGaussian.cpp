@@ -101,9 +101,56 @@ void testBimodalGaussian() {
     Util::matchParameters(initParams, optimizedParams, 0.1);
 }
 
+void testKernelRunBimodal() {
+    int numSamples = 20000;
+    vector<double> data;
+    vector<Param> initParams(2);
+    initParams[0].p = 0.4;
+    initParams[0].u = -3.4;
+    initParams[0].s = 1.2;
+    for(int i=0; i<numSamples*initParams[0].p; i++) {
+        double x1 = (double)rand()/(double)RAND_MAX;
+        double x2 = (double)rand()/(double)RAND_MAX;
+        double2 z = boxMullerSample(x1, x2, initParams[0].u, initParams[0].s);
+        data.push_back(z.x);
+        data.push_back(z.y);
+    }
+
+    initParams[1].p = 0.6;
+    initParams[1].u = 7.4;
+    initParams[1].s = 6.2;
+    for(int i=0; i<numSamples*initParams[1].p; i++) {
+        double x1 = (double)rand()/(double)RAND_MAX;
+        double x2 = (double)rand()/(double)RAND_MAX;
+        double2 z = boxMullerSample(x1, x2, initParams[1].u, initParams[1].s);
+        data.push_back(z.x);
+        data.push_back(z.y);
+    }
+    vector<Param> params;
+    {
+        Param p;
+        p.p = 0.5;
+        p.u = 6.2;
+        p.s = 8.1;
+        params.push_back(p);
+    }
+    {
+        Param p;
+        p.p = 0.5;
+        p.u = 0;
+        p.s = 2.1;
+        params.push_back(p);
+    }
+    EMGaussian em(data, params);
+    em.kernelAdaptiveRun();
+    vector<Param> optimizedParams = em.getParams();
+    //Util::matchParameters(initParams, optimizedParams, 0.1);
+}
+
 int main() {
     try {
-        // removing this in release mode causes unit test to fail... why?
+		testKernelRunBimodal();
+		srand(1);
         testUnimodalGaussian();
         srand(1);
         testBimodalGaussian();

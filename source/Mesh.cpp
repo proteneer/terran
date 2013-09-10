@@ -162,7 +162,7 @@ int2 Mesh::move(const int2 &p, Direction d) const {
 	} else if(d == LEFT) {
 		q.x -= 1;
 	} else {
-		throw(std::runtime_error("bad point extension!"));
+		throw(std::runtime_error("Mesh::move() - bad point extension!"));
 	}
 
 	// take into account of periodic conditions here
@@ -171,13 +171,13 @@ int2 Mesh::move(const int2 &p, Direction d) const {
 	if(xPeriodic()) {
 		q.x = (q.x+xSize()) % xSize();
 	} else if(q.x > xSize() - 1 || q.x < 0) {
-		throw(std::runtime_error("move() - x out of bounds"));
+		throw(std::runtime_error("Mesh::move() - x out of bounds"));
 	};
 
 	if(yPeriodic()) {
 		q.y = (q.y+ySize()) % ySize();
 	} else if(q.y > ySize() - 1 || q.y < 0) {
-		throw(std::runtime_error("move() - y out of bounds"));
+		throw(std::runtime_error("Mesh::move() - y out of bounds"));
 	};
 
 	return q;
