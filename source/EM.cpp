@@ -220,8 +220,9 @@ void EM::kernelAdaptiveRun() {
 	double bandwidth = 0.3;
 
 	vector<double> randsample = data_;
+    srand(time(0));
 	random_shuffle(randsample.begin(), randsample.end());
-	unsigned int numParams = min((int)randsample.size(), 100);
+	unsigned int numParams = min((int)randsample.size(), 1000);
 
 	params_.resize(numParams);
 	for(int k=0; k < numParams; k++) {
@@ -247,44 +248,59 @@ void EM::kernelAdaptiveRun() {
 
     // keep an old copy of params
     vector<Param> paramsOld;
-
+/*
 	    for(int i=0; i < params_.size(); i++) {
 			cout << params_[i].p << " " << params_[i].u << " " << params_[i].s <<  endl;
 		}
 		return;
-
+*/
     do {
 		// slowly increase params size as needed
-		cout << steps << " " << params_.size() << endl;
 
-		double cutoff = 0.5/params_.size();
+        //cout << "Step: " << steps << " " << params_.size() << endl;
+
+		double cutoff = min(0.5/params_.size(),0.02);
         likelihoodOld = getLikelihood();
         paramsOld = params_;
-		cout << "e" << endl;
+		
+        //cout << "e" << endl;
         EStep();
-		cout << "m" << endl;
+        //for(int i=0; i < params_.size(); i++) {
+        //    cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << endl;
+        //}
+		//cout << "m" << endl;
         MStep(); 
+        //for(int i=0; i < params_.size(); i++) {
+        //    cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << endl;
+        //}
+        
         steps++;
         likelihood = getLikelihood(); 
         vector<Param> newParams;
-		// slow as molasses - switch to linked list later so pruning is done instead
+        double min = 999;
         for(int i=0; i < params_.size(); i++) {
-			cout << params_[i].p << endl;
+			//cout << params_[i].p << endl;
+
+            if(params_[i].p < min)
+                min = params_[i].p;
+
             if(params_[i].p > cutoff)
                 newParams.push_back(params_[i]);
 		}
 
         if(newParams.size() != params_.size()) {
-			cout << "deleted " << params_.size() - newParams.size() << " components." << endl;
+			//cout << "deleted " << params_.size() - newParams.size() << " components." << endl;
             params_ = newParams;
         } else if(likelihood < likelihoodOld) {
             params_ = paramsOld;
             break; 
         }
+
+        //cout << likelihood << " " << likelihoodOld << " " << likelihood-likelihoodOld << endl;
     // Stop EM if:
     // a. likelihood reaches the specified tolerance
     // b. maximimum number of steps reached
-    } while(likelihood-likelihoodOld > tolerance_ && steps < maxSteps_);
+    } while( isinf(likelihood) ? true : (likelihood-likelihoodOld > tolerance_ && steps < maxSteps_));
 
 
 }
@@ -295,8 +311,12 @@ void EM::EStep() {
         for(int k=0; k<params_.size(); k++) {
             sum += qkn(k,n);
         }
+
         for(int k=0; k<params_.size(); k++) {
-            pikn_[n][k] = qkn(k,n)/sum;
+            if(sum > 1e-7)
+                pikn_[n][k] = qkn(k,n)/sum;
+            else
+                pikn_[n][k] = 0;
         }
     }
     testIntegrity();

@@ -3,6 +3,7 @@
 #include <math.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 #include <EMGaussian.h>
 #include <MathFunctions.h>
@@ -144,16 +145,35 @@ void testKernelRunBimodal() {
     EMGaussian em(data, params);
     em.kernelAdaptiveRun();
     vector<Param> optimizedParams = em.getParams();
+    for(int i=0; i < optimizedParams.size(); i++) {
+        cout << i << " " << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
+    }
+
+    Util::plotGaussian(optimizedParams,-15, 40, "model");
+
+    ofstream asdf("log.txt");
+    for(int i=0; i < data.size(); i++) {
+        asdf << data[i] << endl;
+    }
+
+
+    sleep(5);
+
+    em.kernelAdaptiveRun();
+    optimizedParams = em.getParams();
+    for(int i=0; i < optimizedParams.size(); i++) {
+        cout << i << " " << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
+    }
     //Util::matchParameters(initParams, optimizedParams, 0.1);
 }
 
 int main() {
     try {
 		testKernelRunBimodal();
-		srand(1);
-        testUnimodalGaussian();
-        srand(1);
-        testBimodalGaussian();
+		//srand(1);
+        //testUnimodalGaussian();
+        //srand(1);
+        //testBimodalGaussian();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }

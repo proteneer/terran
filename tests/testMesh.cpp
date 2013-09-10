@@ -1,6 +1,7 @@
 #include <Mesh.h>
 #include <vector>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 using namespace Terran;
