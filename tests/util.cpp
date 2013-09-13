@@ -18,10 +18,12 @@ void Util::plotPeriodicGaussian(const vector<Param> &params, double period, stri
     for(double xn = -period/2; xn < period/2; xn += 0.01) {
         f1 << xn << " " << periodicGaussianMixture(params, xn, period, 50) << endl;
     }
+	/*
     ofstream f2((filename + "Dx").c_str());
     for(double xn = -period/2; xn < period/2; xn += 0.01) {
         f2 << xn << " " << periodicGaussianMixtureDx(params, xn, period, 50) << endl;
     }
+	*/
 }
 
 void Util::plotGaussian(const std::vector<Terran::Param> &params, double left, double right, std::string filename) {
@@ -29,10 +31,12 @@ void Util::plotGaussian(const std::vector<Terran::Param> &params, double left, d
     for(double xn = left; xn < right; xn += 0.01) {
         f1 << xn << " " << gaussianMixture(params, xn) << endl;
     }
+	/*
     ofstream f2((filename + "Dx").c_str());
     for(double xn = left; xn < right; xn += 0.01) {
         f2 << xn << " " << gaussianMixtureDx(params, xn) << endl;
     }
+	*/
 }
 
 // Naive O(N^2) method

@@ -17,6 +17,9 @@
 // the M step as needed. 
 //
 // Ref 1. Estimating Gaussian Mixture Densities with EM - A Tutorial, Carlo Tomasi
+// 
+// In general, the size of the data need not be exceedingly large provided the underlying
+// data is well distributed. 
 
 namespace Terran {
 
@@ -71,7 +74,7 @@ class EM {
 
 		// This is a highly experimental (and expensive) method
 		// K is initially set to the number of points!
-		void kernelAdaptiveRun();
+		void kernelAdaptiveRun(unsigned int numParams = 1000);
 
         // Compute the Expectation based on current parameters
         void EStep();

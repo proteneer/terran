@@ -2,6 +2,9 @@
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <vector>
+#include <EMGaussian.h>
+#include <Param.h>
 
 using namespace std;
 using namespace Terran;

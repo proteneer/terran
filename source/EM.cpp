@@ -5,7 +5,11 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <time.h>
 
+#ifdef _WIN32
+#define isinf(x) !_finite(x)
+#endif
 
 namespace Terran {
 
@@ -211,19 +215,30 @@ void EM::multiAdaptiveRun(double cutoff, int numParams, int numTries) {
     params_ = bestParams;
 }
 
-void EM::kernelAdaptiveRun() {
+// a heuristic for removing redundant parameters
+// purge conditions:
+// -if the weight is extremely low
+// -if the gaussians are very similar in feature (very similar mean and standard deviation), then just sum the weight and form one gaussian
+void purgeParams(vector<Param> &params) {
 
-	cout << "starting KAR" << endl;
+	vector<Param> newParams;
 
+
+	for(int i=0; i < params.size(); i++) {
+
+	}
+
+}
+
+void EM::kernelAdaptiveRun(unsigned int initialNumParams) {
 	// bandwidth estimation needs to be subclassed and computed
 	// periodic and nonperiodic spaces compute differently presumably
 	double bandwidth = 0.3;
-
 	vector<double> randsample = data_;
-    srand(time(0));
 	random_shuffle(randsample.begin(), randsample.end());
-	unsigned int numParams = min((int)randsample.size(), 1000);
+	unsigned int numParams = min(randsample.size(), initialNumParams);
 
+	// initialize a set of parameters
 	params_.resize(numParams);
 	for(int k=0; k < numParams; k++) {
 		Param p;
@@ -237,69 +252,42 @@ void EM::kernelAdaptiveRun() {
 		pikn_[i].resize(params_.size(), 0);
 	}
 
-	// adaptive run using a varying cutoff (slowly increasing);
-	// invariant: cutoff must always be > 1 / num_components
-	// cutoff set cutoff to 1/10th of 1/num_components?
-
 	int steps = 0;
 
     double likelihood = getLikelihood();
     double likelihoodOld;
 
-    // keep an old copy of params
     vector<Param> paramsOld;
-/*
-	    for(int i=0; i < params_.size(); i++) {
-			cout << params_[i].p << " " << params_[i].u << " " << params_[i].s <<  endl;
-		}
-		return;
-*/
     do {
-		// slowly increase params size as needed
+		// On each iteration, we prune away all components whose weight p is less than
+		// cutoff. This gets rid of components that contribute very little
 
-        //cout << "Step: " << steps << " " << params_.size() << endl;
+		// try a different purge method? (if two points come too close to each other, purge them)
 
-		double cutoff = min(0.5/params_.size(),0.02);
+		//double cutoff = min(1.0/params_.size(),0.01);
+		double cutoff = 0;
         likelihoodOld = getLikelihood();
         paramsOld = params_;
-		
-        //cout << "e" << endl;
         EStep();
-        //for(int i=0; i < params_.size(); i++) {
-        //    cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << endl;
-        //}
-		//cout << "m" << endl;
         MStep(); 
-        //for(int i=0; i < params_.size(); i++) {
-        //    cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << endl;
-        //}
-        
         steps++;
         likelihood = getLikelihood(); 
         vector<Param> newParams;
-        double min = 999;
         for(int i=0; i < params_.size(); i++) {
-			//cout << params_[i].p << endl;
-
-            if(params_[i].p < min)
-                min = params_[i].p;
-
             if(params_[i].p > cutoff)
                 newParams.push_back(params_[i]);
 		}
-
         if(newParams.size() != params_.size()) {
-			//cout << "deleted " << params_.size() - newParams.size() << " components." << endl;
+			cout << "deleted " << params_.size() - newParams.size() << " components." << endl;
             params_ = newParams;
         } else if(likelihood < likelihoodOld) {
             params_ = paramsOld;
             break; 
         }
-
         //cout << likelihood << " " << likelihoodOld << " " << likelihood-likelihoodOld << endl;
-    // Stop EM if:
-    // a. likelihood reaches the specified tolerance
-    // b. maximimum number of steps reached
+		// Stop EM if:
+		// a. likelihood reaches the specified tolerance
+		// b. maximimum number of steps reached
     } while( isinf(likelihood) ? true : (likelihood-likelihoodOld > tolerance_ && steps < maxSteps_));
 
 

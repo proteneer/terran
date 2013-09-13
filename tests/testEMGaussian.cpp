@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <algorithm>
 
 #include <EMGaussian.h>
 #include <MathFunctions.h>
@@ -156,9 +158,6 @@ void testKernelRunBimodal() {
         asdf << data[i] << endl;
     }
 
-
-    sleep(5);
-
     em.kernelAdaptiveRun();
     optimizedParams = em.getParams();
     for(int i=0; i < optimizedParams.size(); i++) {
@@ -167,9 +166,61 @@ void testKernelRunBimodal() {
     //Util::matchParameters(initParams, optimizedParams, 0.1);
 }
 
+// tune kernel adaptive run's number of parameters
+void tuneKARParams() {
+
+	vector<double> data;
+	for(int i=0; i <2000; i++) {
+		data.push_back(gaussianSample(-4.3, 1.0));
+		data.push_back(gaussianSample( 1.1, 0.2));
+		data.push_back(gaussianSample(0, 2));
+		data.push_back(gaussianSample(3, 0.5));
+		data.push_back(gaussianSample(7, 1.2));
+		data.push_back(gaussianSample(-1.5, 4));
+		data.push_back(gaussianSample(-11, 0.1));
+	}
+
+	/*
+	EMGaussian em(data);
+	em.kernelAdaptiveRun();
+	vector<Param> p_full = em.getParams();
+	*/
+
+	// test using only 5000
+	vector<double> data2(data);
+	std::random_shuffle(data2.begin(), data2.end());
+	data2.resize(5000);
+	ofstream asdf2("log2.txt");
+	for(int i=0; i < data2.size(); i++) {
+		asdf2 << data2[i] << endl;
+	}	
+
+	EMGaussian em(data);
+	em.kernelAdaptiveRun(data2.size());
+	vector<Param> p_partial = em.getParams();
+	stringstream foo;
+	foo << "modelFull";
+	Util::plotGaussian(p_partial, -15, 25, foo.str().c_str());
+
+	ofstream asdf("log.txt");
+    for(int i=0; i < data.size(); i++) {
+		asdf << data[i] << endl;
+    }
+	
+
+
+	
+
+}
+
+void tuneDataSize() {
+
+}
+
 int main() {
     try {
-		testKernelRunBimodal();
+		tuneKARParams();
+		//testKernelRunBimodal();
 		//srand(1);
         //testUnimodalGaussian();
         //srand(1);
