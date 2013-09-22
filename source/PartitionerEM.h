@@ -30,22 +30,8 @@ public:
     std::vector<double> partition();
     
     EM& getEM();
-    
-    // setters and getters for various parameters in MAR
-
-    void setMARThreshold(double val);
-
-    void setMARNumParams(int val);
-
-    void setMARNumTries(int val);
 
     void setPartitionCutoff(double val);
-
-    double getMARThreshold() const;
-
-    int getMARNumParams() const;
-
-    int getMARNumTries() const;
 
     double getPartitionCutoff() const;
 

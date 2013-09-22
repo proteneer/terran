@@ -408,7 +408,7 @@ int main() {
         //testClusterTree();
         srand(1);
         cout << "testPeriodicMultiCluster()" << endl;
-        testPeriodicMultiCluster();
+        //testPeriodicMultiCluster();
         cout << "testNonPeriodicMultiCluster()" << endl;
         srand(1);
         testNonPeriodicMultiCluster();

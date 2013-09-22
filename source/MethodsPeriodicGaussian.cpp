@@ -26,40 +26,35 @@ MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params,
 }
 
 vector<double> MethodsPeriodicGaussian::findMaxima() const {
-    vector<double> maxima;
+    vector<double> maximas;
     for(int k=0; k<params_.size(); k++) {
-        double x_old = params_[k].u;
+        double xn_old = params_[k].u;
         bool found = false;
-        const double delta = 1e-4;
+        const double delta = 1e-2;
+        // careful: change this to a long if need to be >2e9
         int iteration = 0;
         while(!found) {
             iteration++;
-            if(iteration >= 1e3) {
-                throw(std::runtime_error("MethodsPeriodicGaussian::findMaxima() - maximum iteration count reached!"));
+            // Saddle points suck. If the simple algorithm doesn't converge
+            // it's probably due to a saddle point. 
+            if(iteration >= 1e5) {
+                throw(std::runtime_error("findMaxima: maximum iteration count reached!"));
             }
-            double x_new = x_old - periodicGaussianMixtureDx(params_, x_old, period_)/periodicGaussianMixtureDx2(params_, x_old, period_);
-            
-            x_new = normalize(x_new);
-            
-            if(fabs(periodicGaussianMixtureDx(params_, x_new, period_)) < 1e-5)
+            double xn_new = xn_old + delta*periodicGaussianMixtureDx(params_, xn_old, period_);
+            xn_new = normalize(xn_new);
+            if(fabs(periodicGaussianMixtureDx(params_, xn_new, period_)) < 1e-4)
                 found = true;
-            x_old = x_new;
+            xn_old = xn_new;
         }
-        
-        // see if found point is a maxima
-        double testLeft = normalize(x_old-delta);
-        double testRight = normalize(x_old+delta);
-        if(periodicGaussianMixtureDx(params_, testLeft, period_) > 0 && periodicGaussianMixtureDx(params_, testRight, period_) < 0) {
-            bool skip = false;
-            // see if found point has been found before
-            for(int i=0; i<maxima.size(); i++)
-                if(fabs(x_old-maxima[i]) < 1e-3)
-                    skip = true;
-            if(!skip) 
-                maxima.push_back(x_old);
-        }
+        bool skip = false;
+        // if two gaussians are too close to each other, discard it
+        for(int i=0; i<maximas.size(); i++)
+            if(fabsp(xn_old, maximas[i], period_) < 1e-3)
+                skip = true;
+        if(!skip) 
+            maximas.push_back(xn_old);
     }
-    return maxima;
+    return maximas;
 }
 
 vector<double> MethodsPeriodicGaussian::findMinima() const {

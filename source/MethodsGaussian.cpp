@@ -29,63 +29,33 @@ MethodsGaussian::MethodsGaussian(const vector<Param> &params) : Methods(params) 
 
 }
 
-// Newton-Raphson using mean of the components to find the maxima (and minima)
+// Newton-Raphson doesn't work - no guarantee of global convergence
 vector<double> MethodsGaussian::findMaxima() const {
-    vector<double> maximas;
-
-    double min =  numeric_limits<double>::max();
-    double max = -numeric_limits<double>::max();
-    double max_sig = -numeric_limits<double>::max();
-    for(int i=0; i < params_.size(); i++) {
-        min = (params_[i].u < min) ? params_[i].u : min;
-        max = (params_[i].u > max) ? params_[i].u : max;
-        max_sig = (params_[i].s > max) ? params_[i].s : max;
-    }
-
-    while(gaussianMixture(params_,min) > 1e-5) 
-        min -= max_sig;
-    while(gaussianMixture(params_,max) > 1e-5) 
-        max += max_sig;
-
-
-    vector<double> debug;
-
+ vector<double> maximas;
     for(int k=0; k<params_.size(); k++) {
-        double x_old = params_[k].u;
+        double xn_old = params_[k].u;
         bool found = false;
-        const double delta = 1e-4;
+        const double delta = 1e-2;
         int iteration = 0;
         while(!found) {
-            debug.push_back(x_old);
             iteration++;
-            if(iteration >= 1e3) {
-                for(int i=0; i < params_.size(); i++) {
-                    cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << endl;
-                }
-                for(int i=0; i < debug.size(); i++) {
-                    cout << debug[i] << endl;
-                }
-                plotGaussian(params_);
+            // Saddle points suck. If the simple algorithm doesn't converge
+            // it's probably due to a saddle point. 
+            if(iteration >= 1e5) {
                 throw(std::runtime_error("findMaxima: maximum iteration count reached!"));
             }
-            double x_new = x_old - gaussianMixtureDx(params_, x_old)/gaussianMixtureDx2(params_, x_old);
-            if(fabs(gaussianMixtureDx(params_, x_new)) < 1e-5)
+            double xn_new = xn_old + delta*gaussianMixtureDx(params_, xn_old);
+            if(fabs(gaussianMixtureDx(params_, xn_new)) < 1e-4)
                 found = true;
-            if(x_new < min || x_new > max)
-                break;
-            x_old = x_new;
+            xn_old = xn_new;
         }
-
-        // see if found point is a maxima
-        if(gaussianMixtureDx(params_, x_old-delta) > 0 && gaussianMixtureDx(params_, x_old+delta) < 0) {
-            bool skip = false;
-            // see if found point has been found before
-            for(int i=0; i<maximas.size(); i++)
-                if(fabs(x_old-maximas[i]) < 1e-3)
-                    skip = true;
-            if(!skip) 
-                maximas.push_back(x_old);
-        }
+        bool skip = false;
+        // if two gaussians are too close to each other, discard it
+        for(int i=0; i<maximas.size(); i++)
+            if(fabs(xn_old-maximas[i]) < 1e-3)
+                skip = true;
+        if(!skip) 
+            maximas.push_back(xn_old);
     }
     return maximas;
 }

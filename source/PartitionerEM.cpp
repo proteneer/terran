@@ -29,38 +29,6 @@ PartitionerEM::~PartitionerEM() {
     delete em_;
 }
 
-void PartitionerEM::setMARThreshold(double val) {
-    MARThreshold_ = val;
-}
-
-void PartitionerEM::setMARNumParams(int val) {
-    MARNumParams_ = val;
-}
-
-void PartitionerEM::setMARNumTries(int val) {
-    MARNumTries_ = val;
-}
-
-void PartitionerEM::setPartitionCutoff(double val) {
-    partitionCutoff_ = val;
-}
-
-double PartitionerEM::getMARThreshold() const {
-    return MARThreshold_;
-}
-
-int PartitionerEM::getMARNumParams() const {
-    return MARNumParams_;
-}
-
-int PartitionerEM::getMARNumTries() const {
-    return MARNumTries_;
-}
-
-double PartitionerEM::getPartitionCutoff() const {
-    return partitionCutoff_;
-}
-
 void PartitionerEM::optimizeParameters() {
     em_->simpleRun(25);
     //em_->multiAdaptiveRun(MARThreshold_, MARNumParams_, MARNumTries_);
