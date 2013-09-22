@@ -45,6 +45,8 @@ public:
         std::vector<Node*> children;
     };
 
+    // dataset: NxD matrix, N is number of points, D is dimension
+    // period denotes the periodicity 
     ClusterTree(const std::vector<std::vector<double> > &dataset, const std::vector<double> &period);
 
     ~ClusterTree();
@@ -71,17 +73,18 @@ public:
     Node& getRoot();
 
     // returns a reference to the currently processed cluster
-    // do not do something like Cluster cc = clustertree.getCurrentCluster()
-    // Cluster class does not have a copy constructor! so the vector<Partitioners> class
+    // Note: do not do something like Cluster cc = clustertree.getCurrentCluster()
+    // The cluster class does not have a copy constructor.
     // instead, use references:
-
     Cluster& getCurrentCluster();
 
-    // process one cluster if no fine tuning is desired.
-    // step() also ignores clusters without sufficient points
+    // the step function is convenience function that does the following
+    // 1. see if the queue is empty, if not, pop the head and set it as the currentCluster
+    // 2. if the currentCluster has less than 500 points, then deemed "finished"
+    // 3. it partitions each dimension in currentCluster using simpleRun()
+    // 4. it divides the current cluster into subcluster
+    // for fine tuned control, all four steps can be reconfigured as needed
     void step();
-    
-    // the following three methods provide fine grained control
     
     // pops the queue and assigns current cluster, this removes the head element
     void setCurrentCluster();

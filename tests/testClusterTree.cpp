@@ -29,7 +29,7 @@ using namespace std;
 // |      ***
 // |       *
 //-PI-------------------PI
-void testClusterTree() {
+void testPeriodicSimpleCase() {
 
     vector<vector<double> > dataset;
     // setup 0th cluster;
@@ -194,7 +194,6 @@ void testPeriodicMultiCluster() {
         // if we use a non reference, and we do something like
         // Cluster cc = ct.getCurrentCluster();
         // we will end up with a segfault as the references members get destroyed
-
         Cluster& cc = ct.getCurrentCluster();
         vector<vector<double> > clusterPoints;
         for(int i=0 ; i < cc.getNumPoints(); i++) {
@@ -231,6 +230,9 @@ void testPeriodicMultiCluster() {
 // -PI-------------------PI--+inf
 //  |
 //-inf       dim 0
+// used for the paper
+
+/*
 void testNonPeriodicMultiCluster() {
 
     vector<vector<double> > dataset;
@@ -354,15 +356,6 @@ void testNonPeriodicMultiCluster() {
         }
         vector<int> assign = cc.cluster();
 
-/*
-        stringstream f0;
-        f0 << "marginalized" << count << 0;
-        ofstream fname0(f0.str().c_str());
-
-        stringstream f1;
-        f1 << "marginalized" << count << 1;
-        ofstream fname1(f1.str().c_str());
-*/
         stringstream filename;
         filename << "X" << count;
         ofstream X(filename.str().c_str());
@@ -370,13 +363,7 @@ void testNonPeriodicMultiCluster() {
         for(int i=0; i < cc.getNumPoints(); i++) {
  
             X << clusterPoints[i][0] << " " << clusterPoints[i][1] << endl;
-/*
-            int j = assign[i];
-            filename << "paper" << count << j;
-            ofstream fname(filename.str().c_str(), ios::app);
-            fname << clusterPoints[i][0] << " " << clusterPoints[i][1] << endl;
-            fname.close();
-*/
+
 
         }
         ct.divideCurrentCluster();
@@ -398,20 +385,20 @@ void testNonPeriodicMultiCluster() {
     for(int i=0; i< assignment.size() ;i++) {
         assignmentFile << assignment[i] << endl;
     }
-
-
 }
+
+*/
 
 int main() {
     try{
-        cout << "testClusterTree()" << endl;
-        //testClusterTree();
+        cout << "testPeriodicSimpleCase()" << endl;
+        testPeriodicSimpleCase();
         srand(1);
         cout << "testPeriodicMultiCluster()" << endl;
-        //testPeriodicMultiCluster();
-        cout << "testNonPeriodicMultiCluster()" << endl;
-        srand(1);
-        testNonPeriodicMultiCluster();
+        testPeriodicMultiCluster();
+        //cout << "testNonPeriodicMultiCluster()" << endl;
+        //srand(1);
+        //testNonPeriodicMultiCluster();
         cout << "done" << endl;
     } catch(const exception &e) {
         cout << e.what();

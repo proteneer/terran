@@ -155,24 +155,17 @@ std::vector<const ClusterTree::Node*> ClusterTree::getLeaves() const {
 }
 
 void ClusterTree::step() {
-
     if(finished()) 
         return;
-
     setCurrentCluster();
-
-    if(currentCluster_->getNumPoints() < 1000) {
+    if(currentCluster_->getNumPoints() < 500) {
         delete currentCluster_;
         return;
     }
-
     for(int d=0; d < getNumDimensions(); d++)
         partitionCurrentCluster(d);
-
     divideCurrentCluster();
 }
-
-
 
 ClusterTree::Node& ClusterTree::getRoot() {
     return *root_;
