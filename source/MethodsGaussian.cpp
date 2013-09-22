@@ -19,6 +19,10 @@ static void plotGaussian(const vector<Param> &params) {
     for(double xn = -10; xn < 10; xn += 0.01) {
         mixtureDx << xn << " " << gaussianMixtureDx(params, xn) << endl;
     }
+    ofstream mixtureDx2("mixtureDx2.dat");
+    for(double xn = -10; xn < 10; xn += 0.01) {
+        mixtureDx2 << xn << " " << gaussianMixtureDx2(params, xn) << endl;
+    }
 }
 
 MethodsGaussian::MethodsGaussian(const vector<Param> &params) : Methods(params) {
@@ -43,18 +47,29 @@ vector<double> MethodsGaussian::findMaxima() const {
     while(gaussianMixture(params_,max) > 1e-5) 
         max += max_sig;
 
+
+    vector<double> debug;
+
     for(int k=0; k<params_.size(); k++) {
         double x_old = params_[k].u;
         bool found = false;
         const double delta = 1e-4;
         int iteration = 0;
         while(!found) {
+            debug.push_back(x_old);
             iteration++;
             if(iteration >= 1e3) {
+                for(int i=0; i < params_.size(); i++) {
+                    cout << params_[i].p << " " << params_[i].u << " " << params_[i].s << endl;
+                }
+                for(int i=0; i < debug.size(); i++) {
+                    cout << debug[i] << endl;
+                }
+                plotGaussian(params_);
                 throw(std::runtime_error("findMaxima: maximum iteration count reached!"));
             }
             double x_new = x_old - gaussianMixtureDx(params_, x_old)/gaussianMixtureDx2(params_, x_old);
-            if(fabs(x_new-x_old) < 1e-8)
+            if(fabs(gaussianMixtureDx(params_, x_new)) < 1e-5)
                 found = true;
             if(x_new < min || x_new > max)
                 break;

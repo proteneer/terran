@@ -89,31 +89,14 @@ void testClusterTree() {
     }
 
     vector<int> assignment = ct.getAssignment();
-    ofstream l0("log0.txt");
-    ofstream l1("log1.txt");
-    ofstream l2("log2.txt");
-
-    for(int i=0; i < assignment.size(); i++) {
-        if(assignment[i] == 0) {
-            l0 << ct.getPoint(i)[0] << " " << ct.getPoint(i)[1] << endl;
-        }
-        if(assignment[i] == 1) {
-            l1 << ct.getPoint(i)[0] << " " << ct.getPoint(i)[1] << endl;
-        }        
-        if(assignment[i] == 2) {
-            l2 << ct.getPoint(i)[0] << " " << ct.getPoint(i)[1] << endl;
-        }
-
-    }
 
     int numClusters = *(max_element(assignment.begin(), assignment.end()))+1;
 
     if(numClusters != 3) {
-        throw(std::runtime_error("Wrong number of clusters!"));
+        throw(std::runtime_error("testClusterTree() - Wrong number of clusters!"));
     }
 
 }
-
 
 //  PI
 //  |        **3** 
@@ -129,6 +112,8 @@ void testClusterTree() {
 //  |*       **3**      *  
 // -PI-------------------PI
 //         dim 0
+//
+// Used in paper
 void testPeriodicMultiCluster() {
 
     double period = 2*PI;
@@ -199,22 +184,16 @@ void testPeriodicMultiCluster() {
 
     int count = 0;
 
-    //while(count < 2) {
     while(!ct.finished()) {
         ct.setCurrentCluster();
         for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
             ct.partitionCurrentCluster(i);
             vector<double> partitions = ct.getCurrentCluster().getPartition(i);
-            cout << "dim " << i << " ";
-            for(int j=0; j < partitions.size(); j++) {
-                cout << partitions[j] << " ";
-            }
-            cout << endl;
         }
 
         // if we use a non reference, and we do something like
         // Cluster cc = ct.getCurrentCluster();
-        // we will end up with a segfault as the references get destroyed
+        // we will end up with a segfault as the references members get destroyed
 
         Cluster& cc = ct.getCurrentCluster();
         vector<vector<double> > clusterPoints;
@@ -222,36 +201,20 @@ void testPeriodicMultiCluster() {
             clusterPoints.push_back(cc.getPoint(i));
         }
         vector<int> assign = cc.cluster();
-
-        for(int i=0; i < cc.getNumPoints(); i++) {
-            stringstream filename;
-            int j = assign[i];
-            filename << "paper" << count << j;
-            ofstream fname(filename.str().c_str(), ios::app);
-            fname << clusterPoints[i][0] << " " << clusterPoints[i][1] << endl;
-            fname.close();
-        }
         ct.divideCurrentCluster();
         count++;
     }
 
     vector<int> assignment = ct.getAssignment();
 
-    for(int i=0; i < ct.getNumPoints(); i++) {
-        stringstream filename;
-        int j = assignment[i];
-        filename << "final" << count << j;
-        ofstream fname(filename.str().c_str(), ios::app);
-        fname << dataset[i][0] << " " << dataset[i][1] << endl;
-        fname.close();
-    }
+    int numClusters = *(max_element(assignment.begin(), assignment.end()))+1;
 
-    ofstream datalog("cdata0.txt");
-    for(int i=0; i< dataset.size(); i++) {
-        datalog << dataset[i][0] << " " << dataset[i][1] << endl;
+    if(numClusters != 4) {
+        throw(std::runtime_error("testPeriodicMultiCluster() - Wrong number of clusters!"));
     }
 
 }
+
 //+inf
 //  |         ***
 //  |        **3** 
@@ -441,9 +404,12 @@ void testNonPeriodicMultiCluster() {
 
 int main() {
     try{
+        cout << "testClusterTree()" << endl;
         //testClusterTree();
-        //srand(1);
-        //testMultiCluster();
+        srand(1);
+        cout << "testPeriodicMultiCluster()" << endl;
+        testPeriodicMultiCluster();
+        cout << "testNonPeriodicMultiCluster()" << endl;
         srand(1);
         testNonPeriodicMultiCluster();
         cout << "done" << endl;

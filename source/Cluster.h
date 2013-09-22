@@ -57,10 +57,17 @@ public:
     // setPartitions() or invoking partition()
     std::vector<int> cluster();
 
+    void setSubsampleCount(int count);
+
+    int getSubsampleCount() const;
+
 private:
 
     // assigns a given point to a bucket
     std::vector<short> assign(int point) const;
+
+    // number of points used to subsample
+    double subsampleCount_;
 
     // points are stored in dataset, size N x D
     // change to array of array later for performance

@@ -18,6 +18,7 @@
 using namespace std;
 using namespace Terran;
 
+/*
 void test100DGaussiansMulti() {
 
     const int numDimensions = 100;
@@ -204,7 +205,7 @@ void test100DGaussians() {
 
 
 }
-
+*/
 
 // A three-cluster periodic dataset looking something like this:
 
@@ -275,18 +276,9 @@ void testEasyCase2D() {
     vector<vector<double> > testPartitions;
     
     for(int d = 0; d < cc.getNumDimensions(); d++) {
-        cout << d << endl;
-        PartitionerEM& emp = dynamic_cast<PartitionerEM &>(cc.getPartitioner(d));
         cc.partition(d);
         vector<double> partitions = cc.getPartition(d);
         testPartitions.push_back(partitions);
-    }
-
-    for(int i=0; i < testPartitions.size(); i++) {
-        for(int j=0; j < testPartitions[i].size(); j++) {
-            cout << testPartitions[i][j] << " ";
-        }
-        cout << endl;
     }
 
     vector<double> truthPartition0;

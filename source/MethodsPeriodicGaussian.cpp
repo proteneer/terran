@@ -9,6 +9,17 @@ using namespace std;
 
 namespace Terran {
 
+static void plotPeriodicGaussian(const vector<Param> &params, double period, int images) {
+    ofstream mixture("mixture.dat");
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        mixture << xn << " " << periodicGaussianMixture(params, xn, period, images) << endl;
+    }
+    ofstream mixtureDx("mixtureDx.dat");
+    for(double xn = -period/2; xn < period/2; xn += 0.01) {
+        mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << endl;
+    }
+}
+
 MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params, 
     double period) : Methods(params), period_(period) {
 
@@ -24,13 +35,13 @@ vector<double> MethodsPeriodicGaussian::findMaxima() const {
         while(!found) {
             iteration++;
             if(iteration >= 1e3) {
-                throw(std::runtime_error("findMaxima: maximum iteration count reached!"));
+                throw(std::runtime_error("MethodsPeriodicGaussian::findMaxima() - maximum iteration count reached!"));
             }
             double x_new = x_old - periodicGaussianMixtureDx(params_, x_old, period_)/periodicGaussianMixtureDx2(params_, x_old, period_);
             
             x_new = normalize(x_new);
             
-            if(fabsp(x_new, x_old, period_) < 1e-8)
+            if(fabs(periodicGaussianMixtureDx(params_, x_new, period_)) < 1e-5)
                 found = true;
             x_old = x_new;
         }
@@ -49,18 +60,6 @@ vector<double> MethodsPeriodicGaussian::findMaxima() const {
         }
     }
     return maxima;
-
-}
-
-static void plotPeriodicGaussian(const vector<Param> &params, double period, int images) {
-    ofstream mixture("mixture.dat");
-    for(double xn = -period/2; xn < period/2; xn += 0.01) {
-        mixture << xn << " " << periodicGaussianMixture(params, xn, period, images) << endl;
-    }
-    ofstream mixtureDx("mixtureDx.dat");
-    for(double xn = -period/2; xn < period/2; xn += 0.01) {
-        mixtureDx << xn << " " << periodicGaussianMixtureDx(params, xn, period, images) << endl;
-    }
 }
 
 vector<double> MethodsPeriodicGaussian::findMinima() const {

@@ -16,9 +16,10 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
     dataset_(data),
     period_(period),
     partitions_(period.size()),
-    partitioners_(period.size()) {
+    partitioners_(period.size()),
+    subsampleCount_(min(2500,(int)data.size())) {
     if(data.size() == 0) 
-        throw(std::runtime_error("Cluster()::Cluster() - input data size cannot 0"));
+        throw(std::runtime_error("Cluster()::Cluster() - input data size cannot be 0"));
 
     if(data[0].size() != period.size())
         throw(std::runtime_error("Cluster()::Cluster() - period size does not match data dimension"));
@@ -52,10 +53,18 @@ bool Cluster::isPeriodic(int d) const {
         return true;
 }
 
+void Cluster::setSubsampleCount(int count) {
+    subsampleCount_ = count;
+}
+
+int Cluster::getSubsampleCount() const {
+    return subsampleCount_;
+}
+
 double Cluster::getPeriod(int d) const {
     if(!isPeriodic(d)) {
         stringstream msg;
-        msg << "getPeriod() exception, dimension " << d << " is not periodic!";
+        msg << "Cluster::getPeriod() - dimension " << d << " is not periodic!";
         throw(std::runtime_error(msg.str()));
     }
     return period_[d];
@@ -63,19 +72,21 @@ double Cluster::getPeriod(int d) const {
 
 vector<double> Cluster::getPoint(int n) const {
     if(n >= getNumPoints()) {
-        throw(std::runtime_error("Cluster::getPoint() out of bounds!"));   
+        throw(std::runtime_error("Cluster::getPoint() - n out of bounds!"));   
     }
     return dataset_[n];
 }
 
 vector<double> Cluster::getDimension(int d) const {
     if(d >= getNumDimensions()) {
-        throw(std::runtime_error("Cluster::getDimension() out of bounds!"));   
+        throw(std::runtime_error("Cluster::getDimension() - d out of bounds!"));   
     }
     vector<double> data(getNumPoints());
     for(int i=0; i<getNumPoints(); i++) {
         data[i] = dataset_[i][d];
     }
+    random_shuffle(data.begin(), data.end());
+    data.resize(subsampleCount_);
     return data;
 }
 
