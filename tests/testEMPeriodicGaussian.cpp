@@ -8,6 +8,7 @@
 #include <MethodsPeriodicGaussian.h>
 #include <EMPeriodicGaussian.h>
 #include <MathFunctions.h>
+#include <sstream>
 
 #include "util.h"
 
@@ -117,7 +118,7 @@ void testBimodalPeriodicGaussian() {
             params.push_back(p);
         }
         em.setParameters(params);
-        em.adaptiveRun(0.08);
+        em.simpleRun(25);
         vector<Param> optimizedParams = em.getParams();
         Util::plotPeriodicGaussian(optimizedParams, period, "adaptive");
         MethodsPeriodicGaussian mpg(optimizedParams, period);
@@ -129,7 +130,7 @@ void testBimodalPeriodicGaussian() {
         cout << "bimodal adaptiveRun() test failed!" << endl;
         throw e;
     }
-
+/*
     try {
         vector<Param> params;
         em.setParameters(params);
@@ -150,6 +151,7 @@ void testBimodalPeriodicGaussian() {
         cout << "bimodal multiAdaptiveRun() test failed!" << endl;
         throw e;
     }
+    */
 }
 
 int main() {

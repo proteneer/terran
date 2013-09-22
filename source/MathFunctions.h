@@ -41,9 +41,9 @@ inline double fabsp(double x1, double x2, double period) {
     return fabs(periodicDifference(x1,x2,period));
 }
 
-// ******************
+// ------------------
 // Canonical Gaussian
-// ******************
+// ------------------
 //
 // The following 4 functions expression define gaussian, gaussian mixtures, and their derivatives
 
@@ -51,14 +51,17 @@ inline double gaussian(double uk, double sk, double xn) {
     return 1.0/(sqrt(2*PI)*sk)*exp(-(0.5)*pow((xn-uk)/sk,2));
 } 
 
+// These derivatives are not multiplied sqrt(2PI)
 inline double gaussianDx(double uk, double sk, double xn) {
     double multiplier = (uk-xn)/(sk*sk);
     double suffix = gaussian(uk, sk, xn);
     return multiplier*suffix;
 }
 
-inline double gaussian2D(double u1, double u2, double s1, double s2, double x1, double x2, double p) {
-
+inline double gaussianDx2(double uk, double sk, double xn) {
+    double multiplier = ((uk-xn)*(uk-xn)-sk*sk)/(sk*sk*sk*sk);
+    double suffix = gaussian(uk, sk, xn);
+    return multiplier*suffix;
 }
 
 inline double gaussianMixture(const std::vector<Param> &params, double xn) {
@@ -81,20 +84,26 @@ inline double gaussianMixtureDx(const std::vector<Param> &params, double xn) {
         sum += pk*gaussianDx(uk, sk, xn);
     }
     return sum;
-
 }
 
-// *******************************************
+inline double gaussianMixtureDx2(const std::vector<Param> &params, double xn) {
+    double sum = 0;
+    for(int k=0; k<params.size(); k++) {
+        double pk = params[k].p;
+        double uk = params[k].u;
+        double sk = params[k].s;
+        sum += pk*gaussianDx2(uk, sk, xn);
+    }
+    return sum;
+}
+
+// -------------------------------------------
 // Periodic Gaussian w/ automatic image tuning
-// *******************************************
+// -------------------------------------------
 //
 // Periodic gaussians are basically wrapped versions of the canonical
 // gaussian. These functions below guess the num of images needed to
 // approximate the gaussian to a very high degree of accuracy (1e-9)
-
-/*
-Equation [8] in the paper is completely wrong!
-*/
 
 inline double periodicGaussian(double uk, double sk, double xn, double period) {
     double left = uk-7*sk;
@@ -108,7 +117,7 @@ inline double periodicGaussian(double uk, double sk, double xn, double period) {
     return sum;
 }
 
-
+/*
 inline double periodicGaussianDx(double uk, double sk, double xn, double period) {
     double prefactor = 1/(sqrt(2*PI)*sk*sk*sk);
     // heuristic derived from tuning
@@ -118,6 +127,28 @@ inline double periodicGaussianDx(double uk, double sk, double xn, double period)
         sum += (uk-xn+r*period)*exp(-0.5*pow((xn-uk-r*period)/sk,2));
     }
     return prefactor*sum;
+}
+*/
+
+inline double periodicGaussianDx(double uk, double sk, double xn, double period) {
+    double multiplier = 1/(sk*sk);
+    // heuristic derived from tuning
+    int numImages = ceil(sk)+1;
+    double sum = 0;
+    for(int r=-numImages; r<=numImages; r++) {
+        sum += (uk-xn+r*period)*gaussian(uk+r*period, sk, xn);
+    }
+    return multiplier*sum;
+}
+
+inline double periodicGaussianDx2(double uk, double sk, double xn, double period) {
+    double multiplier = 1/(sk*sk*sk*sk);
+    double sum = 0;
+    int numImages = 10;
+    for(int r=-numImages; r<=numImages; r++) {
+        sum += ((uk-xn+r*period)*(uk-xn+r*period)-sk*sk)*gaussian(uk+r*period, sk, xn);
+    }
+    return sum*multiplier;
 }
 
 inline double periodicGaussianMixture(const std::vector<Param> &params, double xn, double period) {
@@ -144,9 +175,21 @@ inline double periodicGaussianMixtureDx(const std::vector<Param> &params, double
     return sum;
 }
 
-// ****************************************
+inline double periodicGaussianMixtureDx2(const std::vector<Param> &params, double xn, double period) {
+    //assert(xn >= (-period/2-1e-6) && xn <= (period/2+1e-6));  
+    double sum = 0;
+    for(int k=0; k<params.size(); k++) {
+        double pk = params[k].p;
+        double uk = params[k].u;
+        double sk = params[k].s;
+        sum += pk*periodicGaussianDx2(uk, sk, xn, period);
+    }
+    return sum;
+}
+
+// ----------------------------------------
 // Periodic Gaussian w/ manual image tuning
-// ****************************************
+// ----------------------------------------
 // 
 // These overloaded versions of the periodic gaussian allow for finer control over the number of images
 // used. These functions are used in unit tests
@@ -191,6 +234,10 @@ inline double periodicGaussianMixtureDx(const std::vector<Param> &params, double
     }
     return sum;
 }
+
+// ------------------------------------------
+// Methods for sampling from 1D distributions
+// ------------------------------------------
 
 // draws a random sample from the periodic gaussian with mean u,
 // std. deviation s, and period period

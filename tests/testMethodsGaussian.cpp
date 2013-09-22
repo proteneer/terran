@@ -36,6 +36,7 @@ void testFindMaxima() {
         truth.push_back(-0.188);
         truth.push_back( 1.595);
         Util::matchPoints(results, truth, tol, testCount++);
+
     }
 
     // 2 Fused into 1
@@ -131,13 +132,26 @@ void testFindMaxima() {
     // Bimodal near boundary
     {
         vector<Param> p;
-        p.push_back(Param(1.0/7.0, 3.1, 0.5));
-        p.push_back(Param(1.0/7.0, -2.0, 0.5));
+        p.push_back(Param(0.5,  3.1, 0.5));
+        p.push_back(Param(0.5, -2.0, 0.5));
         MethodsGaussian methods(p);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
         truth.push_back( 3.1);
         truth.push_back(-2.0);
+        Util::matchPoints(results, truth, tol, testCount++);
+    }
+
+    // Very far bimodal
+    {
+        vector<Param> p;
+        p.push_back(Param(5/10.0,  8.0, 0.3));
+        p.push_back(Param(5/10.0, -8.0, 0.3));
+        MethodsGaussian methods(p);
+        vector<double> results = methods.findMaxima();
+        vector<double> truth;
+        truth.push_back( 8.0);
+        truth.push_back(-8.0);
         Util::matchPoints(results, truth, tol, testCount++);
     }
 }
@@ -224,26 +238,6 @@ void testFindMinima() {
         Util::matchPoints(results, truth, tol, testCount++);
     }
 }
-
-/*
-void testMethods() {
-    int testCount = 0;
-    double tol = 1e-2;
-    {
-        vector<Param> p;
-        p.push_back(Param(1.0/4.0, -2.3, 0.4));
-        p.push_back(Param(1.0/4.0, -0.6, 0.3));
-        p.push_back(Param(1.0/4.0,  1.6, 0.6));
-        p.push_back(Param(1.0/4.0,  2.7, 0.2));
-        MethodsGaussian methods(p);
-        vector<double> results = methods.methods(0.05);
-        vector<double> truth;
-        truth.push_back(-1.38);
-        truth.push_back( 0.26);
-        Util::matchPoints(results, truth, tol,testCount++);
-    }
-}
-*/
 
 int main() {
     try {

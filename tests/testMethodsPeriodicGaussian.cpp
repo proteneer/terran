@@ -9,7 +9,7 @@ using namespace std;
 using namespace Terran;
 
 void testFindPeriodicMaxima() {
-    const double tol = 1e-3;
+    const double tol = 5e-3;
     int testCount = 0;
     const double period = 2*PI;
     // Bimodal

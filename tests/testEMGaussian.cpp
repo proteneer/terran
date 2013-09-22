@@ -8,7 +8,9 @@
 #include <algorithm>
 
 #include <EMGaussian.h>
+#include <EMPeriodicGaussian.h>
 #include <MathFunctions.h>
+#include <MethodsGaussian.h>
 
 #include "util.h"
 
@@ -104,7 +106,7 @@ void testBimodalGaussian() {
     Util::matchParameters(initParams, optimizedParams, 0.1);
 }
 
-void testKernelRunBimodal() {
+void testSimpleRunBimodal() {
     int numSamples = 20000;
     vector<double> data;
     vector<Param> initParams(2);
@@ -144,87 +146,41 @@ void testKernelRunBimodal() {
         p.s = 2.1;
         params.push_back(p);
     }
-    EMGaussian em(data, params);
-    em.kernelAdaptiveRun();
+    vector<double> subset(data);
+    random_shuffle(subset.begin(), subset.end());
+    subset.resize(2500);
+    EMGaussian em(subset, params);
+
+    bool rc = em.simpleRun(25);
+
     vector<Param> optimizedParams = em.getParams();
-    for(int i=0; i < optimizedParams.size(); i++) {
-        cout << i << " " << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
-    }
+    MethodsGaussian method(optimizedParams);
+    vector<double> maxima = method.findMaxima();
+    vector<double> minima = method.findMinima();
 
-    Util::plotGaussian(optimizedParams,-15, 40, "model");
+    vector<double> trueMaxima;
+    trueMaxima.push_back(-3.25);
+    trueMaxima.push_back( 7.4);
+    vector<double> errorsMaxima;
+    errorsMaxima.push_back(0.5);
+    errorsMaxima.push_back(1.5);
+    Util::matchPoints(maxima, trueMaxima, errorsMaxima);
+    vector<double> trueMinima;
+    trueMinima.push_back(0.5);
+    Util::matchPoints(minima, trueMinima, 0.3);
 
-    ofstream asdf("log.txt");
-    for(int i=0; i < data.size(); i++) {
-        asdf << data[i] << endl;
-    }
-
-    em.kernelAdaptiveRun();
-    optimizedParams = em.getParams();
-    for(int i=0; i < optimizedParams.size(); i++) {
-        cout << i << " " << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
-    }
-    //Util::matchParameters(initParams, optimizedParams, 0.1);
-}
-
-// tune kernel adaptive run's number of parameters
-void tuneKARParams() {
-
-	vector<double> data;
-	for(int i=0; i <2000; i++) {
-		data.push_back(gaussianSample(-4.3, 1.0));
-		data.push_back(gaussianSample( 1.1, 0.2));
-		data.push_back(gaussianSample(0, 2));
-		data.push_back(gaussianSample(3, 0.5));
-		data.push_back(gaussianSample(7, 1.2));
-		data.push_back(gaussianSample(-1.5, 4));
-		data.push_back(gaussianSample(-11, 0.1));
-	}
-
-	/*
-	EMGaussian em(data);
-	em.kernelAdaptiveRun();
-	vector<Param> p_full = em.getParams();
-	*/
-
-	// test using only 5000
-	vector<double> data2(data);
-	std::random_shuffle(data2.begin(), data2.end());
-	data2.resize(5000);
-	ofstream asdf2("log2.txt");
-	for(int i=0; i < data2.size(); i++) {
-		asdf2 << data2[i] << endl;
-	}	
-
-	EMGaussian em(data);
-	em.kernelAdaptiveRun(data2.size());
-	vector<Param> p_partial = em.getParams();
-	stringstream foo;
-	foo << "modelFull";
-	Util::plotGaussian(p_partial, -15, 25, foo.str().c_str());
-
-	ofstream asdf("log.txt");
-    for(int i=0; i < data.size(); i++) {
-		asdf << data[i] << endl;
-    }
-	
-
-
-	
-
-}
-
-void tuneDataSize() {
-
+    if(rc != 1) {
+        throw std::runtime_error("EM - Failed to converge");
+    }    
 }
 
 int main() {
     try {
-		tuneKARParams();
-		//testKernelRunBimodal();
-		//srand(1);
-        //testUnimodalGaussian();
-        //srand(1);
-        //testBimodalGaussian();
+		testSimpleRunBimodal();
+		srand(1);
+        testUnimodalGaussian();
+        srand(1);
+        testBimodalGaussian();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }

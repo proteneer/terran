@@ -55,26 +55,17 @@ class EM {
         // Return the tolerance
         double getTolerance() const;
 
-        // Run the canonical EM algorithm 
-        // Returns true if executed successfully, false otherwise
-        // bool run(int maxSteps = 100, double tolerance = 0.1, const vector<Param> &params_);
-        // Requires parameters to be set explicitly
-    	bool run();
+        // Runs the EM algorithm.
+        // Notes:
+        // -Requires parameters to be set explicitly
+        // -Returns true if converged, false otherwise
+        bool run();
 
-        // Run the adaptive EM algorithm
-        // The number of parameters that overfit will be pruned away automatically
-        // This is determined by the probability weight component p
-        // Requires parameters to be set explicitly
-        bool adaptiveRun(double cutoff);
-
-        // Multiadaptive run generates a set of parameters by random repeatedly
-        // and sees which results in the highest likelihood
-        // TODO: make it possible to set the left and right of the sample domain
-        void multiAdaptiveRun(double cutoff, int numParams, int numTries);
-
-		// This is a highly experimental (and expensive) method
-		// K is initially set to the number of points!
-		void kernelAdaptiveRun(unsigned int numParams = 1000);
+        // Runs EM by guessing the number of initial parameters
+        // Notes:
+        // -Does not require parameters to be set explicitly
+        // -Returns true if converged, false otherwise
+        bool simpleRun(unsigned int numParams);
 
         // Compute the Expectation based on current parameters
         void EStep();
@@ -107,11 +98,14 @@ class EM {
         // Used by the EStep to compute the expectation
         virtual double qkn(int k, int n) const = 0;
 
-        // Generate random samples in the domain
-        virtual std::vector<double> sampleDomain(int count) const = 0;
+        // Estimate the domain size
+        virtual double domainLength() const = 0;
 
-        // Generates random samples in the region [left, right]
-        virtual std::vector<double> sampleDomain(int count, double left, double right) const = 0;
+        // this function cleans up weird parameters
+        // 1. standard deviation too big/small
+        // 2. probability weight too low (<0.01)
+        bool cleanParameters();
+
 };
 
 }
