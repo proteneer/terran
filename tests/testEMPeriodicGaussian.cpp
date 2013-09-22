@@ -54,6 +54,9 @@ void testBimodalPeriodicGaussian() {
         data.push_back(periodicGaussianSample(initParams[1].u,initParams[1].s,period));
     }
 
+    random_shuffle(data.begin(), data.end());
+    data.resize(2500);
+
     // the rough range of the maxima and minima of this distribution using the histogram
     vector<double> truthMaxima, truthMaximaErrors;
     truthMaxima.push_back(-0.245); // += 0.12
@@ -66,14 +69,7 @@ void testBimodalPeriodicGaussian() {
     truthMinima.push_back( 0.99); // += 0.31
     truthMinimaErrors.push_back(0.31);
 
-    ofstream fdata("data.txt");
-    for(int i=0; i<data.size(); i++) {
-        fdata << data[i] << endl;
-    }
-
     vector<double> maxima, minima;
-
-
     EMPeriodicGaussian em(data, period);
 
     try {
@@ -120,47 +116,22 @@ void testBimodalPeriodicGaussian() {
         em.setParameters(params);
         em.simpleRun(25);
         vector<Param> optimizedParams = em.getParams();
-        Util::plotPeriodicGaussian(optimizedParams, period, "adaptive");
         MethodsPeriodicGaussian mpg(optimizedParams, period);
         maxima = mpg.findMaxima();
         minima = mpg.findMinima();
         Util::matchPoints(truthMaxima, maxima, truthMaximaErrors);
         Util::matchPoints(truthMaxima, maxima, truthMaximaErrors);
     } catch(const exception &e) {
-        cout << "bimodal adaptiveRun() test failed!" << endl;
+        cout << "bimodal simpleRun() test failed!" << endl;
         throw e;
     }
-/*
-    try {
-        vector<Param> params;
-        em.setParameters(params);
-        EMPeriodicGaussian em(data, period);
-        double cutoff = 0.08;
-        int numInitialParams = 15;
-        int numTries = 10;
-        em.multiAdaptiveRun(cutoff, numInitialParams, numTries);
-        vector<Param> optimizedParams = em.getParams();
-        Util::plotPeriodicGaussian(optimizedParams, period, "adaptive");
-        MethodsPeriodicGaussian mpg(optimizedParams, period);
-        maxima = mpg.findMaxima();
-        minima = mpg.findMinima();
-        Util::matchPoints(truthMaxima, maxima, truthMaximaErrors);
-        Util::matchPoints(truthMaxima, maxima, truthMaximaErrors);
-        //Util::plotPeriodicGaussian(optimizedParams, period, "bestParamsFound");
-    } catch(const exception &e) {
-        cout << "bimodal multiAdaptiveRun() test failed!" << endl;
-        throw e;
-    }
-    */
 }
 
 int main() {
     try {
         srand(1);
-        cout << "testUnimodal" << endl;
         testUnimodalPeriodicGaussian();
         srand(1);
-        cout << "testBimodal" << endl;
         testBimodalPeriodicGaussian();
     } catch( const std::exception &e ) {
         cout << e.what() << endl;

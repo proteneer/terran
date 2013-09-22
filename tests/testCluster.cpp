@@ -16,23 +16,6 @@
 #include <sstream>
 
 using namespace std;
-
-// A three-cluster dataset looking something like this:
-
-// PI
-// |       *
-// |      ***
-// |     **0**
-// |      ***     *
-// |       *     ***
-// |            **2**
-// |       *     ***
-// |      ***     *
-// |     **1**
-// |      ***
-// |       *
-//-PI-------------------PI
-
 using namespace Terran;
 
 void test100DGaussiansMulti() {
@@ -222,6 +205,22 @@ void test100DGaussians() {
 
 }
 
+
+// A three-cluster periodic dataset looking something like this:
+
+// PI
+// |       *
+// |      ***
+// |     **0**
+// |      ***     *
+// |       *     ***
+// |            **2**
+// |       *     ***
+// |      ***     *
+// |     **1**
+// |      ***
+// |       *
+//-PI-------------------PI
 void testEasyCase2D() {
 
     vector<vector<double> > dataset;
@@ -276,17 +275,25 @@ void testEasyCase2D() {
     vector<vector<double> > testPartitions;
     
     for(int d = 0; d < cc.getNumDimensions(); d++) {
+        cout << d << endl;
         PartitionerEM& emp = dynamic_cast<PartitionerEM &>(cc.getPartitioner(d));
         cc.partition(d);
         vector<double> partitions = cc.getPartition(d);
         testPartitions.push_back(partitions);
     }
 
+    for(int i=0; i < testPartitions.size(); i++) {
+        for(int j=0; j < testPartitions[i].size(); j++) {
+            cout << testPartitions[i][j] << " ";
+        }
+        cout << endl;
+    }
+
     vector<double> truthPartition0;
     vector<double> truthPartition0Errors;
     truthPartition0.push_back(-0.10);
     truthPartition0.push_back( 2.82);
-    truthPartition0Errors.push_back(0.1);
+    truthPartition0Errors.push_back(0.15);
     truthPartition0Errors.push_back(0.2);
 
     vector<double> truthPartition1;
@@ -316,9 +323,9 @@ void testEasyCase2D() {
 
 int main() {
     try{
-        test100DGaussiansMulti();
-        srand(1);
-        test100DGaussians();
+        //test100DGaussiansMulti();
+        //srand(1);
+        //test100DGaussians();
         srand(1);
         testEasyCase2D();
         cout << "done" << endl;

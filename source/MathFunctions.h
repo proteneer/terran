@@ -117,19 +117,6 @@ inline double periodicGaussian(double uk, double sk, double xn, double period) {
     return sum;
 }
 
-/*
-inline double periodicGaussianDx(double uk, double sk, double xn, double period) {
-    double prefactor = 1/(sqrt(2*PI)*sk*sk*sk);
-    // heuristic derived from tuning
-    int numImages = ceil(sk)+1;
-    double sum = 0;
-    for(int r=-numImages; r<=numImages; r++) {
-        sum += (uk-xn+r*period)*exp(-0.5*pow((xn-uk-r*period)/sk,2));
-    }
-    return prefactor*sum;
-}
-*/
-
 inline double periodicGaussianDx(double uk, double sk, double xn, double period) {
     double multiplier = 1/(sk*sk);
     // heuristic derived from tuning
