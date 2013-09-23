@@ -6,9 +6,8 @@ The main output of the algorithm is a hierarchical cluster tree, whose leaves re
 
 The algorithm has the following properties:
 
-1) It will not badly oversplit dense clusters, though it certainly may undersplit certain clusters.
-2) It runs in O(kD+N) time, where k is the instrinsic number of clusters, D is the number of dimensions.
-3) For large dimensions, there may be a large number of tiny noise clusters, and it should be  
+1) It will not oversplit dense clusters, though it certainly may undersplit.  
+2) It runs in O(kD+N) time, where k is the instrinsic number of clusters, D is the number of dimensions.  
 
 <h2>Requirements</h2>
 
