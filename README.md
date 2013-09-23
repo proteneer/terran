@@ -29,63 +29,63 @@ As a result, each dimension is partitioned into disjoint intervals and the resul
 Consider the following 2D dataset with 3 clusters. The marginalized distribution for each dimension is shown at the top and right of plot. An EM run on the marginalized data for dimension 0 will discover a cutting point (x). Dimension 1 has no suitable cutting points. 
 
 ```     
-        /-\          _                                     /-\          _                 
+        /-\          _                                     /-\          _         
   _____/   \________/ \______                        _____/   \___x____/ \______  
  PI--------------------------PI                     PI--------------------------PI 
- |       *                   |\                     |       *     |             |\               
- |      ***                  | \                    |      ***    |             | \    
- |     **0**                 |  \                   |     **0**   c             |  \  
- |      ***         *        |  |                   |      ***    u    *        |  |              
+ |       *                   |\                     |       *     |             |\        
+ |      ***                  | \                    |      ***    |             | \   
+ |     **0**                 |  \                   |     **0**   c             |  \ 
+ |      ***         *        |  |                   |      ***    u    *        |  | 
 d|       *         ***       |   \      run EM     d|       *     t   ***       |   \
-i|                **2**      |   |  -------------> i|             |  **2**      |   | 
-m|       *         ***       |   /                 m|       *     h   ***       |   /        
- |      ***         *        |  |                   |      ***    e    *        |  |               
-1|     **1**                 |  /                  1|     **1**   r             |  /                      
- |      ***                  | /                    |      ***    e             | /  
- |       *                   |/                     |       *     |             |/                   
--PI--------------------------PI                    -PI--------------------------PI                    
+i|                **2**      |   |  -------------> i|             |  **2**      |   |
+m|       *         ***       |   /                 m|       *     h   ***       |   /
+ |      ***         *        |  |                   |      ***    e    *        |  |
+1|     **1**                 |  /                  1|     **1**   r             |  /
+ |      ***                  | /                    |      ***    e             | /
+ |       *                   |/                     |       *     |             |/
+-PI--------------------------PI                    -PI--------------------------PI  
              dim 0                                               dim 0  
 ```
 
 The space is partitioned into two parts, note that the left plot can be further cut. The right plot is finished as no dimension can be disjointly partitioned
 
 ```     
-        /-\                                                            /\                 
+        /-\                                                            /\         
   _____/   \_________________                        _________________/  \______  
  PI--------------------------PI                     PI--------------------------PI 
- |       *                   |\                     |                           ||               
- |      ***                  | \                    |  complete                 ||     
- |     **0**                 |  |                   |                           ||    
- |      ***                  | /                    |                  *        | \               
+ |       *                   |\                     |                           ||
+ |      ***                  | \                    |  complete                 ||  
+ |     **0**                 |  |                   |                           ||  
+ |      ***                  | /                    |                  *        | \
 d|       *                   |/                    d|                 ***       |  \
 i|---------cut here----------|x          +         i|                **2**      |   | 
-m|       *                   |\                    m|                 ***       |  /         
- |      ***                  | \                    |                  *        | /                
-1|     **1**                 |  |                  1|                           ||                        
- |      ***                  | /                    |                           ||   
- |       *                   |/                     |                           ||              
--PI--------------------------PI                    -PI--------------------------PI                    
+m|       *                   |\                    m|                 ***       |  / 
+ |      ***                  | \                    |                  *        | / 
+1|     **1**                 |  |                  1|                           || 
+ |      ***                  | /                    |                           || 
+ |       *                   |/                     |                           ||
+-PI--------------------------PI                    -PI--------------------------PI
          dim 0                                                   dim 0  
 ```
 
 The left dataset is subsequently partitioned again:
 
 ```     
-        /-\                                                /-\                            
+        /-\                                                /-\                   
   _____/   \_________________                        _____/   \_________________  
  PI--------------------------PI                     PI--------------------------PI 
- |       *                   |\                     |                           |                
- |      ***      complete    | \                    |     complete              |      
- |     **0**                 | |                    |                           |     
- |      ***                  | /                    |                           |                 
-d|       *                   |/                    d|                           |    
-i|                           |                     i|                           |     
-m|                           |                     m|       *                   |\           
- |                           |                      |      ***                  | \                
-1|                           |                     1|     **1**                 |  |                      
- |                           |                      |      ***                  | /  
- |                           |                      |       *                   |/                   
--PI--------------------------PI                    -PI--------------------------PI                    
+ |       *                   |\                     |                           | 
+ |      ***      complete    | \                    |     complete              | 
+ |     **0**                 | |                    |                           |
+ |      ***                  | /                    |                           | 
+d|       *                   |/                    d|                           |
+i|                           |                     i|                           |
+m|                           |                     m|       *                   |\
+ |                           |                      |      ***                  | \
+1|                           |                     1|     **1**                 |  |
+ |                           |                      |      ***                  | / 
+ |                           |                      |       *                   |/
+-PI--------------------------PI                    -PI--------------------------PI
              dim 0                                               dim 0  
 ```
 
