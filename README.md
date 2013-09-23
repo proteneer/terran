@@ -11,10 +11,16 @@ The algorithm has the following properties:
 
 <h2>Methodology</h2>
 
-Given a collection of points in D dimensional space, Terran first marginalizes each dimension, takes a constant subset of the resulting marginalized data, and fits a gaussian like mixture model (GMM) to the data via the Expectation Maximization algorithm. Once a sufficiently decent model is obtained, the minima of the model is found. Of the minima, it makes cuts depending on the value of each minimum: if the value is less than some sufficiently low cutoff, then a cut is made. As such, each dimension is cut into partitions. The D dimensional space is essentially divided into axis-aligned hypercubes. Each point is then assigned to the appropriate hypercube.  
+Given a collection of points in D dimensional space, Terran first marginalizes each dimension, takes a constant subset of the resulting marginalized data, and fits a gaussian like mixture model (GMM) to the data via the Expectation Maximization algorithm. Once a sufficiently decent model is obtained, the minima of the model is found. Of the minima, it makes cuts depending on the value of each minimum: if the value is less than some sufficiently low cutoff, then a cut is made. 
+
+As a result, each dimension is partitioned into disjoint intervals and the resulting D dimensional space is divided into axis-aligned hypercubes. Each point is then assigned to the appropriate hypercube, which then becomes its own cluster. The whole process repeats until each dimension in each cluster can no longer be partitioned.
 
 <h2>Requirements</h2>
 
--CMake and a compatible C compiler.
+Terran has no dependencies on external libraries.
+
+-CMake and a compatible C++ compiler.
+
+<h2> Misc </h2>
 
 Terran is named after Yutong's favorite Starcraft race.
