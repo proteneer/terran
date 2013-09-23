@@ -17,9 +17,7 @@ As a result, each dimension is partitioned into disjoint intervals and the resul
 
 <h2>Requirements</h2>
 
-Terran has no dependencies on external libraries.
-
--CMake and a compatible C++ compiler.
+Terran has no dependencies on external libraries. CMake is needed to prepare the respective build environments for Windows, Linux, and OS X. 
 
 <h2> Misc </h2>
 
