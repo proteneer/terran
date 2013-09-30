@@ -14,7 +14,14 @@ using namespace std;
 
 const double PI = 3.14159265358;
 
+
+
 namespace Terran {
+
+struct double2 {
+	double x;
+	double y;
+};
 
 // moves a point to inside the periodic domain
 // default arguments are dangerous!
@@ -260,6 +267,49 @@ inline double gaussianSample(double u, double s) {
     return x;
 }
 
-} // namespace Terran
+// draw a random sample from the mixture params
+inline double gaussianMixtureSample(vector<Param> params) {
+
+	// running sum of component probabilities
+	// (this can be cached if need be)
+	double cumulant = 0;
+	vector<double> running_sum(params.size());
+	for(int i=0; i < params.size(); i++) {
+		cumulant += params[i].p;
+		running_sum[i] = cumulant;
+	}
+	
+	double p1 = (double) rand() / (double) RAND_MAX;
+
+	int k = 0;
+	while(running_sum[k] < p1) {
+		k++;
+	}
+
+	return gaussianSample(params[k].u, params[k].s);
+}
+
+inline double periodicGaussianMixtureSample(vector<Param> params, double period) {
+
+	// running sum of component probabilities
+	// (this can be cached if need be)
+	double cumulant = 0;
+	vector<double> running_sum(params.size());
+	for(int i=0; i < params.size(); i++) {
+		cumulant += params[i].p;
+		running_sum[i] = cumulant;
+	}
+	
+	double p1 = (double) rand() / (double) RAND_MAX;
+
+	int k = 0;
+	while(running_sum[k] < p1) {
+		k++;
+	}
+
+	return periodicGaussianSample(params[k].u, params[k].s, period);
+}
+
+}// namespace Terran
 
 #endif

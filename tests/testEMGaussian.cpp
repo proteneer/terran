@@ -17,11 +17,6 @@
 using namespace std;
 using namespace Terran;
 
-struct double2 {
-    double x;
-    double y;
-};
-
 // returns a gaussian sample using the Box-Muller transform
 // where, x1,x2 ~ U[0,1)
 double2 boxMullerSample(double x1, double x2, double u, double s) {

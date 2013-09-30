@@ -5,6 +5,7 @@
 #include <vector>
 #include <EMGaussian.h>
 #include <Param.h>
+#include "util.h"
 
 using namespace std;
 using namespace Terran;
@@ -126,7 +127,7 @@ int main() {
 //tunePeriodicGaussianImages();
         testPeriodicGaussian();
         testPeriodicGaussianDx();
-        cout << "done" << endl;
+		cout << "done" << endl;
     } catch(const exception &e) {
         cout << e.what() << endl;
     }

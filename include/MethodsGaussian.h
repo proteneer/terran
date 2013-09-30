@@ -21,6 +21,18 @@ public:
     // Find the minima for a gaussian mixture model
     std::vector<double> findMinima() const;
 
+private:
+
+	struct Bracket {
+		Bracket(float l, float m, float r) : left(l), middle(m), right(r) {};
+		double left;
+		double middle;
+		double right;
+	};
+
+	vector<Bracket> minBrackets_;
+	vector<Bracket> maxBrackets_;
+
 };
 
 }

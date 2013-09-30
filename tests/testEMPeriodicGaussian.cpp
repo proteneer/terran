@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include <MethodsPeriodicGaussian.h>
 #include <EMPeriodicGaussian.h>
