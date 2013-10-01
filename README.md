@@ -15,7 +15,9 @@ The algorithm has the following properties:
 Terran has no dependencies on external libraries. CMake is needed to prepare the respective build environments for Windows, Linux, and OS X. Installion is via:
 
 ``` bash
-$> cmake ./ && make
+$> mkdir build; cd build;
+$> cmake -D CMAKE_BUILD_TYPE=RELEASE ../
+$> make -j4
 ```
 
 <h2>Methodology</h2>
