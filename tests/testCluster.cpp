@@ -4,12 +4,7 @@
 #include <fstream>
 #include <algorithm>
 
-#include <EMGaussian.h>
-#include <EMPeriodicGaussian.h>
-#include <MethodsPeriodicGaussian.h>
-#include <MathFunctions.h>
-#include <Cluster.h>
-#include <ClusterTree.h>
+#include <Terran.h>
 
 #include "util.h"
 

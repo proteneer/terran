@@ -80,8 +80,8 @@ public:
 
     // the step function is convenience function that does the following
     // 1. see if the queue is empty, if not, pop the head and set it as the currentCluster
-    // 2. if the currentCluster has less than 500 points, then deemed "finished"
-    // 3. it partitions each dimension in currentCluster using simpleRun()
+    // 2. if the currentCluster has less than 500 points, then mark as "finished"
+    // 3. partition each dimension in currentCluster using simpleRun()
     // 4. it divides the current cluster into subcluster
     // for fine tuned control, all four steps can be reconfigured as needed
     void step();

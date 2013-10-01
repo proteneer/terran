@@ -2,13 +2,7 @@
 #include <fstream>
 #include <algorithm>
 
-#include <EMGaussian.h>
-#include <EMPeriodicGaussian.h>
-#include <MethodsPeriodicGaussian.h>
-#include <MathFunctions.h>
-#include <Cluster.h>
-#include <ClusterTree.h>
-
+#include <Terran.h>
 #include "util.h"
 
 #include <sstream>
@@ -231,7 +225,6 @@ void testPeriodicMultiCluster() {
 //  |
 //-inf       dim 0
 // used for the paper
-
 /*
 void testNonPeriodicMultiCluster() {
 
@@ -386,7 +379,6 @@ void testNonPeriodicMultiCluster() {
         assignmentFile << assignment[i] << endl;
     }
 }
-
 */
 
 int main() {
