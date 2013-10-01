@@ -29,58 +29,32 @@ MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params,
 		
 	// sample from the distribution directly
 	vector<double2> samples;
-	
-	cout << 1 << endl;
-
 	for(int i=0; i <2500; i++) {
 		double2 sample;
 		sample.x = periodicGaussianMixtureSample(params_, period_);
 		sample.y = periodicGaussianMixture(params_, sample.x, period_);
 		samples.push_back(sample);
 	}
-
-	
-	cout << 2 << endl;
-
-	ofstream ftest("logTEST.txt");
-	for(int i=0; i < samples.size(); i++) {
-		//ftest << samples[i].x << endl;
-	}
-	//ftest.close();
-
 	sort(samples.begin(), samples.end(), compare_by_x);
-
 	vector<double2> samples2;
 	for(int i=1; i < samples.size(); i++) {
 		if(samples[i].x != samples[i-1].x) {
-			//cout << "foo" << endl;
 			samples2.push_back(samples[i]);
-		} else {
-			//cout << "boo" << endl;
 		}
 	}
-
-	
 	samples = samples2;
-
-	cout << "sampleSize" << samples.size() << endl;
-
 	// scan through the values and identify potential brackets cyclically
 	for(int i=0; i < samples.size(); i++) {
-
 		double2 left = samples[(i-1+samples.size())%samples.size()];
 		double2 middle = samples[i];
 		double2 right = samples[(i+1+samples.size())%samples.size()];
-	
-
 		if((middle.y > left.y) && (middle.y > right.y)) {
-			cout << left.x << " " << middle.x << " " << right.x << endl;
 			maxBrackets_.push_back(Bracket(left.x, middle.x, right.x));
 		}
 	}
 
 	if(maxBrackets_.size() == 0) {
-		throw(std::runtime_error("MethodsGaussian::MethodsGaussian() - maxBrackets_ is empty"));
+		throw(std::runtime_error("MethodsPeriodicGaussian::MethodsPeriodicGaussian() - maxBrackets_ is empty"));
 	}
 }
 
@@ -107,9 +81,6 @@ vector<double> MethodsPeriodicGaussian::findMaxima() const {
 		double ax = maxBrackets_[i].left;
 		double bx = maxBrackets_[i].middle;
 		double cx = maxBrackets_[i].right;
-
-		cout << ax << " " << bx << " " << cx << endl;
-
 	}
 
 	for(int i=0; i < maxBrackets_.size(); i++) {	
@@ -146,39 +117,6 @@ vector<double> MethodsPeriodicGaussian::findMaxima() const {
 		maxima.push_back(x1);
 	}
 	return maxima;
-
-
-/*
-    vector<double> maximas;
-    for(int k=0; k<params_.size(); k++) {
-        double xn_old = params_[k].u;
-        bool found = false;
-        const double delta = 1e-2;
-        // careful: change this to a long if need to be >2e9
-        int iteration = 0;
-        while(!found) {
-            iteration++;
-            // Saddle points suck. If the simple algorithm doesn't converge
-            // it's probably due to a saddle point. 
-            if(iteration >= 1e5) {
-                throw(std::runtime_error("findMaxima: maximum iteration count reached!"));
-            }
-            double xn_new = xn_old + delta*periodicGaussianMixtureDx(params_, xn_old, period_);
-            xn_new = normalize(xn_new);
-            if(fabs(periodicGaussianMixtureDx(params_, xn_new, period_)) < 1e-4)
-                found = true;
-            xn_old = xn_new;
-        }
-        bool skip = false;
-        // if two gaussians are too close to each other, discard it
-        for(int i=0; i<maximas.size(); i++)
-            if(fabsp(xn_old, maximas[i], period_) < 1e-3)
-                skip = true;
-        if(!skip) 
-            maximas.push_back(xn_old);
-    }
-    return maximas;
-	*/
 }
 
 vector<double> MethodsPeriodicGaussian::findMinima() const {

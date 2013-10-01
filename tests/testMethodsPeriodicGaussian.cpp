@@ -11,7 +11,7 @@ using namespace Terran;
 #include <fstream>
 
 void testFindPeriodicMaxima() {
-    const double tol = 5e-3;
+    const double tol = 1e-2;
     int testCount = 0;
     const double period = 2*PI;
     // Bimodal
@@ -132,21 +132,9 @@ void testFindPeriodicMaxima() {
 
     // Bimodal near boundary
     {
-		cout << 8 << endl;
         vector<Param> p;
         p.push_back(Param(1.0/2.0, 3.1, 0.5));
         p.push_back(Param(1.0/2.0, -2.0, 0.5));
-
-
-	Util::plotPeriodicGaussian(p, 2*PI, "debug");
-
-		ofstream testt("debugSample");
-		for(int i=0; i < 2500; i++) {
-			testt << periodicGaussianMixtureSample(p, 2*PI) << endl;
-		}
-
-
-
         MethodsPeriodicGaussian methods(p, period);
         vector<double> results = methods.findMaxima();
         vector<double> truth;
@@ -231,8 +219,6 @@ void testFindPeriodicMinima() {
 
     // 7 Fused into 2, 1 Saddle-point
     {
-		cout << "7f2 minima" << endl;
-
         vector<Param> p;
         p.push_back(Param(1.0/7.0, -2.9, 0.3));
         p.push_back(Param(1.0/7.0, -2.1, 0.6));
@@ -250,32 +236,10 @@ void testFindPeriodicMinima() {
     }
 }
 
-/*
-void testMethods() {
-    int testCount = 0;
-    double tol = 1e-2;
-    {
-        vector<Param> p;
-        p.push_back(Param(1.0/4.0, -2.3, 0.4));
-        p.push_back(Param(1.0/4.0, -0.6, 0.3));
-        p.push_back(Param(1.0/4.0,  1.6, 0.6));
-        p.push_back(Param(1.0/4.0,  2.7, 0.2));
-        MethodsPeriodicGaussian methods(p, period);
-        vector<double> results = methods.methods(0.05);
-        vector<double> truth;
-        truth.push_back(-1.38);
-        truth.push_back( 0.26);
-        Util::matchPoints(results, truth, tol,testCount++);
-    }
-}
-*/
-
 int main() {
     try {
         testFindPeriodicMaxima();
-		cout << "123412341235 done" << endl;
         testFindPeriodicMinima();
-        //testMethods();
         cout << "done" << endl;
     } catch(const std::exception &e) {
         cout << e.what() << endl;
