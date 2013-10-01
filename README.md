@@ -1,14 +1,13 @@
 <h1>Terran</h1>
 
-Terran is a clustering algorithm aimed at high dimensional continuous datasets. In particular, it will suited for datasets whose marginal distributions have distinct peaks and steep valleys. The dimensions in the dataset may be periodic, aperiodic, or a mixture of both. Note that aperiodic dimensions run about ~10x slower than periodic dimension due to differences the underlying basis functions. 
+Terran is a clustering algorithm on high dimensional continuous datasets. It is well suited for datasets whose marginal distributions have distinct peaks and valleys. Each dimensions in the dataset may be either periodic or aperiodic. Note that aperiodic dimensions run about ~10x slower than periodic dimensions due to differences in the underlying basis functions.
 
-The main output of the algorithm is a hierarchical cluster tree, whose leaves represent the clusters found so far. 
+The output of the algorithm is a hierarchical cluster tree, whose leaves represent the clusters found so far.
 
 The algorithm has the following properties:
 
 1) It will not oversplit dense clusters, though it certainly may undersplit.  
-2) It runs in O(kDN) time, where k is the instrinsic number of clusters, D is the number of dimensions.  
-
+2) It runs in O(kDN) time, where k is the instrinsic number of clusters, D is the number of dimensions.
 
 <h2>Requirements</h2>
 
@@ -22,17 +21,17 @@ $> make -j4
 
 <h2>Methodology</h2>
 
-Given a collection of points in D dimensional space, Terran first marginalizes each dimension, takes a constant subset of the resulting marginalized data, and fits a gaussian like mixture model (GMM) to the data via the Expectation Maximization algorithm. Once a sufficiently decent model is obtained, the minima of the model is found. Of the minima, it makes cuts depending on the value of each minimum: if the value is less than some sufficiently low cutoff, then a cut is made. 
+Given a collection of points in D dimensional space, Terran first marginalizes each dimension, takes a constant subset (about 2500 points) of the resulting marginalized data, and fits a gaussian like mixture model (GMM) to the data via the Expectation Maximization algorithm. Once a sufficient model is obtained, the minima of the model is found. Of the minima, it makes cuts depending on the value of each minimum.
 
 As a result, each dimension is partitioned into disjoint intervals and the resulting D dimensional space is divided into axis-aligned hypercubes. Each point is then assigned to the appropriate hypercube, which then becomes its own cluster. The whole process repeats until each dimension in each cluster can no longer be partitioned.
 
 <h3> Visual Example </h3>
 
-Consider the following 2D dataset with 3 clusters. The marginalized distribution for each dimension is shown at the top and right of plot. An EM run on the marginalized data for dimension 0 will discover a cutting point (x). Dimension 1 has no suitable cutting points. 
+Consider the following 2D dataset with 3 clusters. The marginalized distribution for each dimension is shown at the top and right of plot. An EM run on the marginalized data for dimension 0 results in a cut at _x_. Dimension 1 has no suitable cutting points.
 
 ```     
         /-\          _                                     /-\          _         
-  _____/   \________/ \______                        _____/   \___x____/ \______  
+  _____/   \________/ \______                        _____/   \___x____/ \____y_  
  PI--------------------------PI                     PI--------------------------PI 
  |       *                   |\                     |       *     |             |\        
  |      ***                  | \                    |      ***    |             | \   
@@ -56,7 +55,7 @@ The space is partitioned into two parts, note that the left plot can be further 
   _____/   \_________________                        _________________/  \______  
  PI--------------------------PI                     PI--------------------------PI 
  |       *                   |\                     |                           ||
- |      ***                  | \                    |  complete                 ||  
+ |      ***                  | \                    |  finished                 ||  
  |     **0**                 |  |                   |                           ||  
  |      ***                  | /                    |                  *        | \
 d|       *                   |/                    d|                 ***       |  \
@@ -77,7 +76,7 @@ The left dataset is subsequently partitioned again:
   _____/   \_________________                        _____/   \_________________  
  PI--------------------------PI                     PI--------------------------PI 
  |       *                   |\                     |                           | 
- |      ***      complete    | \                    |     complete              | 
+ |      ***      finished    | \                    |     finished              | 
  |     **0**                 | |                    |                           |
  |      ***                  | /                    |                           | 
 d|       *                   |/                    d|                           |
