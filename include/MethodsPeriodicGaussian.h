@@ -24,7 +24,9 @@ public:
 
 private:
 
-    const double period_;
+	const double period_;
+	vector<Bracket> maxBrackets_;
+
 };
 
 }

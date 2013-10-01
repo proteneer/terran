@@ -26,6 +26,14 @@ public:
 
 protected:
 
+	
+	struct Bracket {
+		Bracket(float l, float m, float r) : left(l), middle(m), right(r) {};
+		double left;
+		double middle;
+		double right;
+	};
+
     const std::vector<Param> params_;
 
 };

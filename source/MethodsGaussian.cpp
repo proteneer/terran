@@ -30,22 +30,7 @@ static bool compare_by_x(double2 a, double2 b) {
 }
 
 MethodsGaussian::MethodsGaussian(const vector<Param> &params) : Methods(params) {
-	
-	// compute left and right bounds
-    double min =  numeric_limits<double>::max();
-    double max = -numeric_limits<double>::max();
-	double max_sig = -numeric_limits<double>::max();
-    for(int i=0; i < params_.size(); i++) {
-        min = (params_[i].u < min) ? params_[i].u : min;
-        max = (params_[i].u > max) ? params_[i].u : max;
-        max_sig = (params_[i].s > max) ? params_[i].s : max;
-    }
- 
-    while(gaussianMixture(params_,min) > 1e-5)
-        min -= max_sig;
-    while(gaussianMixture(params_,max) > 1e-5)
-        max += max_sig;
- 
+
 	// sample from the distribution directly
 	vector<double2> samples;
 	for(int i=0; i <2500; i++) {
@@ -110,7 +95,7 @@ vector<double> MethodsGaussian::findMaxima() const {
 		if(fabs(cx-bx) > fabs(bx-ax)) {
 			x1 = bx;
 			x2 = bx + C*(cx-bx);
-		} else{ 
+		} else { 
 			x2 = bx;
 			x1 = bx - C*(bx-ax);
 		}

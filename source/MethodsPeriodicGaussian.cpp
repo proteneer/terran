@@ -20,12 +20,135 @@ static void plotPeriodicGaussian(const vector<Param> &params, double period, int
     }
 }
 
+static bool compare_by_x(double2 a, double2 b) {
+	return a.x < b.x;
+}
+
 MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params, 
     double period) : Methods(params), period_(period) {
+		
+	// sample from the distribution directly
+	vector<double2> samples;
+	
+	cout << 1 << endl;
 
+	for(int i=0; i <2500; i++) {
+		double2 sample;
+		sample.x = periodicGaussianMixtureSample(params_, period_);
+		sample.y = periodicGaussianMixture(params_, sample.x, period_);
+		samples.push_back(sample);
+	}
+
+	
+	cout << 2 << endl;
+
+	ofstream ftest("logTEST.txt");
+	for(int i=0; i < samples.size(); i++) {
+		//ftest << samples[i].x << endl;
+	}
+	//ftest.close();
+
+	sort(samples.begin(), samples.end(), compare_by_x);
+
+	vector<double2> samples2;
+	for(int i=1; i < samples.size(); i++) {
+		if(samples[i].x != samples[i-1].x) {
+			//cout << "foo" << endl;
+			samples2.push_back(samples[i]);
+		} else {
+			//cout << "boo" << endl;
+		}
+	}
+
+	
+	samples = samples2;
+
+	cout << "sampleSize" << samples.size() << endl;
+
+	// scan through the values and identify potential brackets cyclically
+	for(int i=0; i < samples.size(); i++) {
+
+		double2 left = samples[(i-1+samples.size())%samples.size()];
+		double2 middle = samples[i];
+		double2 right = samples[(i+1+samples.size())%samples.size()];
+	
+
+		if((middle.y > left.y) && (middle.y > right.y)) {
+			cout << left.x << " " << middle.x << " " << right.x << endl;
+			maxBrackets_.push_back(Bracket(left.x, middle.x, right.x));
+		}
+	}
+
+	if(maxBrackets_.size() == 0) {
+		throw(std::runtime_error("MethodsGaussian::MethodsGaussian() - maxBrackets_ is empty"));
+	}
+}
+
+
+// golden section search, from numerical recipes
+static inline void shift3(double &a, double &b, double &c, double d) {
+	a=b;
+	b=c;
+	c=d;
+}
+
+static inline void shift2(double &a, double &b, double c) {
+	a=b;
+	b=c;
 }
 
 vector<double> MethodsPeriodicGaussian::findMaxima() const {
+	vector<double> maxima;
+	const double R = 0.61803399;
+	const double C = 1.0 - R;
+	const double tolerance = 1e-7;
+
+	for(int i=0; i < maxBrackets_.size(); i++) {
+		double ax = maxBrackets_[i].left;
+		double bx = maxBrackets_[i].middle;
+		double cx = maxBrackets_[i].right;
+
+		cout << ax << " " << bx << " " << cx << endl;
+
+	}
+
+	for(int i=0; i < maxBrackets_.size(); i++) {	
+		double ax = maxBrackets_[i].left;
+		double bx = maxBrackets_[i].middle;
+		double cx = maxBrackets_[i].right;
+		double f1,f2,x0,x1,x2,x3;
+
+		x0 = ax;
+		x3 = cx;
+
+		if(fabsp(cx,bx,period_) > fabsp(bx,ax,period_)) {
+			x1 = bx;
+			x2 = normalize(bx + C*fabsp(cx,bx,period_));
+		} else { 
+			x2 = bx;
+			x1 = normalize(bx - C*fabsp(bx,ax,period_));
+		}
+
+		f1 = periodicGaussianMixture(params_,x1,period_);
+		f2 = periodicGaussianMixture(params_,x2,period_);
+
+		while(fabsp(x3,x0,period_) > tolerance*(fabs(x1))) {
+			if(f2 < f1) {
+				double new_x1 = normalize(x2 - C*fabsp(x2,x0,period_));
+				shift3(x3,x2,x1,new_x1);
+				shift2(f2,f1,periodicGaussianMixture(params_,x1,period_));
+			} else {
+				double new_x2 = normalize(x1 - C*fabsp(x1,x3,period_));
+				shift3(x0,x1,x2,normalize(R*x1+C*x3));
+				shift2(f1,f2,periodicGaussianMixture(params_, x2, period_));
+			}
+		}
+		maxima.push_back(x1);
+	}
+	return maxima;
+
+
+/*
     vector<double> maximas;
     for(int k=0; k<params_.size(); k++) {
         double xn_old = params_[k].u;
@@ -55,6 +178,7 @@ vector<double> MethodsPeriodicGaussian::findMaxima() const {
             maximas.push_back(xn_old);
     }
     return maximas;
+	*/
 }
 
 vector<double> MethodsPeriodicGaussian::findMinima() const {

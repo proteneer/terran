@@ -122,9 +122,31 @@ void tunePeriodicGaussianImages() {
 }
 */
 
+#include <fstream>
+
+void testPeriodicGaussianSample() {
+
+	Param p1(0.3, -3.0, 0.3);
+	Param p2(0.7, 1.2, 0.4);
+
+	vector<Param> p;
+	p.push_back(p1);
+	p.push_back(p2);
+
+	Util::plotPeriodicGaussian(p, 2*PI, "debug");
+
+	ofstream testt("debugSample");
+	for(int i=0; i < 2500; i++) {
+		testt << periodicGaussianMixtureSample(p, 2*PI) << endl;
+	}
+
+}
+
 int main() {
     try {
+		//testPeriodicGaussianSample(); 
 //tunePeriodicGaussianImages();
+
         testPeriodicGaussian();
         testPeriodicGaussianDx();
 		cout << "done" << endl;

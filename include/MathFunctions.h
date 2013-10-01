@@ -237,6 +237,11 @@ inline double periodicGaussianMixtureDx(const std::vector<Param> &params, double
 // std. deviation s, and period period
 // assume x is in -period/2, period/2
 inline double periodicGaussianSample(double u, double s, double period) {
+
+	if(s < 0.0002) {
+		throw(std::runtime_error("s is too small"));
+	}
+
     // sample between [0,1]
     while(true) {
         double x1 = (double) rand() / (double) RAND_MAX;
@@ -248,9 +253,16 @@ inline double periodicGaussianSample(double u, double s, double period) {
         double probability = periodicGaussian(u, s, x1, period);
         // make a random sample between 0 and 1 
         double draw = (double) rand() / (double) RAND_MAX;
-        if(draw < probability) {
+        
+		
+		if(draw < probability) {
+			//cout << "good" << endl;
             return x1;
-        }
+        } else {
+		
+			//cout << u << " " << s << period << " " << draw << " " << probability <<  endl;
+		
+		}
     }
 }
 
@@ -302,9 +314,48 @@ inline double periodicGaussianMixtureSample(vector<Param> params, double period)
 	
 	double p1 = (double) rand() / (double) RAND_MAX;
 
+	if(p1 > 1) {
+		cout << p1 << endl;
+		throw(std::runtime_error("p1 > 1"));
+	}
+
 	int k = 0;
-	while(running_sum[k] < p1) {
-		k++;
+	
+	for(; k < running_sum.size(); k++) 
+		if(p1 <= running_sum[k]) {
+			break;
+		}
+
+	if(k >= running_sum.size()) {
+		k = running_sum.size()-1;
+	}
+	//cout << k << ":" << params[k].u << " " << params[k].s << endl;
+
+	if(params[k].s < 0.001) {
+		cout << p1 << endl;
+		cout << params.size() << endl;
+		for(int i=0; i < running_sum.size(); i++) {
+			cout << running_sum[i] << endl;
+		}
+		cout << "-------------------" << endl;
+		int a = 0;
+		for(; a < running_sum.size(); a++) {
+			cout << p1 << " " << a << " " << running_sum[a] << endl;
+			if(p1 <= running_sum[a]) {
+				cout << "breaking a" << endl;
+				break;
+			}
+		}
+
+		if(p1 > running_sum[6]) {
+			cout.precision(20);
+			cout << std::fixed << p1 << endl;
+			cout << std::fixed << running_sum[6] << endl;
+			cout << "WTF" << endl;
+		}
+
+		cout << "A: " << a << endl;
+
 	}
 
 	return periodicGaussianSample(params[k].u, params[k].s, period);
