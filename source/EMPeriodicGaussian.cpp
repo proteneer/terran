@@ -81,7 +81,7 @@ void EMPeriodicGaussian::MStep() {
         // bisection with periodic boundaries
         do {
             if(iteration > 1e3) {
-                throw(std::runtime_error("Error: MStep() (mean) maximum number of iterations reached."));
+                throw(std::runtime_error("EMPeriodicGaussian::MStep() (mean) maximum number of iterations reached."));
             }
              else
                  iteration++;

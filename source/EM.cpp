@@ -167,7 +167,7 @@ bool EM::simpleRun(unsigned int numParams) {
     for(int i=0; i < randomSample.size(); i++) {
         params_[i].p = (double) 1 / randomSample.size();
         params_[i].u = randomSample[i];
-        params_[i].s = 0.2*domainLength();
+        params_[i].s = 0.1*domainLength();
     }
     
     // initialize pikn

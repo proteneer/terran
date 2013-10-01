@@ -222,6 +222,8 @@ void test100DGaussians() {
 // |      ***
 // |       *
 //-PI-------------------PI
+
+
 void testEasyCase2D() {
 
     vector<vector<double> > dataset;
