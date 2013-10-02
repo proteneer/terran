@@ -47,6 +47,16 @@ void Util::plotGaussian(const std::vector<Terran::Param> &params, double left, d
         f3 << xn << " " << gaussianMixtureDx2(params, xn) << endl;
     }
 
+	for(int k=0; k < params.size(); k++) {
+		stringstream kk;
+		kk << k;
+		ofstream f4((filename + "Parts" + kk.str()).c_str());
+		for(double xn = left; xn < right; xn += 0.01) {
+			double val = Terran::gaussian(params[k].u, params[k].s, xn);
+			f4 << xn << " " << (params[k].p)*val << endl;
+		}
+	}
+
 }
 
 // Naive O(N^2) method
@@ -90,7 +100,15 @@ void Util::matchPoints(const vector<double> &p1, const vector<double> &p2, const
     for(int i=0; i < list1.size(); i++) {
         if(fabs(list1[i]-list2[i]) > errors[i]) { 
             stringstream ss;
-            ss << "Nonmatching vector element found! ";
+            ss << "Nonmatching vector element found!\n";
+			ss << "Expected: ";
+			for(int i=0; i < p2.size(); i++) {
+				ss << p2[i] << endl;
+			}
+			ss << "Obtained: ";
+			for(int i=0; i < p1.size(); i++) {
+				ss << p1[i] << endl;
+			}
             throw(std::runtime_error(ss.str()));
         }
     }
@@ -111,7 +129,16 @@ void Util::matchPoints(const vector<double> &p1, const vector<double> &p2, doubl
     for(int i=0; i < list1.size(); i++) {
         if(fabs(list1[i]-list2[i]) > threshold) { 
             stringstream ss;
-            ss << "Nonmatching vector element found! ";
+            ss << "Nonmatching vector element found!\n";
+			ss << "Expected: ";
+			for(int i=0; i < p2.size(); i++) {
+				ss << p2[i] << endl;
+			}
+			ss << "Obtained: ";
+			for(int i=0; i < p1.size(); i++) {
+				ss << p1[i] << endl;
+			}
+
             if(count != -1)
                 ss << " Test: " << count;
             throw(std::runtime_error(ss.str()));

@@ -135,11 +135,46 @@ bool EM::run() {
 bool EM::cleanParameters() {
     vector<Param> cleanParams;
     bool changed = false;
-    for(int i=0; i < params_.size(); i++) {
+    
+	// a point n is owned by a component k if it has the highest value
+	vector<int> count(params_.size(), 0);
+
+	for(int n=0; n < data_.size(); n++) {
+		double best_v = 0;
+		double best_k = 0;
+		for(int k=0; k < params_.size(); k++) {
+			double uk = params_[k].u;
+			double sk = params_[k].s;
+			double pk = params_[k].p;
+			
+			// todo - gaussian value not available to generic class, need to subclass
+			double value = pk*gaussian(uk,sk,data_[n]);
+			if( value > best_v) {
+				best_v = value;
+				best_k = k;
+			}
+		}
+		count[best_k] += 1;
+	}
+	
+	cout << params_ << endl;
+
+	for(int i=0; i < count.size(); i++) {
+		cout << i << ": " << count[i] << endl;
+	}
+
+
+	// given two components, if both the mean and std dev are very similar, then merge using
+	// p_n = p1 + p2;
+	// u_n = (u1+u2)/2;
+	// s_n = sqrt(s1*s2);
+
+	for(int i=0; i < params_.size(); i++) {
         bool keep = true;
-        if(params_[i].p < 0.1 / params_.size()) {
-            keep = false;
-        } else if(params_[i].s < 0.01*domainLength()) {
+		// even ownership implies each component owns approximately N/K of the points.
+		if(count[i] < 0.1*(data_.size()/params_.size())) {
+			keep = false;
+		} else if(params_[i].s < 0.01*domainLength()) {
             keep = false;
         }
         if(keep) {
@@ -147,7 +182,7 @@ bool EM::cleanParameters() {
         } else {
             changed = true;
         }
-    }
+   } 
     params_ = cleanParams;
     return changed;
 }
@@ -178,6 +213,8 @@ bool EM::simpleRun(unsigned int numParams) {
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld;
+
+	cout << params_ << endl;
 
     do {
         vector<Param> paramsOld = params_;

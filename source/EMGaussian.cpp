@@ -64,5 +64,4 @@ double EMGaussian::domainLength() const {
     return max-min;
 }
 
-
 }

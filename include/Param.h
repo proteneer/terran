@@ -1,6 +1,9 @@
 #ifndef PARAM_H_
 #define PARAM_H_
 
+#include <ostream>
+#include <vector>
+
 namespace Terran {
 
 struct Param {
@@ -15,6 +18,13 @@ struct Param {
     // standard deviation
     double s;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const std::vector<Param>& p) {
+	for(int i=0; i < p.size(); i++) {
+		os << p[i].p << " " << p[i].u << " " << p[i].s << std::endl;
+	}
+	return os;
+}
 
 }
 #endif
