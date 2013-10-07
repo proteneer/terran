@@ -73,11 +73,6 @@ void testBimodalGaussian() {
     em.run();
     vector<Param> optimizedParams = em.getParams();
 
-    for(int i=0; i < optimizedParams.size(); i++) {
-        cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
-    
-    }
-
     Util::matchParameters(trueParams, optimizedParams, 0.2);
 }
 
@@ -104,8 +99,6 @@ void testSimpleRunBimodal() {
 
     bool rc = em.simpleRun(100);
 
-	cout << rc << endl;
-
     vector<Param> optimizedParams = em.getParams();
     MethodsGaussian method(optimizedParams);
     vector<double> maxima = method.findMaxima();
@@ -119,29 +112,13 @@ void testSimpleRunBimodal() {
     errorsMaxima.push_back(0.5);
     errorsMaxima.push_back(1.5);
 
-	ofstream data2("gaussianH");
-	for(int i=0; i < subset.size(); i++) {
-		data2 << subset[i] << endl;
-	}
-
-	Util::plotGaussian(optimizedParams, -10, 15, "gaussianO");
-	Util::plotGaussian(trueParams, -10, 15, "gaussianT");
-
-		
     rc = em.simpleRun(100);
 	vector<Param> optimizedParams2 = em.getParams();
-	Util::plotGaussian(optimizedParams2, -10, 15, "gaussianO2");
-	
 
-    Util::matchPoints(maxima, trueMaxima, errorsMaxima);
-    
 	vector<double> trueMinima;
     trueMinima.push_back(0.5);
-    Util::matchPoints(minima, trueMinima, 0.3);
 
-    if(rc != 1) {
-        throw std::runtime_error("EM - Failed to converge");
-    }    
+    Util::matchParameters(trueParams, optimizedParams, 0.1);
 }
 
 void testUniSpecial() {
@@ -154,24 +131,15 @@ void testUniSpecial() {
     for(int i=0; i < 20000; i++) {
         data.push_back(gaussianMixtureSample(trueParams));
     }
-
     vector<double> subset(data);
     random_shuffle(subset.begin(), subset.end());
     subset.resize(3500);
     EMGaussian em(subset);
 
-    ofstream data2("gaussianH");
-    for(int i=0; i < subset.size(); i++) {
-        data2 << subset[i] << endl;
-    }
-
-
-    Util::plotGaussian(trueParams, -10, 15, "gaussianT");
-    //bool rc = em.simpleRun(2);
-
     bool rc = em.simpleRun(50);
     vector<Param> optimizedParams = em.getParams();
-    Util::plotGaussian(optimizedParams, -10, 15, "gaussianO");
+
+    Util::matchParameters(trueParams, optimizedParams, 0.1);
 }
 
 int main() {
