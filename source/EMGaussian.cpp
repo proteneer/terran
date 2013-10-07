@@ -19,6 +19,111 @@ EMGaussian::~EMGaussian() {
 
 }
 
+// derive an estimator
+static Param estimator(const vector<Param> &params) {
+    Param estimate;
+    estimate.p = 0;
+    estimate.u = 0;
+    estimate.s = 0;
+
+    // calculate new p and u
+    for(int i=0; i < params.size(); i++) {
+        estimate.p += params[i].p;
+        estimate.u += params[i].p*params[i].u;
+    }
+    // calculate new s
+    for(int i=0; i < params.size(); i++) {
+        double p = params[i].p;
+        double u = params[i].u;
+        double s = params[i].s;
+        double u_new = estimate.u;
+        estimate.s += p*(s*s+u*u-2*u_new*u+u_new*u_new);
+    }
+    estimate.s = sqrt(estimate.s);
+    return estimate;
+}
+
+static double normalizer(Param a, Param b) {
+    double prefix = a.p * b.p;
+    double top = exp(-0.5*((a.u-b.u)*(a.u-b.u))/(a.s*a.s+b.s*b.s));
+    double bot = sqrt(2*PI*(a.s*a.s+b.s*b.s));
+    return prefix*top/bot;
+}
+
+static double squaredIntegratedError(const vector<Param> &params, const Param &estimate) {
+    double left = 0;
+    double middle = 0;
+    double right = 0;
+    for(int i=0; i < params.size(); i++) {
+        double p1 = params[i].p;
+        double u1 = params[i].u;
+        double s1 = params[i].s;
+        for(int j=0; j < params.size(); j++) {
+            double p2 = params[j].p;
+            double u2 = params[j].u;
+            double s2 = params[j].s;
+            left += normalizer(params[i], params[j]);
+        }
+        middle += normalizer(params[i], estimate);
+    }
+    right = normalizer(estimate, estimate);
+    return left - 2*middle + right;
+}
+
+static bool paramComparator(const Param &a, const Param&b) {
+    return a.u < b.u;
+}
+
+void EMGaussian::mergeParams() {
+
+    
+    sort(params_.begin(), params_.end(), paramComparator);
+    vector<bool> skip(params_.size(), 0);
+
+    // final set of parameters
+    vector<Param> refined;
+
+    for(int i=0; i < params_.size(); i++) {
+        // if this parameter has not already been merged
+        if(!skip[i]) {
+            // find longest continuous sequence of parameters 
+            // that can be merged into a single parameter
+            bool hasMergedOnce = false;
+            vector<Param> candidates;
+            Param best = params_[i]; 
+            candidates.push_back(params_[i]);
+        
+            for(int j=i+1; j < params_.size(); j++) {
+                candidates.push_back(params_[j]);
+                
+                // attempt a merge
+                Param estimate = estimator(candidates);
+                double error = squaredIntegratedError(candidates, estimate);
+                if(error < 1e-5) {
+                    hasMergedOnce = true;
+                    best = estimate;
+                    skip[j] = true;
+                } else {
+                    // if param j broke a continuous chain of working merges, 
+                    if(hasMergedOnce) {
+                        break;
+                    }
+                }
+            }
+            refined.push_back(best);
+        }
+    }
+
+    if(refined.size() > params_.size()) {
+        throw(std::runtime_error("EMGaussian::mergeParams() FATAL - yell at proteneer"));
+    }
+     
+    if(refined.size() != params_.size()) {
+        params_ = refined;
+    }
+
+}
+
 void EMGaussian::MStep() {
     for(int k=0; k<params_.size(); k++) {
 		//cout << k << endl;

@@ -8,7 +8,7 @@ namespace Terran {
 
 struct Param {
 
-    Param() {} ;
+    Param() : p(0), u(0), s(0) {} ;
     Param(double p, double u, double s) : p(p), u(u), s(s) {};
 
     // probability weight of this mixture

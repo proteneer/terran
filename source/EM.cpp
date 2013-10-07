@@ -132,6 +132,17 @@ bool EM::run() {
     return (steps < maxSteps_);
 }
 
+bool paramSorter(const Param &p1, const Param &p2) {
+    return p1.u < p2.u;
+}
+
+double gaussianProduct(const Param &)
+
+static double ise(const vector<Param> &params, const Param &test) {
+    for(int i=0
+
+}
+
 bool EM::cleanParameters() {
     vector<Param> cleanParams;
     bool changed = false;
@@ -157,17 +168,18 @@ bool EM::cleanParameters() {
 		count[best_k] += 1;
 	}
 	
-	cout << params_ << endl;
 
-	for(int i=0; i < count.size(); i++) {
-		cout << i << ": " << count[i] << endl;
-	}
-
+	// cout << params2 << endl;
+    // 
+	// for(int i=0; i < count.size(); i++) {
+	//	cout << i << ": " << count[i] << endl;
+	// }
 
 	// given two components, if both the mean and std dev are very similar, then merge using
 	// p_n = p1 + p2;
 	// u_n = (u1+u2)/2;
 	// s_n = sqrt(s1*s2);
+
 
 	for(int i=0; i < params_.size(); i++) {
         bool keep = true;
@@ -182,8 +194,46 @@ bool EM::cleanParameters() {
         } else {
             changed = true;
         }
-   } 
-    params_ = cleanParams;
+    } 
+
+    sort(cleanParams.begin(), cleanParams.end(), paramSorter);
+
+    vector<Param> cleanParams2;
+
+    vector<bool> skip(cleanParams.size(),0);
+
+
+
+    for(int i=0; i < cleanParams.size(); i++) {
+        if(!skip[i]) {
+            int count = 1;
+            Param fp = cleanParams[i];
+            for(int j=i+1; j < cleanParams.size(); j++) {
+                // pairwise merge
+                if(fabs(fp.u-cleanParams[j].u) < 5e-1 &&
+                   fabs(fp.s-cleanParams[j].s) < 5e-1) {
+                   count++;
+                   fp.p += cleanParams[j].p;
+                   fp.u += cleanParams[j].u;
+                   fp.s += cleanParams[j].s;
+                   skip[j] = true;
+                }
+            }
+            fp.u = fp.u/count;
+            fp.s = fp.s/count;
+            cleanParams2.push_back(fp);
+        }
+    }
+
+    if(cleanParams2.size() != cleanParams.size()) {
+        cout << "Merge successful:" << endl;
+        cout << cleanParams << endl << endl;;
+        cout << cleanParams2;
+    }
+
+
+    //params_ = cleanParams;
+    params_ = cleanParams2;
     return changed;
 }
 
@@ -217,6 +267,9 @@ bool EM::simpleRun(unsigned int numParams) {
 	cout << params_ << endl;
 
     do {
+
+        cout << "Step " << steps << endl;
+
         vector<Param> paramsOld = params_;
 
         likelihoodOld = likelihood;

@@ -72,7 +72,13 @@ void testBimodalGaussian() {
     EMGaussian em(data, params);
     em.run();
     vector<Param> optimizedParams = em.getParams();
-    Util::matchParameters(trueParams, optimizedParams, 0.1);
+
+    for(int i=0; i < optimizedParams.size(); i++) {
+        cout << optimizedParams[i].p << " " << optimizedParams[i].u << " " << optimizedParams[i].s << endl;
+    
+    }
+
+    Util::matchParameters(trueParams, optimizedParams, 0.2);
 }
 
 void testSimpleRunBimodal() {
@@ -96,7 +102,7 @@ void testSimpleRunBimodal() {
     subset.resize(3500);
     EMGaussian em(subset);
 
-    bool rc = em.simpleRun(25);
+    bool rc = em.simpleRun(100);
 
 	cout << rc << endl;
 
@@ -119,10 +125,10 @@ void testSimpleRunBimodal() {
 	}
 
 	Util::plotGaussian(optimizedParams, -10, 15, "gaussianO");
-		Util::plotGaussian(trueParams, -10, 15, "gaussianT");
+	Util::plotGaussian(trueParams, -10, 15, "gaussianT");
 
 		
-    rc = em.simpleRun(25);
+    rc = em.simpleRun(100);
 	vector<Param> optimizedParams2 = em.getParams();
 	Util::plotGaussian(optimizedParams2, -10, 15, "gaussianO2");
 	
@@ -139,16 +145,52 @@ void testSimpleRunBimodal() {
     }    
 }
 
+void testUniSpecial() {
+    int numSamples = 20000;
+    vector<double> data;
+    vector<Param> trueParams(1);
+    trueParams[0].p = 1;
+    trueParams[0].u = -3.4;
+    trueParams[0].s = 1.2;
+    for(int i=0; i < 20000; i++) {
+        data.push_back(gaussianMixtureSample(trueParams));
+    }
+
+    vector<double> subset(data);
+    random_shuffle(subset.begin(), subset.end());
+    subset.resize(3500);
+    EMGaussian em(subset);
+
+    ofstream data2("gaussianH");
+    for(int i=0; i < subset.size(); i++) {
+        data2 << subset[i] << endl;
+    }
+
+    Util::plotGaussian(trueParams, -10, 15, "gaussianT");
+
+    cout << trueParams[0].p << endl;
+
+    bool rc = em.simpleRun(2);
+    vector<Param> optimizedParams = em.getParams();
+    Util::plotGaussian(optimizedParams, -10, 15, "gaussianO");
+    cout << optimizedParams << endl;
+
+}
+
 int main() {
     try	{
-		cout << "testSimpleRunBimodal()" << endl;
-		testSimpleRunBimodal();
+        testUniSpecial();
+		//srand(1);
+        //cout << "testSimpleRunBimodal()" << endl;
+		//testSimpleRunBimodal();
+        /*
 		cout << "testUnimodalGaussian()" << endl;
 		srand(1);
         testUnimodalGaussian();
         cout << "testBimodalGaussian()" << endl;
 		srand(1);
         testBimodalGaussian();
+        */
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }

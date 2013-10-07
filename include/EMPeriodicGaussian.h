@@ -19,6 +19,8 @@ class EMPeriodicGaussian : public EM {
 
     private:
         
+        void mergeParams() {};
+
         double domainLength() const;
 
         double qkn(int k, int n) const; 

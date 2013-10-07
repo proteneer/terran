@@ -16,6 +16,8 @@ public:
 
 private:
 
+    void mergeParams();
+
     double qkn(int k, int n) const;
 
     double domainLength() const;
