@@ -182,9 +182,9 @@ void testUniSpecial() {
 int main() {
     try	{
         testUniSpecial();
-		//srand(1);
-        //cout << "testSimpleRunBimodal()" << endl;
-		//testSimpleRunBimodal();
+		srand(1);
+        cout << "testSimpleRunBimodal()" << endl;
+		testSimpleRunBimodal();
         /*
 		cout << "testUnimodalGaussian()" << endl;
 		srand(1);

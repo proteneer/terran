@@ -19,8 +19,8 @@ EMGaussian::~EMGaussian() {
 
 }
 
-// derive an estimator
-static Param estimator(const vector<Param> &params) {
+static Param estimator(const vector<Param> &source) {
+    vector<Param> params(source);
     Param estimate;
     estimate.p = 0;
     estimate.u = 0;
@@ -29,6 +29,14 @@ static Param estimator(const vector<Param> &params) {
     // calculate new p and u
     for(int i=0; i < params.size(); i++) {
         estimate.p += params[i].p;
+    }
+
+    // renormalize the weights based on copy
+    for(int i=0; i < params.size(); i++) {
+        params[i].p = params[i].p/estimate.p;
+    }
+
+    for(int i=0; i < params.size(); i++) {
         estimate.u += params[i].p*params[i].u;
     }
     // calculate new s
@@ -50,6 +58,7 @@ static double normalizer(Param a, Param b) {
     return prefix*top/bot;
 }
 
+// closed form expression of the integrated squared error of the parameters and the estimate
 static double squaredIntegratedError(const vector<Param> &params, const Param &estimate) {
     double left = 0;
     double middle = 0;
@@ -76,7 +85,6 @@ static bool paramComparator(const Param &a, const Param&b) {
 
 void EMGaussian::mergeParams() {
 
-    
     sort(params_.begin(), params_.end(), paramComparator);
     vector<bool> skip(params_.size(), 0);
 
@@ -92,35 +100,32 @@ void EMGaussian::mergeParams() {
             vector<Param> candidates;
             Param best = params_[i]; 
             candidates.push_back(params_[i]);
-        
             for(int j=i+1; j < params_.size(); j++) {
                 candidates.push_back(params_[j]);
-                
-                // attempt a merge
                 Param estimate = estimator(candidates);
+                double squaredError = squaredIntegratedError(candidates, estimate);
+                
 
-/*
-                if(candidates.size() == 10) {
-                    cout << candidates.size() << endl;
-                    cout << estimate.p << endl;
-                    cout << estimate.u << endl;
-                    cout << estimate.s << endl;
+                if(params_[i].u > -3.7 && params_[i].u < -3.2) {
+                    cout << i << "->" << j << ": " << estimate.p << " " << estimate.u << " " << estimate.s << endl;
                 }
-*/
-                double error = squaredIntegratedError(candidates, estimate);
-                cout << "Number of Candidates: " << candidates.size() << " | SIE " << error << endl;
 
-                if(sqrt(error) < 1e-2) {
-                    cout << "Found" << endl;
+                if(sqrt(squaredError) < 1e-2) {
                     hasMergedOnce = true;
                     best = estimate;
+
+                    cout << "Found possible merge candidates " << i << " through " << j << endl;
+                    cout << "Error: " << sqrt(squaredError) << endl;
+                   
+
+
+
+
                     // inclusive merge of all continuous indices
                     for(int k=i; k<=j; k++) {
                         skip[k] = true;
                     }
                 } else {
-                    //cout << "Not Found" << endl;
-                    // if param j broke a continuous chain of working merges, 
                     if(hasMergedOnce) {
                         break;
                     }
@@ -130,11 +135,16 @@ void EMGaussian::mergeParams() {
         }
     }
 
+
     if(refined.size() > params_.size()) {
         throw(std::runtime_error("EMGaussian::mergeParams() FATAL - yell at proteneer"));
     }
      
     if(refined.size() != params_.size()) {
+
+        cout << params_.size() << " " << refined.size() << endl;
+
+
         params_ = refined;
     }
 
