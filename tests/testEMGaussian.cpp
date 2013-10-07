@@ -170,7 +170,9 @@ void testUniSpecial() {
 
     cout << trueParams[0].p << endl;
 
-    bool rc = em.simpleRun(2);
+    //bool rc = em.simpleRun(2);
+
+    bool rc = em.simpleRun(10);
     vector<Param> optimizedParams = em.getParams();
     Util::plotGaussian(optimizedParams, -10, 15, "gaussianO");
     cout << optimizedParams << endl;

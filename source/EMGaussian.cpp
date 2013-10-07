@@ -98,12 +98,28 @@ void EMGaussian::mergeParams() {
                 
                 // attempt a merge
                 Param estimate = estimator(candidates);
+
+/*
+                if(candidates.size() == 10) {
+                    cout << candidates.size() << endl;
+                    cout << estimate.p << endl;
+                    cout << estimate.u << endl;
+                    cout << estimate.s << endl;
+                }
+*/
                 double error = squaredIntegratedError(candidates, estimate);
-                if(error < 1e-5) {
+                cout << "Number of Candidates: " << candidates.size() << " | SIE " << error << endl;
+
+                if(sqrt(error) < 1e-2) {
+                    cout << "Found" << endl;
                     hasMergedOnce = true;
                     best = estimate;
-                    skip[j] = true;
+                    // inclusive merge of all continuous indices
+                    for(int k=i; k<=j; k++) {
+                        skip[k] = true;
+                    }
                 } else {
+                    //cout << "Not Found" << endl;
                     // if param j broke a continuous chain of working merges, 
                     if(hasMergedOnce) {
                         break;

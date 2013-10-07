@@ -136,17 +136,11 @@ bool paramSorter(const Param &p1, const Param &p2) {
     return p1.u < p2.u;
 }
 
-double gaussianProduct(const Param &)
-
-static double ise(const vector<Param> &params, const Param &test) {
-    for(int i=0
-
-}
-
 bool EM::cleanParameters() {
     vector<Param> cleanParams;
     bool changed = false;
     
+    /*
 	// a point n is owned by a component k if it has the highest value
 	vector<int> count(params_.size(), 0);
 
@@ -195,9 +189,18 @@ bool EM::cleanParameters() {
             changed = true;
         }
     } 
+    */
 
     sort(cleanParams.begin(), cleanParams.end(), paramSorter);
 
+    int initialSize = params_.size();
+    mergeParams();
+
+    if(initialSize != params_.size()) {
+        cout << "MERGED" << endl;
+    }
+
+/*
     vector<Param> cleanParams2;
 
     vector<bool> skip(cleanParams.size(),0);
@@ -234,6 +237,8 @@ bool EM::cleanParameters() {
 
     //params_ = cleanParams;
     params_ = cleanParams2;
+*/
+
     return changed;
 }
 
