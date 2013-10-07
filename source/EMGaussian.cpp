@@ -1,6 +1,7 @@
 #include "EMGaussian.h"
 #include "MathFunctions.h"
 
+#include <algorithm>
 #include <limits>
 
 namespace Terran {

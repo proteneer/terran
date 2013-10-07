@@ -31,6 +31,57 @@ void Util::plotPeriodicGaussian(const vector<Param> &params, double period, stri
 	
 }
 
+bool compMean(const Param &a, const Param&b) {
+	return a.u < b.u;
+}
+
+bool compSig(const Param &a, const Param&b) {
+	return a.s < b.s;
+}
+
+void Util::plotGaussian(const vector<Param> &params, string filename) {
+    ofstream f1(filename.c_str());
+    
+	vector<Param>::const_iterator min_mean = min_element(params.begin(), params.end(), compMean);
+	vector<Param>::const_iterator max_mean = max_element(params.begin(), params.end(), compMean);
+	vector<Param>::const_iterator max_sig  = max_element(params.begin(), params.end(), compSig);
+
+
+	double left = min_mean->u;
+	while(gaussianMixture(params, left) > 1e-2) {
+		left -= 3 * max_sig->s;
+	}
+	double right = max_mean->u;
+	while(gaussianMixture(params, right) > 1e-2) {
+		right += 3* max_sig->s;
+	}
+
+	for(double xn = left; xn < right; xn += 0.01) {
+        f1 << xn << " " << gaussianMixture(params, xn) << endl;
+    }
+	
+    ofstream f2((filename + "Dx").c_str());
+    for(double xn = left; xn < right; xn += 0.01) {
+        f2 << xn << " " << gaussianMixtureDx(params, xn) << endl;
+    }
+	
+    ofstream f3((filename + "Dx2").c_str());
+    for(double xn = left; xn < right; xn += 0.01) {
+        f3 << xn << " " << gaussianMixtureDx2(params, xn) << endl;
+    }
+
+	for(int k=0; k < params.size(); k++) {
+		stringstream kk;
+		kk << k;
+		ofstream f4((filename + "Parts" + kk.str()).c_str());
+		for(double xn = left; xn < right; xn += 0.01) {
+			double val = Terran::gaussian(params[k].u, params[k].s, xn);
+			f4 << xn << " " << (params[k].p)*val << endl;
+		}
+	}
+
+}
+
 void Util::plotGaussian(const std::vector<Terran::Param> &params, double left, double right, std::string filename) {
     ofstream f1(filename.c_str());
     for(double xn = left; xn < right; xn += 0.01) {

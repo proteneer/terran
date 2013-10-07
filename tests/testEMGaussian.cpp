@@ -94,10 +94,12 @@ void testSimpleRunBimodal() {
 
     vector<double> subset(data);
     random_shuffle(subset.begin(), subset.end());
-    subset.resize(3500);
+	subset.resize(3500);
     EMGaussian em(subset);
 
-    bool rc = em.simpleRun(100);
+	em.setTolerance(1e-2);
+
+    bool rc = em.simpleRun(50);
 
     vector<Param> optimizedParams = em.getParams();
     MethodsGaussian method(optimizedParams);
@@ -112,13 +114,12 @@ void testSimpleRunBimodal() {
     errorsMaxima.push_back(0.5);
     errorsMaxima.push_back(1.5);
 
-    rc = em.simpleRun(100);
-	vector<Param> optimizedParams2 = em.getParams();
-
 	vector<double> trueMinima;
     trueMinima.push_back(0.5);
 
-    Util::matchParameters(trueParams, optimizedParams, 0.1);
+	Util::matchPoints(maxima, trueMaxima, errorsMaxima);
+	Util::matchPoints(minima, trueMinima, 0.3);
+
 }
 
 void testUniSpecial() {
@@ -139,11 +140,17 @@ void testUniSpecial() {
     bool rc = em.simpleRun(50);
     vector<Param> optimizedParams = em.getParams();
 
-    Util::matchParameters(trueParams, optimizedParams, 0.1);
+	MethodsGaussian method(optimizedParams);
+    vector<double> maxima = method.findMaxima();
+
+	vector<double> trueMaxima(1, -3.4);
+
+	Util::matchPoints(maxima, trueMaxima, 0.3);
 }
 
 int main() {
     try	{
+		cout << "testUniSpecial()" << endl;
         testUniSpecial();
 		srand(1);
         cout << "testSimpleRunBimodal()" << endl;

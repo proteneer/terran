@@ -11,6 +11,8 @@ void plotPeriodicGaussian(const std::vector<Terran::Param> &params, double perio
 
 void plotGaussian(const std::vector<Terran::Param> &params, double left, double right, std::string filename = "mixture");
 
+void plotGaussian(const std::vector<Terran::Param> &params, std::string filename = "mixture");
+
 void matchParameters(const std::vector<Terran::Param> &p1, const std::vector<Terran::Param> &p2, double threshold);
 
 void matchPoints(const std::vector<double> &p1, const std::vector<double> &p2, double threshold, int count = -1);
