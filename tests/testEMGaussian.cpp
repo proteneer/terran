@@ -135,7 +135,6 @@ void testSimpleRunBimodal() {
 
     Util::matchPoints(maxima, trueMaxima, errorsMaxima);
     
-	cout << "foo" << endl;
 	vector<double> trueMinima;
     trueMinima.push_back(0.5);
     Util::matchPoints(minima, trueMinima, 0.3);
@@ -166,17 +165,13 @@ void testUniSpecial() {
         data2 << subset[i] << endl;
     }
 
+
     Util::plotGaussian(trueParams, -10, 15, "gaussianT");
-
-    cout << trueParams[0].p << endl;
-
     //bool rc = em.simpleRun(2);
 
-    bool rc = em.simpleRun(10);
+    bool rc = em.simpleRun(50);
     vector<Param> optimizedParams = em.getParams();
     Util::plotGaussian(optimizedParams, -10, 15, "gaussianO");
-    cout << optimizedParams << endl;
-
 }
 
 int main() {
@@ -185,14 +180,12 @@ int main() {
 		srand(1);
         cout << "testSimpleRunBimodal()" << endl;
 		testSimpleRunBimodal();
-        /*
 		cout << "testUnimodalGaussian()" << endl;
 		srand(1);
         testUnimodalGaussian();
         cout << "testBimodalGaussian()" << endl;
 		srand(1);
         testBimodalGaussian();
-        */
     } catch( const std::exception &e ) {
         cout << e.what() << endl;
     }

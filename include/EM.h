@@ -104,11 +104,6 @@ class EM {
         // Merge excessive parameters
         virtual void mergeParams() = 0;
 
-        // this function cleans up weird parameters
-        // 1. standard deviation too big/small
-        // 2. probability weight too low (<0.01)
-        bool cleanParameters();
-
 };
 
 }

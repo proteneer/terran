@@ -136,112 +136,6 @@ bool paramSorter(const Param &p1, const Param &p2) {
     return p1.u < p2.u;
 }
 
-bool EM::cleanParameters() {
-    vector<Param> cleanParams;
-    bool changed = false;
-    
-    /*
-	// a point n is owned by a component k if it has the highest value
-	vector<int> count(params_.size(), 0);
-
-	for(int n=0; n < data_.size(); n++) {
-		double best_v = 0;
-		double best_k = 0;
-		for(int k=0; k < params_.size(); k++) {
-			double uk = params_[k].u;
-			double sk = params_[k].s;
-			double pk = params_[k].p;
-			
-			// todo - gaussian value not available to generic class, need to subclass
-			double value = pk*gaussian(uk,sk,data_[n]);
-			if( value > best_v) {
-				best_v = value;
-				best_k = k;
-			}
-		}
-		count[best_k] += 1;
-	}
-	
-
-	// cout << params2 << endl;
-    // 
-	// for(int i=0; i < count.size(); i++) {
-	//	cout << i << ": " << count[i] << endl;
-	// }
-
-	// given two components, if both the mean and std dev are very similar, then merge using
-	// p_n = p1 + p2;
-	// u_n = (u1+u2)/2;
-	// s_n = sqrt(s1*s2);
-
-
-	for(int i=0; i < params_.size(); i++) {
-        bool keep = true;
-		// even ownership implies each component owns approximately N/K of the points.
-		if(count[i] < 0.1*(data_.size()/params_.size())) {
-			keep = false;
-		} else if(params_[i].s < 0.01*domainLength()) {
-            keep = false;
-        }
-        if(keep) {
-            cleanParams.push_back(params_[i]);
-        } else {
-            changed = true;
-        }
-    } 
-    */
-
-    sort(cleanParams.begin(), cleanParams.end(), paramSorter);
-
-    int initialSize = params_.size();
-    mergeParams();
-
-    if(initialSize != params_.size()) {
-        cout << "MERGED" << endl;
-    }
-
-/*
-    vector<Param> cleanParams2;
-
-    vector<bool> skip(cleanParams.size(),0);
-
-
-
-    for(int i=0; i < cleanParams.size(); i++) {
-        if(!skip[i]) {
-            int count = 1;
-            Param fp = cleanParams[i];
-            for(int j=i+1; j < cleanParams.size(); j++) {
-                // pairwise merge
-                if(fabs(fp.u-cleanParams[j].u) < 5e-1 &&
-                   fabs(fp.s-cleanParams[j].s) < 5e-1) {
-                   count++;
-                   fp.p += cleanParams[j].p;
-                   fp.u += cleanParams[j].u;
-                   fp.s += cleanParams[j].s;
-                   skip[j] = true;
-                }
-            }
-            fp.u = fp.u/count;
-            fp.s = fp.s/count;
-            cleanParams2.push_back(fp);
-        }
-    }
-
-    if(cleanParams2.size() != cleanParams.size()) {
-        cout << "Merge successful:" << endl;
-        cout << cleanParams << endl << endl;;
-        cout << cleanParams2;
-    }
-
-
-    //params_ = cleanParams;
-    params_ = cleanParams2;
-*/
-
-    return changed;
-}
-
 bool EM::simpleRun(unsigned int numParams) {
     
     if(numParams > data_.size()) {
@@ -268,15 +162,8 @@ bool EM::simpleRun(unsigned int numParams) {
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld;
-
-	cout << params_ << endl;
-
     do {
-
-        cout << "Step " << steps << endl;
-
         vector<Param> paramsOld = params_;
-
         likelihoodOld = likelihood;
         EStep();
         MStep();   
@@ -287,13 +174,17 @@ bool EM::simpleRun(unsigned int numParams) {
             break;
         }
 
-        if(cleanParameters()) {
+        int initialSize = params_.size();
+        mergeParams();
+        if(initialSize != params_.size()) {
             continue;
         }
 
-        if(likelihood - likelihoodOld < tolerance_) {
-            if(likelihood < likelihoodOld)
+        // rethink termination criteria if there are merges happening
+        if(fabs(likelihood - likelihoodOld) < tolerance_) {
+            if(likelihood < likelihoodOld) {
                 params_ = paramsOld;
+            }
             break;
         }
 
