@@ -208,6 +208,142 @@ Because EM is an iterative algorithm depending on convergence, it can be difficu
 
 Currently, in practice, the algorithm is bottlenecked by the step that finds steep valleys in each dimension. However, because each dimension can be fit independently, the algorithm can be linearly parallelized up to the number of dimensions. 
 
+\section{Clustering in Periodic Spaces}
+
+For many applications, such as clustering and density estimation of large molecules (eg. proteins), a transformation to internal coordinate space comprised of periodic dimensions (such as torsion angles and bond angles), and nonperiodic dimensions (such as bond lengths) is natural and intuitive. Such a tranformation often results in seperable degrees of freedom in many physical systems. However, this also implies a need to come with a robust periodic basis. Hence, we introduce the periodic gaussian, also known as wrapped normal in other literature, and demonstrate the use of the EM algorithm with this basis
+
+\subsection{Periodic Gaussian}
+Recall the definition of the gaussian distribution,
+\begin{equation}
+g(x; u,s) = \dfrac{1}{s\sqrt{2\pi}} \exp\left(-\dfrac{1}{2} \left(\dfrac{x-u}{s}\right)^2\right)
+\end{equation}
+The periodic gaussian (otherwise known as a wrapped gaussian) is defined on some periodic manifold \textbf{$M$}:
+\begin{equation}
+g_p(x; u,s) = \sum_{r=-\infty}^{\infty} g(x; u+rD, s)
+\end{equation}
+where \textbf{$D$} is the period of \textbf{$M$}. The periodic gaussian has the same normalization constant as the standard gaussian, it is continuous everywhere in the domain, and is relatively cheap to evaluate despite the infinite summation due to the rapid exponentatial decay of the gaussian. In practice, the range of the summation is very small. The periodic gaussian is an alternative to the von Mises distribution, but it has the advantages of simplicity (avoiding Bessel functions), can be sped up using a critical property of gaussian products later on described to speed up EM,  and very simple derivatives.
+
+In particular, the periodic gaussian has the derivative:
+\begin{equation}
+\dfrac{\partial g_p(x;u,s)}{\partial x} = \dfrac{1}{s^2} \sum_{r=-\infty}^{\infty} (u-x+rD) g(x; u+rD, s)
+\end{equation}
+
+Similar to the standard gaussian, we define a \textbf{$K$} component periodic gaussian mixture given some set of parameters \textbf{$\theta$}:
+\begin{equation}
+g_{pm}(x;\theta) = \sum_{k=1}^{K} p_k g_p(x; u_k, s_k)
+\end{equation}
+A periodic gaussian mixture has at most \textbf{$K$} minima, whereas a gaussian mixture has at most \textbf{$K+1$} minima. The periodic gaussian mixture has the derivative:
+\begin{equation}
+\dfrac{\partial g_{pm}(x; \theta)}{\partial x} =  \sum_{k=1}^{K} p_k \dfrac{\partial g_p(x; u_k, s_k)}{\partial x}
+\end{equation}
+
+In practice, these derivatives behave very well when used to find minima and maxima of the mixture models.
+
+\subsection{EM on Periodic Gaussians}
+
+The original EM algorithm for standard gaussians can be adapted to work equally well for periodic gaussians.
+
+Define the log likelihood function for periodic gaussians for some 1D dataset \textbf{$X$} of size \textbf{$N$} with parameters \textbf{$\theta$} for the mixture model,
+\begin{equation}
+\lambda(X; \theta) = \sum_{n=1}^{N} \log \sum_{k=1}^{K} p_k g_p(x;u_k, s_k)
+\end{equation}
+In addition, define the membership probability expressed as the condititional probability,
+\begin{equation}
+p(k|n) = \dfrac{p_k g_p(x_n; u_k, s_k)}{\sum\limits^{K}_{m=1} p_m g_p(x_n; u_k, s_k)}
+\end{equation}
+it can then be shown that
+\begin{equation}
+\sum_{k=1}^{K} p(k|n) = 1
+\end{equation}
+The next step in EM is to derive the derivatives of the likelihood with respect to the parameters, for notational convenience, define
+\begin{align*}
+g & \equiv g(x_n; u_k+rD, s_k) \\
+g_p & \equiv g_p(x_n; u_k+rD, s_k)
+\end{align*}
+and,
+\begin{align}
+\dfrac{\partial \lambda}{\partial p_k} & = p_k - \dfrac{1}{N} \sum\limits^{N}_{n=1}p(k|n) \\
+\dfrac{\partial \lambda}{\partial u_k} &= \dfrac{1}{s_k^2} \sum_{n=1}^{N}p(k|n) \left(x_n - u_k - D \frac{\sum\limits^{\infty}_{r=-\infty} rg}{\sum\limits^{\infty}_{r=-\infty}g} \right) \\
+\begin{split}
+\dfrac{\partial \lambda}{\partial s_k} & = \sum\limits^{N}_{n=1}p(k|n) \left(-\dfrac{1}{s_k} + \dfrac{(x_n-u_k)^2}{s_k^3}\right. \\
+&\left. -\dfrac{2(x_n-u_k)D\sum\limits^{\infty}_{r=-\infty}rg}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} + \dfrac{D^2 \sum\limits^{\infty}_{r=-\infty}r^2g}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} \right)
+\end{split}
+\end{align}
+What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maxium  and minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
+
+VJ, SW: Not sure what to do here, introduce another set of data? Large protein data? (Don't think CS conf will care as much)
+
+\section{Optimizing EM}
+The EM algorithm suffers from three well known problems. The first problem is that of initialization, as we do not even know how many initial components to use, let alone each the component's parameters. Ideally, we'd like to have starting parameters be initialized near the dense regions of the underlying data. There have been attempts to optimize the initial starting parameters even further by either running many EM cycles and picking the best one ({\it randEM}), or by running small EM batches on the initial points themselves ({\it emEM}). The second problem is that of convergence, too large of a $K$ will result in many empty membership probabilities, leading to artifacts and poor convergence. The last problem is that of speed, as the time it takes for both $E$ and $M$ steps is directly proportional to the number of components $K$. So we are stuck between a rock and a hard place: picking too few initial parameters will resulting in underfitting and missing features, too many parameters results in empty membership and poor performance.
+
+We introduce a method that tries to kill three birds with one stone. We solve the initialization problem by simply drawing $K$ random samples from the dataset, which for sufficiently large $K$ (eg $K=100$), provides a good guarantee that the vast majority of the initial components will be in some dense region. We then introduce a dynamic merge algorithm that tries to reduce $K$ with each iteration if possible. To provide an intuitive rationale, suppose we have a case of overfitting a single gaussian with a mixture model of $M$ gaussians, it should be entirely reasonable to just replace the $M$ gaussians with one gaussian. The problem then boils down to question: given $M$ gaussians ($M \leq K$), is it possible to merge them into a single gaussian? If so, what are the parameters of the merged gaussian? 
+
+Suppose we have a $M$ component mixture model $S(x)$, and we wish to find optimized parameters $P_o = (p_o, u_o, s_o)$ for a single gaussian $A(x; P_o)$ that minimizes the integrated squared error:
+
+\begin{equation}
+E = \int_D (S(x)-A(x; P_o))^2 dx
+\end{equation}
+
+The domain of integration is from $(-\infty,+\infty)$ for standard gaussians and $(-\pi, \pi)$ for periodic gaussians. $P_o$ is computed using the raw and central moments of $S(x)$. We show the method for computing $P_o$ and $E$ for both the standard gaussian and wrapped gaussian. 
+
+\subsection{Standard Gaussian}
+Let $S(x)$ be a sum of normal gaussians:
+\begin{align}
+S(x) &= \sum\limits^{M}_{i=0} p_i g(x; u_i, s_i)
+\end{align}
+The optimal values of $P_o$ are derived by computing the raw and central moments of the $S(x)$:
+\begin{align*}
+p_o &= \sum \limits^{M}_{i=0} p_i \\
+u_o &= \sum \limits^{M}_{i=0} p_i u_i \\
+s_o &= \sum \limits^{M}_{i=0} p_i (s_i^2+u_i^2-2 u_o u_i + u_o^2)
+\end{align*}
+Given two gaussians with parameters $P_i = (p_i, u_i, s_i)$, and $P_j = (p_j, u_j, s_j)$, we can derive the following normalization constant by exploiting the fact that a product of two gaussians is another gaussian (which integrates to a constant):
+\begin{equation}
+n(P_i,P_j) = p_i p_j \dfrac{\exp\left(-\dfrac{1}{2} \dfrac{(u_i-u_j)^2}{s_i^2+s_j^2}\right)}{\sqrt{2\pi (s_i^2+s_j^2)}}
+\end{equation}
+The end result is that the integrated squared error can now expressed in closed form:
+\begin{equation}
+E = \sum \limits^{M}_{i=0} \sum \limits^{M}_{i=0} n(P_i, P_j) + \sum \limits^{M}_{i=0} n(P_i, P_o) +n(P_o, P_o)
+\end{equation}
+
+\subsection{Periodic Gaussian}
+
+The computation of mean and standard deviation on the periodic gaussian is slightly more tricky since one cannot trivially compute the mean like the standard gaussian case. 
+
+Proceeding as before, let $S(x)$ be a sum of periodic gaussians:
+ \begin{align}
+S(x) &= \sum\limits^{m}_{i=0} p_i g_p(x; u_i, s_i)
+\end{align}
+Using the tools of directional statistics, we arrive at the optimal parameters for the periodic gaussian:
+\begin{align*}
+p_o &= \sum \limits^{m}_{i=0} p_i \\
+z &= \sum\limits^{m}_{k=0} p_k \exp\left(\boldsymbol{i}u_k-\dfrac{s_k^2}{2}\right) \\
+R &= |z| \\
+u_o &= \arg(Z) \\
+s_o &= \sqrt{-2\log R}
+\end{align*}
+Note that $z$ here is a complex number, whose phase and magnitude are used to subsequently compute the optimal mean and standard deviations.
+
+The normalization constant for the periodic gaussian over the integration interval $[-\pi, \pi]$ is:
+\begin{align*}
+n_p(P_i,P_j) = & \sum \limits^{\infty}_{r_1=-\infty} \sum \limits^{\infty}_{r_2=-\infty} n(u_1+2 \pi r_1, u_2+2 \pi r_2) \\
+                        & \left(\erf\left( \dfrac{\pi-\mu}{\sigma\sqrt{2}}\right) - \erf\left( \dfrac{-\pi-\mu}{\sigma\sqrt{2}}\right)\right) \\
+\end{align*}
+Where $\erf$ is the error function, $n(x,y)$ is the normalization constant from the standard gaussian, and:
+\begin{align*}
+\mu &= \dfrac{ (u_1+2 \pi r_1)s_2^2 +  (u_2+2 \pi r_2)s_1^2} {s_2^2 + s_1^2} \\
+\sigma &= \dfrac{s_1 s_2}{\sqrt{s_1^2+s_2^2}}
+\end{align*}
+ 
+Again, like the periodic gaussian, the double summation converges extremely quickly, so for all practical purposes $r_1, r_2$ ranges from $[-7,7]$.
+
+The closed form solution for the integrated squared error is:
+\begin{equation}
+E = \sum \limits^{M}_{i=0} \sum \limits^{M}_{i=0} n_p(P_i, P_j) + \sum \limits^{M}_{i=0} n_p(P_i, P_o) + n_p(P_o, P_o)
+\end{equation}
+Note that this computation runs in $O(k^2)$ time, and is significantly cheaper than the E and M steps in EM. 
+
+With the mathematical machinery in place, we can implement the merge algorithm. The $k$ components are first sorted by their mean. Afterwards, the longest continuous subsequence of components such that their merge results in $\sqrt{E} < 1e^{-2}$ is found.
 \section{Experiments}
 
 We begin by comparing TERRAN against several other popular clustering algorithms: DBSCAN, Spectral Clustering, Mean Shift, and K Means in 2D. These popular clustering algorithms are highly dependent on the choice of parameters and a distance metric defined between two points. The $k$-based clustering algorithms heavily rely on the number of centers to be specified a priori. Mean shift and DBSCAN do not require the number of clusters to known a priori, instead opting for density parameters and are superior in their ability to detect non-convex shapes. Quite often, these freebies are not available, especially in higher dimensions. The effect is that these parameter sensitive algorithms can easily result in oversplitting and/or undersplitting of clusters. 
@@ -227,132 +363,6 @@ N/A & N/A & 0.01 & 0.792 & 0.286 & 0.250 & 0.073 & 0.862 & 1.0 & 0.959 & 0.996\\
 N/A & N/A & 0.996 & 0.065 & 0.049 & 0.338 & 1.0 & 0.534 & 0.530 & 0.524 & 0.992\\ \hline \end{tabular}
 \end{table*}
 % end the environment with {table*}, NOTE not {table}!
-
-\section{Clustering in Periodic Spaces}
-
-For many applications, such as clustering and density estimation of large molecules (eg. proteins), a transformation to internal coordinate space comprised of periodic dimensions (such as torsion angles and bond angles), and nonperiodic dimensions (such as bond lengths), results in a natural dimensionality reduction. Surprisingly, this tranformation often results in linearly seperable degrees of freedom in many physical systems. However, this also implies a need to come with a robust periodic basis. Here, we introduce the periodic gaussian, also known as wrapped gaussians in other literature, and demonstrate the use of the EM algorithm with this basis
-
-\subsection{Periodic Gaussian}
-Recall the definition of the gaussian distribution,
-\begin{equation}
-g(x; u,s) = \dfrac{1}{s\sqrt{2\pi}} \exp\left(-\dfrac{1}{2} \left(\dfrac{x-u}{s}\right)^2\right)
-\end{equation}
-The periodic gaussian (otherwise known as a wrapped gaussian) is defined on some periodic manifold \textbf{$M$}:
-\begin{equation}
-g_p(x; u,s) = \sum_{r=-\infty}^{\infty} g(x; u+rD, s)
-\end{equation}
-where \textbf{$D$} is the period of \textbf{$M$}. The periodic gaussian has the same normalization constant as the standard gaussian, it is continuous everywhere in the domain, and is relatively cheap to evaluate despite the infinite summation due to the rapid exponentatial decay of the gaussian. In practice, the summation is bound between a very small range. The periodic gaussian is very similar to the von Mises distribution, but it has the advantage in that it can be easily defined for periods other than \textbf{$2\pi$}. The periodic gaussian has the derivative:
-\begin{equation}
-\dfrac{\partial g_p(x;u,s)}{\partial x} = \dfrac{1}{s^2} \sum_{r=-\infty}^{\infty} (u-x+rD) g(x; u+rD, s)
-\end{equation}
-
-Similar to standard gaussian, it is possible to define a \textbf{$K$} component periodic gaussian mixture given some set of parameters \textbf{$\theta$}:
-\begin{equation}
-g_{pm}(x;\theta) = \sum_{k=1}^{K} p_k g_p(x; u_k, s_k)
-\end{equation}
-A periodic gaussian mixture has at most \textbf{$K$} minima, whereas a gaussian mixture has at most \textbf{$K+1$} minima. The periodic gaussian mixture has the derivative:
-\begin{equation}
-\dfrac{\partial g_{pm}(x; \theta)}{\partial x} =  \sum_{k=1}^{K} p_k \dfrac{\partial g_p(x; u_k, s_k)}{\partial x}
-\end{equation}
-
-In practice, these derivatives behave very well when used to find minima and maxima of the mixture models.
-
-\subsection{EM on Periodic Gaussians}
-
-A natural tendency of gaussians is to form mixture models in order to fit data. In general, EM for gaussian mixture models is very well behaved and studied, and it makes natural sense derive equations for EM to accommodate periodic gaussians. We first define the log likelihood function for periodic gaussians for some 1D dataset \textbf{$X$} of size \textbf{$N$} with parameters \textbf{$\theta$} for the mixture model,
-\begin{equation}
-\lambda(X; \theta) = \sum_{n=1}^{N} \log \sum_{k=1}^{K} p_k g_p(x;u_k, s_k)
-\end{equation}
-In addition, define the membership probability expressed as the condititional probability,
-\begin{equation}
-p(k|n) = \dfrac{p_k g_p(x_n; u_k, s_k)}{\sum\limits^{K}_{m=1} p_m g_p(x_n; u_k, s_k)}
-\end{equation}
-it can then be shown that
-\begin{equation}
-\sum_{k=1}^{K} p(k|n) = 1
-\end{equation}
-The next step in EM is to derive the derivatives of the likelihood with respect to the parameters, for notational convenience, define
-\begin{align}
-g & \equiv g(x_n; u_k+rD, s_k) \\
-g_p & \equiv g_p(x_n; u_k+rD, s_k)
-\end{align}
-and,
-\begin{align}
-\dfrac{\partial \lambda}{\partial p_k} & = p_k - \dfrac{1}{N} \sum\limits^{N}_{n=1}p(k|n) \\
-\dfrac{\partial \lambda}{\partial u_k} &= \dfrac{1}{s_k^2} \sum_{n=1}^{N}p(k|n) \left(x_n - u_k - D \frac{\sum\limits^{\infty}_{r=-\infty} rg}{\sum\limits^{\infty}_{r=-\infty}g} \right) \\
-\begin{split}
-\dfrac{\partial \lambda}{\partial s_k} & = \sum\limits^{N}_{n=1}p(k|n) \left(-\dfrac{1}{s_k} + \dfrac{(x_n-u_k)^2}{s_k^3}\right. \\
-&\left. -\dfrac{2(x_n-u_k)D\sum\limits^{\infty}_{r=-\infty}rg}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} + \dfrac{D^2 \sum\limits^{\infty}_{r=-\infty}r^2g}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} \right)
-\end{split}
-\end{align}
-What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maxium  and minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
-
-VJ, SW: Not sure what to do here, introduce another set of data? Large protein data? (Don't think CS conf will care as much)
-
-\subsection{Optimizing EM}
-
-A critical component in the underlying algorithm is a fast EM algorithm that converges a suitable minima. The EM step is typically by far the slowest step in the overall algorithm. There have been many attempts focusing on finding the right set of initial parameters (eg. emEM, randEM). We instead take a different approach, by starting off with a relatively large number of parameters, and derive a merge criteria. This is motivated by the observation that when the model over fits the underlying data, many components overlap and can be merged into a single gaussian. However, this check is typically done every step, and thus must be extremely fast.
-
-Suppose we have a $m$ component mixture model $S(x)$, and we wish to find optimized parameters $P_o = (p_o, u_o, s_o)$ for a single gaussian $A(x)$ that minimizes the integrated squared error:
-
-\begin{equation}
-E = \int (S(x)-A(x))^2 dx
-\end{equation}
-
-The domain of integration is from $(-\infty,+\infty)$ for standard gaussians and $(-\pi, \pi)$ for periodic gaussians. The ideal values $p,u,s$ can be computed by evaluating the moments of $S(x)$:
-
-\subsubsection{Standard Gaussian}
-
-Let
-\begin{align}
-S(x) &= \sum\limits^{m}_{i=0} p_i g(x; u_i, s_i)
-\end{align}
-The optimal values of $P_o$ is derived by computing the raw and central moments of the $S(x)$:
-\begin{align*}
-p_o &= \sum \limits^{m}_{i=0} p_i \\
-u_o &= \sum \limits^{m}_{i=0} p_i u_i \\
-s_o &= \sum \limits^{m}_{i=0} p_i (s_i^2+u_i^2-2 u_o u_i + u_o^2)
-\end{align*}
-Given two gaussians with parameters $P_i = (p_i, u_i, s_i)$, and $P_j = (p_j, u_j, s_j)$, we can derive the following normalization constant by exploiting the fact that a product of two gaussians is another gaussian:
-\begin{equation}
-n(P_i,P_j) = p_i p_j \dfrac{\exp\left(-\dfrac{1}{2} \dfrac{(u_i-u_j)^2}{s_i^2+s_j^2}\right)}{\sqrt{2\pi (s_i^2+s_j^2)}}
-\end{equation}
-
-The end result is that the integrated squared error can now be re-expressed as:
-
-\begin{equation}
-E = \sum \limits^{i=0}_{m} \sum \limits^{j=0}_{m} n(P_i, P_j) + \sum \limits^{i=0}_{m} n(P_i, P_o) +n(P_o, P_o)
-\end{equation}
-
-\subsubsection{Periodic Gaussian}
-
-The computation of mean and standard deviation on the periodic gaussian is slightly more tricky since one cannot trivially compute the mean like the standard gaussian case. 
-
-Proceeding as before, let
- \begin{align}
-S(x) &= \sum\limits^{m}_{i=0} p_i g_p(x; u_i, s_i)
-\end{align}
-The optimal parameters for the periodic gaussian are:
-\begin{align*}
-p_o &= \sum \limits^{m}_{i=0} p_i \\
-z &= \sum\limits^{m}_{k=0} p_k \exp\left(\boldsymbol{i}u_k-\dfrac{s_k^2}{2}\right) \\
-R &= |z| \\
-u_o &= \arg(Z) \\
-s_o &= \sqrt{-2\log R}
-\end{align*}
-Note that $z$ here is a complex number, whose phase and magnitude are used to subsequently compute the optimal mean and standard deviations. We can now derive a new normalization constant for the integration interval from $[-\pi, \pi]$:
-\begin{align*}
-&n_p(P_i,P_j) = \\
-&\sum \limits^{\infty}_{r_1=-\infty} \sum \limits^{\infty}_{r_2=-\infty} n(\mu_1, \mu_2) \left(\erf\left( \dfrac{\pi-\mu_1}{s_1\sqrt{2}}\right) - \erf\left( \dfrac{-\pi-\mu_2}{s_2\sqrt{2}}\right)\right)
-\end{align*}
-We can compute the integrated squared error of periodic gaussians:
-\begin{equation}
-E = \sum \limits^{i=0}_{m} \sum \limits^{j=0}_{m} n_p(P_i, P_j) + \sum \limits^{i=0}_{m} n_p(P_i, P_o) +n_p(P_o, P_o)
-\end{equation}
-
-Note that this computation is incredibly cheap, and runs in $O(k^2)$ time in the worst case. 
-
-With the mathematical machinery in place, we can implement the merge algorithm. The $k$ components are first sorted by their mean. Afterwards, the longest continuous subsequence of parameters such that their merge results in $\sqrt{E} < 1e^{-2}$ is found.
 
 \section{Future Direction}
 
