@@ -62,14 +62,13 @@ static Param estimator(const vector<Param> &source) {
 	double real = 0;
 	double imag = 0;
 	for(int i=0; i < params.size(); i++) {
-        real += params[i].p*exp(-(params[i].s*params[i].s)*cos(params[i].u));
-		imag += params[i].p*exp(-(params[i].s*params[i].s)*sin(params[i].u));
+        real += params[i].p*exp(-(params[i].s*params[i].s)/2)*cos(params[i].u);
+		imag += params[i].p*exp(-(params[i].s*params[i].s)/2)*sin(params[i].u);
     }
 	complex<double> z(real, imag);
 	estimate.u = arg(z);
 	double R = abs(z);
 	estimate.s = sqrt(log(1/(R*R)));
-
 	return estimate;
 }
 
@@ -87,8 +86,8 @@ static double normalizer(const Param &a, const Param &b) {
     double s1 = a.s;
     double s2 = b.s;
     double sum = 0;
-    for(int r1=-7; r1 <=7; r1++) {
-        for(int r2=-7; r2 <=7; r2++) {
+    for(int r1=-6; r1 <=6; r1++) {
+        for(int r2=-6; r2 <=6; r2++) {
             double u1_n = u1+r1*2*PI;
             double u2_n = u2+r2*2*PI;
             double top = exp(-0.5*((u1_n-u2_n)*(u1_n-u2_n))/(s1*s1+s2*s2));
@@ -119,7 +118,56 @@ static double squaredIntegratedError(const vector<Param> &params, const Param &e
         middle += normalizer(params[i], estimate);
     }
     right = normalizer(estimate, estimate);
+
     return left - 2*middle + right;
+}
+
+static bool paramComparator(const Param &a, const Param&b) {
+    return a.u < b.u;
+}
+
+void EMPeriodicGaussian::mergeParams() {
+
+    sort(params_.begin(), params_.end(), paramComparator);
+    vector<bool> skip(params_.size(), 0);
+
+    // final set of parameters
+    vector<Param> refined;
+
+    for(int i=0; i < params_.size(); i++) {
+        // if this parameter has not already been merged
+        if(!skip[i]) {
+            // find longest continuous sequence of parameters 
+            // that can be merged into a single parameter
+            bool hasMergedOnce = false;
+            vector<Param> candidates;
+            Param best = params_[i]; 
+            candidates.push_back(params_[i]);
+            for(int j=i+1; j != i; j = (j+1) % params_.size()) {
+                candidates.push_back(params_[j]);
+                Param estimate = estimator(candidates);
+                double squaredError = squaredIntegratedError(candidates, estimate);
+                if(sqrt(squaredError) < 1e-2) {
+                    hasMergedOnce = true;
+                    best = estimate;
+                    // inclusive merge of all continuous indices
+                    for(int k=i; k<=j; k++) {
+                        skip[k] = true;
+                    }
+                } else {
+                    if(hasMergedOnce) {
+                        break;
+                    }
+                }
+
+            }
+            refined.push_back(best);
+        }
+    }
+     
+    if(refined.size() != params_.size()) {
+        params_ = refined;
+    }
 }
 
 void EMPeriodicGaussian::MStep() {

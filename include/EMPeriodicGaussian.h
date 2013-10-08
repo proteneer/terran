@@ -19,7 +19,7 @@ class EMPeriodicGaussian : public EM {
 
     private:
         
-        void mergeParams() {};
+        void mergeParams();
 
         double domainLength() const;
 

@@ -73,6 +73,7 @@ void testBimodalPeriodicGaussian() {
     vector<double> maxima, minima;
     EMPeriodicGaussian em(data, period);
 
+
     try {
         vector<Param> params;
         {
@@ -103,6 +104,7 @@ void testBimodalPeriodicGaussian() {
         cout << "bimodal run() test failed!" << endl;
         throw e;
     }
+
 
     try{
         vector<Param> params;
