@@ -76,10 +76,29 @@ static Param estimator(const vector<Param> &source) {
 static double normalCDF(double x, double u, double s) {
 	double prefix = 0.5;
 	double suffix = 1.0+erf((x-u)/(s*sqrt(2)));
+    return prefix*suffix;
 }
 
-static double normalizer(double p1, double u1, double s1, double p2, double u2, double s2) {
-	double sum = 0
+static double normalizer(const Param &a, const Param &b) {
+    double p1 = a.p;
+    double p2 = b.p;
+    double u1 = a.u;
+    double u2 = b.u;
+    double s1 = a.s;
+    double s2 = b.s;
+    double sum = 0;
+    for(int r1=-7; r1 <=7; r1++) {
+        for(int r2=-7; r2 <=7; r2++) {
+            double u1_n = u1+r1*2*PI;
+            double u2_n = u2+r2*2*PI;
+            double top = exp(-0.5*((u1_n-u2_n)*(u1_n-u2_n))/(s1*s1+s2*s2));
+            double bot = sqrt(2*PI*(s1*s1+s2*s2));
+            double u_new = (u1_n*s2*s2+u2_n*s1*s1)/(s2*s2+s1*s1);
+            double s_new = (s1*s2)/sqrt(s1*s1+s2*s2);
+            sum += (top/bot) * (normalCDF(PI,u_new,s_new)-normalCDF(-PI,u_new,s_new));
+        }
+    }
+    return p1*p2*sum;
 }
 
 // integrated squared error 

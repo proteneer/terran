@@ -115,7 +115,7 @@ void testSimpleRunBimodal() {
     errorsMaxima.push_back(1.5);
 
 	vector<double> trueMinima;
-    trueMinima.push_back(0.5);
+    trueMinima.push_back(0.2);
 
 	Util::matchPoints(maxima, trueMaxima, errorsMaxima);
 	Util::matchPoints(minima, trueMinima, 0.3);
