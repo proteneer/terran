@@ -1,8 +1,10 @@
 #include "EMPeriodicGaussian.h"
+#include <math.h>
 #include <assert.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <complex>
 
 using namespace std;
 
@@ -36,6 +38,69 @@ EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<
 
 EMPeriodicGaussian::~EMPeriodicGaussian() {
 
+}
+
+// estimator for periodic gaussian
+static Param estimator(const vector<Param> &source) {
+    vector<Param> params(source);
+    Param estimate;
+    estimate.p = 0;
+    estimate.u = 0;
+    estimate.s = 0;
+
+    // calculate new p
+    for(int i=0; i < params.size(); i++) {
+        estimate.p += params[i].p;
+    }
+
+    // renormalize the weights based on copy
+    for(int i=0; i < params.size(); i++) {
+        params[i].p = params[i].p/estimate.p;
+    }
+
+	// calculate new u and s using phase information
+	double real = 0;
+	double imag = 0;
+	for(int i=0; i < params.size(); i++) {
+        real += params[i].p*exp(-(params[i].s*params[i].s)*cos(params[i].u));
+		imag += params[i].p*exp(-(params[i].s*params[i].s)*sin(params[i].u));
+    }
+	complex<double> z(real, imag);
+	estimate.u = arg(z);
+	double R = abs(z);
+	estimate.s = sqrt(log(1/(R*R)));
+
+	return estimate;
+}
+
+static double normalCDF(double x, double u, double s) {
+	double prefix = 0.5;
+	double suffix = 1.0+erf((x-u)/(s*sqrt(2)));
+}
+
+static double normalizer(double p1, double u1, double s1, double p2, double u2, double s2) {
+	double sum = 0
+}
+
+// integrated squared error 
+static double squaredIntegratedError(const vector<Param> &params, const Param &estimate) {
+    double left = 0;
+    double middle = 0;
+    double right = 0;
+    for(int i=0; i < params.size(); i++) {
+        double p1 = params[i].p;
+        double u1 = params[i].u;
+        double s1 = params[i].s;
+        for(int j=0; j < params.size(); j++) {
+            double p2 = params[j].p;
+            double u2 = params[j].u;
+            double s2 = params[j].s;
+            left += normalizer(params[i], params[j]);
+        }
+        middle += normalizer(params[i], estimate);
+    }
+    right = normalizer(estimate, estimate);
+    return left - 2*middle + right;
 }
 
 void EMPeriodicGaussian::MStep() {

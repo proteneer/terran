@@ -27,7 +27,7 @@ static Param estimator(const vector<Param> &source) {
     estimate.u = 0;
     estimate.s = 0;
 
-    // calculate new p and u
+    // calculate new p
     for(int i=0; i < params.size(); i++) {
         estimate.p += params[i].p;
     }
@@ -37,6 +37,7 @@ static Param estimator(const vector<Param> &source) {
         params[i].p = params[i].p/estimate.p;
     }
 
+	// calculate new u
     for(int i=0; i < params.size(); i++) {
         estimate.u += params[i].p*params[i].u;
     }
