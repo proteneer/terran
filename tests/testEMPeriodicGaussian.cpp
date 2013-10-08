@@ -105,7 +105,6 @@ void testBimodalPeriodicGaussian() {
         throw e;
     }
 
-
     try{
         vector<Param> params;
         const int numSamples = 8;
