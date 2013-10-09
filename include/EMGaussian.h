@@ -14,7 +14,18 @@ public:
 
     void MStep();
 
+	void EStep();
+	
 private:
+
+	// initialize internals based on current data_, params_
+	void initializePink();
+
+	// pikn_ is a matrix of conditional probabilities: 
+    // that given a point n was observed, it came from 
+    // component k, ie. p(k|n) during iteration i
+    // this is updated during the E-step
+    std::vector<std::vector<double> > pink_;
 
     void mergeParams();
 

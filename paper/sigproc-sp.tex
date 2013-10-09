@@ -276,13 +276,13 @@ VJ, SW: Not sure what to do here, introduce another set of data? Large protein d
 \section{Optimizing EM}
 The EM algorithm suffers from three well known problems. The first problem is that of initialization, as we do not even know how many initial components to use, let alone each the component's parameters. Ideally, we'd like to have starting parameters be initialized near the dense regions of the underlying data. There have been attempts to optimize the initial starting parameters even further by either running many EM cycles and picking the best one ({\it randEM}), or by running small EM batches on the initial points themselves ({\it emEM}). The second problem is that of convergence, too large of a $K$ will result in many empty membership probabilities, leading to artifacts and poor convergence. The last problem is that of speed, as the time it takes for both $E$ and $M$ steps is directly proportional to the number of components $K$. So we are stuck between a rock and a hard place: picking too few initial parameters will resulting in underfitting and missing features, too many parameters results in empty membership and poor performance.
 
-We introduce a method that tries to kill three birds with one stone. We solve the initialization problem by simply drawing $K$ random samples from the dataset, which for sufficiently large $K$ (eg $K=100$), provides a good guarantee that the vast majority of the initial components will be in some dense region. We then introduce a dynamic merge algorithm that tries to reduce $K$ with each iteration if possible. To provide an intuitive rationale, suppose we have a case of overfitting a single gaussian with a mixture model of $M$ gaussians, it should be entirely reasonable to just replace the $M$ gaussians with one gaussian. The problem then boils down to question: given $M$ gaussians ($M \leq K$), is it possible to merge them into a single gaussian? If so, what are the parameters of the merged gaussian? 
+We introduce a method that tries to kill three birds with one stone. We deal with the initialization problem by simply drawing $K$ random samples from the dataset, which for sufficiently large $K$ (eg $K=100$), provides a good guarantee that the vast majority of the initial components will be in some dense region. We then introduce a dynamic merge algorithm that tries to reduce $K$ with each iteration if possible. To provide an intuitive rationale, suppose we have a case of overfitting a single gaussian with a mixture model of $M$ gaussians, it should be entirely reasonable to just replace the $M$ gaussians with one gaussian. The problem then boils down to question: given $M$ gaussians ($M \leq K$), is it possible to merge them into a single gaussian? If so, what are the parameters of the merged gaussian? 
 
 Suppose we have a $M$ component mixture model $S(x)$, and we wish to find optimized parameters $P_o = (p_o, u_o, s_o)$ for a single gaussian $A(x; P_o)$ that minimizes the integrated squared error:
-
 \begin{equation}
 E = \int_D (S(x)-A(x; P_o))^2 dx
 \end{equation}
+In otherwords, by seeing if $E$ is less than some small threshold, we can quickly tell if $A(x; P_o)$ can be used to approximate $S(x)$. 
 
 The domain of integration is from $(-\infty,+\infty)$ for standard gaussians and $(-\pi, \pi)$ for periodic gaussians. $P_o$ is computed using the raw and central moments of $S(x)$. We show the method for computing $P_o$ and $E$ for both the standard gaussian and wrapped gaussian. 
 
@@ -322,7 +322,7 @@ R &= |z| \\
 u_o &= \arg(Z) \\
 s_o &= \sqrt{-2\log R}
 \end{align*}
-Note that $z$ here is a complex number, whose phase and magnitude are used to subsequently compute the optimal mean and standard deviations.
+Note that $z$ here is a complex number.
 
 The normalization constant for the periodic gaussian over the integration interval $[-\pi, \pi]$ is:
 \begin{align*}

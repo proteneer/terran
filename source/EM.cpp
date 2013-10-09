@@ -17,31 +17,31 @@ using namespace std;
 
 EM::EM(const std::vector<double> &data) : 
     data_(data),
-    pikn_(data.size(), std::vector<double>(0)),
+    //pikn_(data.size(), std::vector<double>(0)),
     maxSteps_(200),
     tolerance_(0.1) {
     if(data_.size() == 0)
         throw(std::runtime_error("Cannot initialize EM with empty dataset"));
-
 }
 
 EM::EM(const std::vector<double> &data, const std::vector<Param> &params) : 
     data_(data),
     params_(params),
-    pikn_(data.size(), std::vector<double>(params.size(),0)),
+    //pikn_(data.size(), std::vector<double>(params.size(),0)),
     maxSteps_(200),
     tolerance_(0.1) {
 
     if(data_.size() == 0)
         throw(std::runtime_error("Cannot initialize EM with empty dataset"));
-
     setParameters(params);
+
 }
 
 EM::~EM() {
 
 }
 
+// TODO: make this virtual and initialize pikn
 void EM::setParameters(const std::vector<Param> &input) {
     double psum = 0;
     for(int i=0; i<input.size(); i++) {
@@ -57,8 +57,6 @@ void EM::setParameters(const std::vector<Param> &input) {
         throw(std::runtime_error("Initial probabilities sum to greater than 1"));
     }
     params_ = input;
-    vector<vector<double> > temp(data_.size(), std::vector<double>(params_.size(),0));
-    pikn_ = temp; 
 }
 
 std::vector<Param> EM::getParams() const {
@@ -67,18 +65,6 @@ std::vector<Param> EM::getParams() const {
 
 int EM::getDataSize() const {
     return data_.size();
-}
-
-double EM::getLikelihood() const {
-    double lambda = 0;
-    for(int n=0; n<data_.size(); n++) {
-        double sum = 0;
-        for(int k=0; k<params_.size(); k++) {
-            sum += qkn(k,n);
-        }
-        lambda += log(sum);
-    }
-    return lambda;
 }
 
 void EM::setMaxSteps(int maxSteps) {
@@ -101,6 +87,9 @@ bool EM::run() {
     if(params_.size() == 0) {
         throw(std::runtime_error("EM::run(), parameters are not set"));
     }
+
+	initializePink();
+
     int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld;
@@ -136,6 +125,18 @@ bool paramSorter(const Param &p1, const Param &p2) {
     return p1.u < p2.u;
 }
 
+double EM::getLikelihood() const {
+    double lambda = 0;
+    for(int n=0; n<data_.size(); n++) {
+        double sum = 0;
+        for(int k=0; k<params_.size(); k++) {
+            sum += qkn(k,n);
+        }
+        lambda += log(sum);
+    }
+    return lambda;
+}
+
 bool EM::simpleRun(unsigned int numParams) {
     
     if(numParams > data_.size()) {
@@ -155,9 +156,7 @@ bool EM::simpleRun(unsigned int numParams) {
     }
     
     // initialize pikn
-    for(int i=0; i < data_.size(); i++) {
-        pikn_[i].resize(params_.size(), 0);
-    }
+	initializePink();
 
     int steps = 0;
     double likelihood = getLikelihood();
@@ -165,17 +164,16 @@ bool EM::simpleRun(unsigned int numParams) {
     do {
         vector<Param> paramsOld = params_;
         likelihoodOld = likelihood;
-        EStep();
-        MStep();   
+		EStep();
+		MStep();   
         steps++;
         likelihood = getLikelihood(); 
-
         if(steps >= maxSteps_) {
             break;
         }
 
         int initialSize = params_.size();
-        mergeParams();
+		mergeParams();
         if(initialSize != params_.size()) {
             continue;
         }
@@ -196,24 +194,8 @@ bool EM::simpleRun(unsigned int numParams) {
     return steps < maxSteps_;
 }
 
-void EM::EStep() {
-    for(int n=0; n<data_.size(); n++) {
-        double sum = 0;
-        for(int k=0; k<params_.size(); k++) {
-            sum += qkn(k,n);
-        }
-
-        for(int k=0; k<params_.size(); k++) {
-            if(sum > 1e-7)
-                pikn_[n][k] = qkn(k,n)/sum;
-            else
-                pikn_[n][k] = 0;
-        }
-    }
-    testIntegrity();
-}
-
 void EM::testIntegrity() const {
+	/*
     double sum = 0;
     for(int k=0; k<params_.size(); k++) {
         for(int n=0; n<data_.size(); n++) {
@@ -222,6 +204,7 @@ void EM::testIntegrity() const {
         if(fabs(sum-1.0) < 1e-7)
             throw(std::runtime_error("pikn no longer sums to 1"));
     }
+	*/
 };
 
 }

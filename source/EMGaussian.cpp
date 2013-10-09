@@ -7,12 +7,14 @@
 namespace Terran {
 
 EMGaussian::EMGaussian(const std::vector<double> &data) : 
-    EM(data) {
+    EM(data),
+	pink_(data.size(), std::vector<double>(0)) {
 
 }
 
 EMGaussian::EMGaussian(const std::vector<double> &data, const std::vector<Param> &params) : 
-    EM(data, params) {
+    EM(data, params),
+	pink_(data.size(), std::vector<double>(0)) {
 
 }
 
@@ -131,6 +133,25 @@ void EMGaussian::mergeParams() {
 
 }
 
+void EMGaussian::initializePink() {
+	for(int i=0; i < pink_.size(); i++) {
+        pink_[i].resize(params_.size(), 0);
+    }
+}
+
+void EMGaussian::EStep() {
+    for(int n=0; n<data_.size(); n++) {
+        double denominator = gaussianMixture(params_, data_[n]);
+        for(int k=0; k<params_.size(); k++) {
+            if(denominator > 1e-7)
+                pink_[n][k] = qkn(k,n)/denominator;
+            else
+                pink_[n][k] = 0;
+        }
+    }
+    testIntegrity();
+}
+
 void EMGaussian::MStep() {
     for(int k=0; k<params_.size(); k++) {
 		//cout << k << endl;
@@ -138,10 +159,10 @@ void EMGaussian::MStep() {
         double numeratorSum = 0;
         double denominatorSum = 0;
         for(int n=0; n<data_.size(); n++) {
-            numeratorSum += pikn_[n][k]*data_[n];
+            numeratorSum += pink_[n][k]*data_[n];
         }
         for(int n=0; n<data_.size(); n++) {
-            denominatorSum += pikn_[n][k];
+            denominatorSum += pink_[n][k];
         }
         params_[k].u = numeratorSum / denominatorSum;
 
@@ -149,7 +170,7 @@ void EMGaussian::MStep() {
         numeratorSum = 0;
         for(int n=0; n<data_.size(); n++) {
             double dx = data_[n]-params_[k].u;
-            numeratorSum += pikn_[n][k]*dx*dx;
+            numeratorSum += pink_[n][k]*dx*dx;
         }
         params_[k].s = sqrt(numeratorSum / denominatorSum);
 

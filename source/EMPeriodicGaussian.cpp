@@ -1,6 +1,7 @@
 #include "EMPeriodicGaussian.h"
 #include <math.h>
 #include <assert.h>
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -21,6 +22,7 @@ EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data,  double perio
         if(params_[i].u > period_/2)
             throw(std::runtime_error("Cannot have u > period/2"));
     }
+	initializePink();
 }
 
 EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<Param> &params, double period) : 
@@ -34,6 +36,7 @@ EMPeriodicGaussian::EMPeriodicGaussian(const vector<double> &data, const vector<
         if(params_[i].u > period_/2)
             throw(std::runtime_error("Cannot have u > period/2"));
     }
+	initializePink();
 }
 
 EMPeriodicGaussian::~EMPeriodicGaussian() {
@@ -74,7 +77,7 @@ static Param estimator(const vector<Param> &source) {
 
 static double normalCDF(double x, double u, double s) {
 	double prefix = 0.5;
-	double suffix = 1.0+erf((x-u)/(s*sqrt(2)));
+	double suffix = 1.0+erf((x-u)/(s*sqrt(2.0)));
     return prefix*suffix;
 }
 
@@ -126,6 +129,14 @@ static bool paramComparator(const Param &a, const Param&b) {
     return a.u < b.u;
 }
 
+const int numImages = 10;
+
+void EMPeriodicGaussian::initializePink() {
+	// yuck.
+	vector<vector<vector<double> > > init(data_.size(), vector<vector<double> >(params_.size(), vector<double>(2*numImages+1, 0)));
+	pinkr_ = init;
+}
+
 void EMPeriodicGaussian::mergeParams() {
 
     sort(params_.begin(), params_.end(), paramComparator);
@@ -170,10 +181,76 @@ void EMPeriodicGaussian::mergeParams() {
     }
 }
 
+void EMPeriodicGaussian::EStep() {
+
+	for(int n=0 ; n < data_.size(); n++) {
+		double bot = periodicGaussianMixture(params_, data_[n], period_);
+		for(int k=0; k < params_.size(); k++) {
+			double topsum = 0;
+            for(int r = -numImages; r <= numImages; r++) {
+				double top = params_[k].p*gaussian(params_[k].u, params_[k].s, data_[n]-period_*r);
+				pinkr_[n][k][r+numImages] = top/bot;
+            }
+		}
+    }
+
+	for(int n=0; n < data_.size(); n++) {
+		double sum = 0;
+		for(int k=0; k < params_.size(); k++) {
+			for(int r= - numImages; r <= numImages; r++) {
+				sum += pinkr_[n][k][r+numImages];   
+			}
+		}
+		if(sum < 0.999) {
+			throw std::runtime_error("EMPeriodicGaussian::EStep() failed - pinkr_ no longer sums to 1");
+		}
+	}
+	
+}
+
+
+void EMPeriodicGaussian::MStep() {
+    for(int k=0; k < params_.size(); k++) {
+		// compute new probability and normalization constant
+		double normalization;
+        double sum = 0;
+        for(int n=0; n < data_.size(); n++) {   
+            for(int r = -numImages; r <= numImages; r++) {
+                sum += pinkr_[n][k][r+numImages];
+            }
+        }
+
+        normalization = sum;
+		params_[k].p = sum/data_.size();
+
+		// compute new mean
+        double numerator = 0;
+        for(int n=0; n < data_.size(); n++) {
+            for(int r=-numImages; r <= numImages; r++) {
+                numerator += pinkr_[n][k][r+numImages]*(data_[n]-r*period_);
+            }
+        }
+        params_[k].u = numerator/normalization;
+
+		// compute new standard deviation
+        numerator = 0;
+        for(int n=0; n < data_.size(); n++) {
+            for(int r=-numImages; r <= numImages; r++) {
+                double a = data_[n]-params_[k].u-r*period_;
+                numerator += pinkr_[n][k][r+numImages]*(a*a);
+            }
+        }
+        params_[k].s = sqrt(numerator/normalization);
+	}
+}
+
+/*
 void EMPeriodicGaussian::MStep() {
 #ifndef NDEBUG
     testIntegrity();
 #endif
+
+	cout << "mean" << endl;
 
     // Compute new mean
     for(int k=0; k<params_.size(); k++) {
@@ -229,6 +306,8 @@ void EMPeriodicGaussian::MStep() {
         } while(fabs(my) > 1e-5);
         params_[k].u = mk;
     }
+	
+	cout << "std dev" << endl;
 
     // Compute new standard deviation and probability
     for(int k=0; k<params_.size(); k++) {
@@ -237,7 +316,18 @@ void EMPeriodicGaussian::MStep() {
         double bk = period_;
         double mk;
         double my;
+
+		int count = 0;
+
+		ofstream log("debug.txt");
         do {
+			count++;
+			if(count > 400) {
+				for(double x = 0; x < 10; x++) {
+					log << dlds(x, k) << endl;
+				}
+				throw(std::runtime_error("FATAL"));
+			}
             assert(dlds(ak, k) > 0 || isnan(dlds(ak, k)));
             assert(dlds(bk, k) < 0);
             mk = (ak+bk)/2.0;
@@ -257,6 +347,7 @@ void EMPeriodicGaussian::MStep() {
         params_[k].p = denominatorSum / data_.size();
     }
 }
+*/
 
 double EMPeriodicGaussian::domainLength() const {
     return period_;
@@ -270,6 +361,7 @@ double EMPeriodicGaussian::qkn(int k, int n) const {
     return pk*periodicGaussian(uk,sk,xn,period_);
 }
 
+/*
 double EMPeriodicGaussian::dldu(double uk, int k) const {
     double sk = params_[k].s;
     double s_sum = 0;
@@ -291,12 +383,6 @@ double EMPeriodicGaussian::dldu(double uk, int k) const {
             r_sum_g  += gaussian(uk+r*period_, sk, xn); 
             r_sum_rg += r*gaussian(uk+r*period_, sk, xn);
         }
-        /*
-        int images_ = 50;
-        for(int r=-images_; r<=images_; r++) {
-            r_sum_g  += gaussian(uk+r*period_, sk, xn); 
-            r_sum_rg += r*gaussian(uk+r*period_, sk, xn);
-        }*/
         summand = r_sum_rg/r_sum_g;
         if(isnan(summand))
             summand = 0;
@@ -343,5 +429,6 @@ double EMPeriodicGaussian::dlds(double sk, int k) const {
     }
     return s_sum;
 }
+*/
 
 }

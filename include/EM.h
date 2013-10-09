@@ -40,9 +40,6 @@ class EM {
         // Get number of data points
         int getDataSize() const;
 
-        // Compute the log likelihood given current parameters
-        double getLikelihood() const;
-
         // Set maximum number of steps in any given EM run
         void setMaxSteps(int maxSteps);
 
@@ -67,8 +64,11 @@ class EM {
         // -Returns true if converged, false otherwise
         bool simpleRun(unsigned int numParams);
 
+		// Compute the log likelihood given current parameters
+        double getLikelihood() const;
+
         // Compute the Expectation based on current parameters
-        void EStep();
+        virtual void EStep() = 0;
 
         // Maximize the Expectation by tuning parameters
         virtual void MStep() = 0;
@@ -81,12 +81,6 @@ class EM {
         const std::vector<double> &data_;
         std::vector<Param> params_;
 
-        // pikn_ is a matrix of conditional probabilities: 
-        // that given a point n was observed, it came from 
-        // component k, ie. p(k|n) during iteration i
-        // this is updated during the E-step
-        std::vector<std::vector<double> > pikn_;
-
     private:
 
         // maximum number of steps in each EM run
@@ -94,6 +88,8 @@ class EM {
 
         // tolerance threshold
         double tolerance_;
+
+		virtual void initializePink() = 0;
 
         // Used by the EStep to compute the expectation
         virtual double qkn(int k, int n) const = 0;
