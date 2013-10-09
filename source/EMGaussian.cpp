@@ -139,6 +139,10 @@ void EMGaussian::initializePink() {
     }
 }
 
+void EMGaussian::destroyPink() {
+	pink_.resize(0);
+}
+
 void EMGaussian::EStep() {
     for(int n=0; n<data_.size(); n++) {
         double denominator = gaussianMixture(params_, data_[n]);
@@ -149,7 +153,6 @@ void EMGaussian::EStep() {
                 pink_[n][k] = 0;
         }
     }
-    testIntegrity();
 }
 
 void EMGaussian::MStep() {

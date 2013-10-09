@@ -74,10 +74,7 @@ class EM {
         virtual void MStep() = 0;
 
     protected:
-
-        // The sum over k for each n in p(k|n) should be 1
-        void testIntegrity() const;
-        
+		       
         const std::vector<double> &data_;
         std::vector<Param> params_;
 
@@ -89,7 +86,12 @@ class EM {
         // tolerance threshold
         double tolerance_;
 
+
+		// API TODOs - merge E and M into one step and get rid of many of these methods
+
 		virtual void initializePink() = 0;
+
+		virtual void destroyPink() = 0;
 
         // Used by the EStep to compute the expectation
         virtual double qkn(int k, int n) const = 0;
@@ -99,6 +101,7 @@ class EM {
 
         // Merge excessive parameters
         virtual void mergeParams() = 0;
+
 
 };
 

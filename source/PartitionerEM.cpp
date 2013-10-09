@@ -31,7 +31,6 @@ PartitionerEM::~PartitionerEM() {
 
 void PartitionerEM::optimizeParameters() {
     em_->simpleRun(25);
-    //em_->multiAdaptiveRun(MARThreshold_, MARNumParams_, MARNumTries_);
 }
 
 std::vector<double> PartitionerEM::partition() {

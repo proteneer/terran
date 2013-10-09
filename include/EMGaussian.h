@@ -21,6 +21,8 @@ private:
 	// initialize internals based on current data_, params_
 	void initializePink();
 
+	void destroyPink();
+
 	// pikn_ is a matrix of conditional probabilities: 
     // that given a point n was observed, it came from 
     // component k, ie. p(k|n) during iteration i

@@ -41,7 +41,6 @@ private:
     
     std::vector<double> findLowMinima() const;
 
-
     // To do: establish left and right bounds for sampling the mean
 
     // During MAR, when a given parameter for some mixture model

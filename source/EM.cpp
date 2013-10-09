@@ -118,6 +118,8 @@ bool EM::run() {
     // b. maxmimum number of steps reached
     } while(likelihood - likelihoodOld > tolerance_ && steps < maxSteps_);
 
+	destroyPink();
+
     return (steps < maxSteps_);
 }
 
@@ -139,6 +141,8 @@ double EM::getLikelihood() const {
 
 bool EM::simpleRun(unsigned int numParams) {
     
+	cout << "entering simplerun()" << endl;
+
     if(numParams > data_.size()) {
         throw(std::runtime_error("EM::simpleRun(), numParams > number of data points"));
     }
@@ -156,18 +160,25 @@ bool EM::simpleRun(unsigned int numParams) {
     }
     
     // initialize pikn
+	cout << "initializing pikn()" << endl;
 	initializePink();
-
-    int steps = 0;
+	
+	int steps = 0;
     double likelihood = getLikelihood();
     double likelihoodOld;
     do {
         vector<Param> paramsOld = params_;
-        likelihoodOld = likelihood;
+		likelihoodOld = likelihood;
+		cout << "e" << endl;
 		EStep();
-		MStep();   
+		cout << "m" << endl;
+		MStep();
         steps++;
         likelihood = getLikelihood(); 
+
+		cout << params_ << endl;
+
+		cout << likelihoodOld << " -> " << likelihood << endl;
         if(steps >= maxSteps_) {
             break;
         }
@@ -177,7 +188,6 @@ bool EM::simpleRun(unsigned int numParams) {
         if(initialSize != params_.size()) {
             continue;
         }
-
         // rethink termination criteria if there are merges happening
         if(fabs(likelihood - likelihoodOld) < tolerance_) {
             if(likelihood < likelihoodOld) {
@@ -190,21 +200,10 @@ bool EM::simpleRun(unsigned int numParams) {
     // a. likelihood reaches the specified tolerance
     // b. maximimum number of steps reached
     } while(true);
+	
+	destroyPink();
 
     return steps < maxSteps_;
 }
-
-void EM::testIntegrity() const {
-	/*
-    double sum = 0;
-    for(int k=0; k<params_.size(); k++) {
-        for(int n=0; n<data_.size(); n++) {
-            sum += pikn_[n][k];   
-        }
-        if(fabs(sum-1.0) < 1e-7)
-            throw(std::runtime_error("pikn no longer sums to 1"));
-    }
-	*/
-};
 
 }

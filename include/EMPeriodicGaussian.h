@@ -23,7 +23,8 @@ class EMPeriodicGaussian : public EM {
 
 		void initializePink();
 
-		// pinky_[n][k][r] - where r can go from -6 to 6 -> mapped to 0 to 12
+		void destroyPink();
+
 		std::vector<std::vector<std::vector<double> > > pinkr_;
         
         void mergeParams();
@@ -31,12 +32,6 @@ class EMPeriodicGaussian : public EM {
         double domainLength() const;
 
         double qkn(int k, int n) const; 
-
-        // Simplified versions of the lambda derivative in order to find roots
-		/*
-        double dlds(double sk, int k) const;
-        double dldu(double uk, int k) const;
-		*/
 
         double period_;
 };
