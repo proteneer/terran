@@ -1,6 +1,8 @@
 #include_directories(${Terran_SOURCE_DIR}/include)
 link_directories(${Terran_BINARY_DIR})
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Terran_BINARY_DIR})
+
 add_executable(testEMGaussian testEMGaussian.cpp util.cpp)
 target_link_libraries(testEMGaussian Terran)
 
