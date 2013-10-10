@@ -47,7 +47,7 @@ int main() {
 		cout << "data empty" << endl;
 	}
 	
-	vector<bool> period(data[0].size(), 1);
+	vector<int> period(data[0].size(), 1);
 
 	Cluster cc(data, period);
 	

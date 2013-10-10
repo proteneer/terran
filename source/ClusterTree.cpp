@@ -9,11 +9,18 @@
 using namespace std;
 using namespace Terran;
 
-ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<bool> &period) : 
+ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<int> &period) : 
     dataset_(dataset),
     period_(period),
     root_(NULL),
     currentCluster_(NULL) {
+
+	for(int i=0; i < period.size(); i++) {
+		if(period[i] != 1 && period[i] != 0) {
+			
+			throw(std::runtime_error("period must either be zero (false), or one (true)"));
+		}
+	}
 
     vector<int> points(dataset.size());
     for(int i=0; i<points.size(); i++) {

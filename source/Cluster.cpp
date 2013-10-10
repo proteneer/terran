@@ -12,12 +12,18 @@ using namespace std;
 
 namespace Terran {
 
-Cluster::Cluster(const vector<vector<double> > &data, const vector<bool> &period) : 
+Cluster::Cluster(const vector<vector<double> > &data, const vector<int> &period) : 
     dataset_(data),
     period_(period),
     partitions_(period.size()),
     partitionMethod_("EM"),
     subsampleCount_(min(3000,(int)data.size())) {
+
+	for(int i=0; i < period.size(); i++) {
+		if(period[i] != 1 && period[i] != 0) {
+			throw(std::runtime_error("period must either be zero (false), or one (true)"));
+		}
+	}
 
     if(data.size() == 0) 
         throw(std::runtime_error("Cluster()::Cluster() - input data size cannot be 0"));

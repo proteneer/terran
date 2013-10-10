@@ -15,7 +15,7 @@ class TERRAN_EXPORT Cluster {
 
 public:
 
-    Cluster(const std::vector<std::vector<double> > &data, const std::vector<bool> &period);
+    Cluster(const std::vector<std::vector<double> > &data, const std::vector<int> &period);
 
     // todo: delete partitions!
     ~Cluster();
@@ -74,7 +74,7 @@ private:
     // period of 0 indicates the dimension is not periodic
 
 	// enforce period of 2PI.
-    const std::vector<bool> period_;
+    const std::vector<int> period_;
 
     // disjoint partitions of each domain
     std::vector<std::vector<double> > partitions_;  

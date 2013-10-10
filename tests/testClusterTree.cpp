@@ -68,7 +68,7 @@ void testPeriodicSimpleCase() {
         }
     }
 
-    vector<bool> periodset(2, true);
+    vector<int> periodset(2, true);
     ClusterTree ct(dataset, periodset);
 
     while(!ct.finished()) {
@@ -169,7 +169,7 @@ void testPeriodicMultiCluster() {
         }
     }
 
-    vector<bool> periodset(2,true);
+    vector<int> periodset(2,true);
     ClusterTree ct(dataset, periodset);
 
     int count = 0;

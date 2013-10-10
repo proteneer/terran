@@ -264,7 +264,7 @@ void testEasyCase2D() {
         }
     }
 
-    vector<bool> periodset(2, true);
+    vector<int> periodset(2, true);
 
     Cluster cc(dataset, periodset);
 

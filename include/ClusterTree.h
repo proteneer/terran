@@ -48,7 +48,7 @@ public:
 
     // dataset: NxD matrix, N is number of points, D is dimension
     // period denotes the periodicity 
-    ClusterTree(const std::vector<std::vector<double> > &dataset, const std::vector<bool> &isPeriodic);
+    ClusterTree(const std::vector<std::vector<double> > &dataset, const std::vector<int> &isPeriodic);
 
     ~ClusterTree();
 
@@ -104,7 +104,7 @@ private:
 
     // N x D
     std::vector<std::vector<double> > dataset_; 
-    std::vector<bool> period_;
+    std::vector<int> period_;
     std::queue<Node*> queue_;
     Node* root_;
 
