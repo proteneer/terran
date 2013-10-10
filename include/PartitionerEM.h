@@ -21,7 +21,7 @@ class TERRAN_EXPORT PartitionerEM : public Partitioner {
 
 public:
     
-    PartitionerEM(const std::vector<double> &dataset, double period);
+    PartitionerEM(const std::vector<double> &dataset, bool isPeriodic);
     ~PartitionerEM();
 
     // Executes EM::multiAdaptiveRun()
@@ -37,22 +37,8 @@ public:
     double getPartitionCutoff() const;
 
 private:
-
-    bool isPeriodic() const;
-    
+	    
     std::vector<double> findLowMinima() const;
-
-    // To do: establish left and right bounds for sampling the mean
-
-    // During MAR, when a given parameter for some mixture model
-    // has a weight < MARThreshold_, the parameter is purged
-    double MARThreshold_;
-
-    // The number of parameters to start with for MAR
-    int    MARNumParams_;
-
-    // Number of attempts
-    int    MARNumTries_;
 
     // Minima whose value is less than partitionCutoff_ is 
     // considered to be a partition point

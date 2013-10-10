@@ -12,7 +12,7 @@ using namespace std;
 
 namespace Terran {
 
-Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &period) : 
+Cluster::Cluster(const vector<vector<double> > &data, const vector<bool> &period) : 
     dataset_(data),
     period_(period),
     partitions_(period.size()),
@@ -40,10 +40,7 @@ int Cluster::getNumPoints() const {
 }
 
 bool Cluster::isPeriodic(int d) const {
-    if(period_[d] == 0)
-        return false;
-    else
-        return true;
+	return period_[d];
 }
 
 void Cluster::setSubsampleCount(int count) {
@@ -52,15 +49,6 @@ void Cluster::setSubsampleCount(int count) {
 
 int Cluster::getSubsampleCount() const {
     return subsampleCount_;
-}
-
-double Cluster::getPeriod(int d) const {
-    if(!isPeriodic(d)) {
-        stringstream msg;
-        msg << "Cluster::getPeriod() - dimension " << d << " is not periodic!";
-        throw(std::runtime_error(msg.str()));
-    }
-    return period_[d];
 }
 
 vector<double> Cluster::getPoint(int n) const {
@@ -106,7 +94,7 @@ void Cluster::setPartitionMethod(string type) {
 }
 
 void Cluster::partition(int d) {
-    if(partitionMethod_.compare("EM") == 0) {
+	if(partitionMethod_.compare("EM") == 0) {
         PartitionerEM pem(getDimension(d), period_[d]);
         partitions_[d] = pem.partition();
     }

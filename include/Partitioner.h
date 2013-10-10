@@ -19,7 +19,7 @@ class TERRAN_EXPORT Partitioner {
 
 public:
 
-    Partitioner(const std::vector<double> dataset, double period) : dataset_(dataset), period_(period) {};
+    Partitioner(const std::vector<double> dataset, bool isPeriodic) : dataset_(dataset), isPeriodic_(isPeriodic) {};
     virtual ~Partitioner() {};
 
     virtual std::vector<double> partition() = 0;
@@ -35,7 +35,7 @@ protected:
     //   is a partition into n+1 parts, _0_|__1__|_2_
     //   where | denote the partition element
     const std::vector<double> dataset_;
-    double period_;
+    bool isPeriodic_;
 
 };
 

@@ -15,8 +15,6 @@
 
 using namespace std;
 
-const double PI = 3.14159265358979323846264338327950288;
-
 /*
  * At least up to version 8 (VC++ 2005), Microsoft does not support the
  * standard C99 erf() and erfc() functions. For now we're including these
@@ -31,7 +29,7 @@ const double PI = 3.14159265358979323846264338327950288;
 *   author:  Steve Strand
 *   written: 29-Jan-04
 ***************************/
-#define M_PI PI
+#define M_PI 3.14159265358979323846264338327950288;
 
 static const double rel_error= 1E-12;        //calculate 12 significant figures
 //you can adjust rel_error to trade off between accuracy and speed
@@ -97,6 +95,8 @@ static double erfc(double x)
 #endif // _MSC_VER
 
 namespace Terran {
+
+const double PI = 3.14159265358979323846264338327950288;
 
 struct double2 {
 	double x;

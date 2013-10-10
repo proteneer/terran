@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Terran;
 
-ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<double> &period) : 
+ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<bool> &period) : 
     dataset_(dataset),
     period_(period),
     root_(NULL),

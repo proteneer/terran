@@ -15,7 +15,7 @@ class TERRAN_EXPORT Cluster {
 
 public:
 
-    Cluster(const std::vector<std::vector<double> > &data, const std::vector<double> &period);
+    Cluster(const std::vector<std::vector<double> > &data, const std::vector<bool> &period);
 
     // todo: delete partitions!
     ~Cluster();
@@ -28,10 +28,6 @@ public:
 
     // returns true if dimension d is periodic
     bool isPeriodic(int d) const;
-
-    // if dimension is periodic, returns the period of the dimension d
-    // else an exception is thrown
-    double getPeriod(int d) const;
 
     // return point n of length D
     std::vector<double> getPoint(int n) const;
@@ -76,11 +72,12 @@ private:
 
     // describes the domain of each dimension
     // period of 0 indicates the dimension is not periodic
-    const std::vector<double> period_;
+
+	// enforce period of 2PI.
+    const std::vector<bool> period_;
 
     // disjoint partitions of each domain
     std::vector<std::vector<double> > partitions_;  
-
 
 };
 

@@ -9,16 +9,13 @@
 using namespace std;
 using namespace Terran;
 
-PartitionerEM::PartitionerEM(const vector<double> &dataset, double period) : 
-    Partitioner(dataset, period),
-    MARThreshold_(0.05), 
-    MARNumParams_(12),
-    MARNumTries_(5),
+PartitionerEM::PartitionerEM(const vector<double> &dataset, bool isPeriodic) : 
+    Partitioner(dataset, isPeriodic),
     partitionCutoff_(0.05),
     em_(NULL) {
 
-    if(isPeriodic()) {
-        em_ = new EMPeriodicGaussian(dataset_, period_);
+    if(isPeriodic_) {
+        em_ = new EMPeriodicGaussian(dataset_, 2*PI);
     } else {
         em_ = new EMGaussian(dataset_);
     }
@@ -38,14 +35,6 @@ std::vector<double> PartitionerEM::partition() {
     return findLowMinima();
 }
 
-bool PartitionerEM::isPeriodic() const {
-    if(period_ == 0) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
 vector<double> PartitionerEM::findLowMinima() const {
     vector<Param> params = em_->getParams();
     if(params.size() == 0) {
@@ -53,8 +42,8 @@ vector<double> PartitionerEM::findLowMinima() const {
     }
 
     vector<double> partition;
-    if(isPeriodic()) {
-        const double period = period_;
+    if(isPeriodic_) {
+        const double period = 2*PI;
         MethodsPeriodicGaussian mpg(params, period);
         vector<double> minima = mpg.findMinima();
         for(int i=0; i < minima.size(); i++) {

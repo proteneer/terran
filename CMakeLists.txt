@@ -11,8 +11,10 @@ set(STATIC_LIBRARY OFF CACHE BOOL "Build static as opposed to shared library")
 
 if(STATIC_LIBRARY)
     add_definitions(-DTERRAN_BUILDING_STATIC_LIBRARY)
+    add_library(Terran STATIC ${CoreFiles} ${HeaderFiles})
 else(STATIC_LIBRARY)
     add_definitions(-DTERRAN_BUILDING_SHARED_LIBRARY)
+    add_library(Terran SHARED ${CoreFiles} ${HeaderFiles})
 endif(STATIC_LIBRARY)
-add_library(Terran SHARED ${CoreFiles} ${HeaderFiles})
+
 add_subdirectory(tests)
