@@ -16,26 +16,19 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<double> &peri
     dataset_(data),
     period_(period),
     partitions_(period.size()),
-    partitioners_(period.size()),
-    subsampleCount_(min(2500,(int)data.size())) {
+    partitionMethod_("EM"),
+    subsampleCount_(min(3000,(int)data.size())) {
+
     if(data.size() == 0) 
         throw(std::runtime_error("Cluster()::Cluster() - input data size cannot be 0"));
 
     if(data[0].size() != period.size())
         throw(std::runtime_error("Cluster()::Cluster() - period size does not match data dimension"));
 
-    for(int d=0; d < getNumDimensions(); d++) {
-        partitioners_[d] = new PartitionerEM(getDimension(d), period_[d]);
-    } 
 }
 
 Cluster::~Cluster() {
-    for(int i=0; i < partitioners_.size(); i++) {
-        delete partitioners_[i];
-        // this is currently needed in case the user decides to do something like
-        // Cluster cc = clusterTree.getCluster();
-        partitioners_[i] = 0;
-    }
+
 }
 
 int Cluster::getNumDimensions() const {
@@ -90,10 +83,6 @@ vector<double> Cluster::getDimension(int d) const {
     return data;
 }
 
-void Cluster::partition(int d) {
-    partitions_[d] = partitioners_[d]->partition();
-};
-
 vector<double> Cluster::getPartition(int d) const {
     if(d > getNumDimensions() || d < 0) {
         throw(std::runtime_error("Cluster::getPartitions() - invalid dimension"));
@@ -108,15 +97,20 @@ void Cluster::setPartition(int d, const vector<double> &p) {
     partitions_[d] = p;
 }
 
-void Cluster::setPartitioner(int d, Partitioner *partitioner) {
-    delete partitioners_[d];
-    partitioners_[d] = partitioner;
-};
+void Cluster::setPartitionMethod(string type) {
+    if(type.compare("EM") == 0) {
+        partitionMethod_ = type;
+    } else {
+        throw std::runtime_error("Cluster::setPartitionMethod() - unknown partition method");
+    }
+}
 
-Partitioner& Cluster::getPartitioner(int d) {
-    return *(partitioners_[d]);
+void Cluster::partition(int d) {
+    if(partitionMethod_.compare("EM") == 0) {
+        PartitionerEM pem(getDimension(d), period_[d]);
+        partitions_[d] = pem.partition();
+    }
 };
-
 
 vector<int> Cluster::cluster() {
     // assign each point to a bucket

@@ -86,9 +86,6 @@ class EM {
         // tolerance threshold
         double tolerance_;
 
-
-		// API TODOs - merge E and M into one step and get rid of many of these methods
-
 		virtual void initializePink() = 0;
 
 		virtual void destroyPink() = 0;
@@ -101,7 +98,6 @@ class EM {
 
         // Merge excessive parameters
         virtual void mergeParams() = 0;
-
 
 };
 

@@ -2,6 +2,7 @@
 #define TERRAN_H_
 
 #include <vector>
+#include <string>
 #include "Param.h"
 #include "Partitioner.h"
 #include "PartitionerEM.h"
@@ -42,14 +43,9 @@ public:
     // set the partition info explicitly for dimension d
     void setPartition(int d, const std::vector<double> &p);
 
-    // set the method used to find the partition for dimension d
-    // gives ownership of the partitioner to the Cluster object
-    void setPartitioner(int d, Partitioner *partitioner);
+    void setPartitionMethod(std::string method = "EM");
 
-    // return a reference to the partitioner used to partition dimension d
-    Partitioner& getPartitioner(int d);
-
-    // attempt to partition dimension d
+    // partition dimension d
     void partition(int d);
 
     // returns an assignment of points into clusters
@@ -66,6 +62,8 @@ private:
     // assigns a given point to a bucket
     std::vector<short> assign(int point) const;
 
+    std::string partitionMethod_;
+
     // number of points used to subsample
     double subsampleCount_;
 
@@ -80,8 +78,6 @@ private:
     // disjoint partitions of each domain
     std::vector<std::vector<double> > partitions_;  
 
-    // Partitioners help partition a given dimension
-    std::vector<Partitioner*> partitioners_;
 
 };
 
