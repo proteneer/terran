@@ -8,6 +8,7 @@
 #ifndef EM_H_
 #define EM_H_
 
+#include "export.h"
 #include <vector>
 #include <stdexcept>
 #include "Param.h"
@@ -23,7 +24,7 @@
 
 namespace Terran {
 
-class EM { 
+class TERRAN_EXPORT EM { 
 
     public:
 

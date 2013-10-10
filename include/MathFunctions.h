@@ -10,7 +10,9 @@
 #define isnan(x) _isnan(x) 
 #endif
 
+#include "export.h"
 #include <iostream>
+
 using namespace std;
 
 const double PI = 3.14159265358979323846264338327950288;
@@ -22,14 +24,13 @@ const double PI = 3.14159265358979323846264338327950288;
  * the #ifdef below should change to compare _MSC_VER with a particular
  * version level.
  */
-#ifdef _MSC_VER
 
+#ifdef _MSC_VER
 /***************************
 *   erf.cpp
 *   author:  Steve Strand
 *   written: 29-Jan-04
 ***************************/
-
 #define M_PI PI
 
 static const double rel_error= 1E-12;        //calculate 12 significant figures

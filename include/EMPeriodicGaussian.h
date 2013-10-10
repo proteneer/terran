@@ -7,7 +7,7 @@
 namespace Terran {
 
 // Expectation Maximization of Periodic Gaussian Mixture Models
-class EMPeriodicGaussian : public EM {
+class TERRAN_EXPORT EMPeriodicGaussian : public EM {
     public:
         
         explicit EMPeriodicGaussian(const std::vector<double> &data, const std::vector<Param> &params, double period);

@@ -22,5 +22,5 @@ target_link_libraries(testCluster Terran)
 add_executable(testClusterTree testClusterTree.cpp util.cpp)
 target_link_libraries(testClusterTree Terran)
 
-add_executable(testMesh testMesh.cpp util.cpp)
-target_link_libraries(testMesh Terran)
+add_executable(testRealData testRealData.cpp util.cpp)
+target_link_libraries(testRealData Terran)

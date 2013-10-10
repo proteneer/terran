@@ -3,13 +3,15 @@
 
 #include <vector>
 #include <string>
+
+#include "export.h"
 #include "Param.h"
 #include "Partitioner.h"
 #include "PartitionerEM.h"
 
 namespace Terran {
     
-class Cluster {
+class TERRAN_EXPORT Cluster {
 
 public:
 

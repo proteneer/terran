@@ -1,12 +1,14 @@
 #ifndef METHODS_GAUSSIAN_H_
 #define METHODS_GAUSSIAN_H_
 
+#include "export.h"
 #include "MathFunctions.h"
 #include "Methods.h"
 
+
 namespace Terran {
 
-class MethodsGaussian : public Methods {
+class TERRAN_EXPORT MethodsGaussian : public Methods {
 
 public:
 

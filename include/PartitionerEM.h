@@ -1,6 +1,7 @@
 #ifndef PARTITIONER_EM_H_
 #define PARTITIONER_EM_H_
 
+#include "export.h"
 #include "Partitioner.h"
 #include "EM.h"
 
@@ -16,7 +17,7 @@ namespace Terran {
    such as setting initial gaussian mixture parameters, a reference to the underlying EM
    object can be obtained.
 */
-class PartitionerEM : public Partitioner {
+class TERRAN_EXPORT PartitionerEM : public Partitioner {
 
 public:
     

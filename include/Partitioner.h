@@ -2,6 +2,7 @@
 #define PARTITIONER_H_
 
 #include <vector>
+#include "export.h"
 
 /* Abstract Class
 
@@ -14,7 +15,7 @@
 */
 namespace Terran {
 
-class Partitioner {
+class TERRAN_EXPORT Partitioner {
 
 public:
 

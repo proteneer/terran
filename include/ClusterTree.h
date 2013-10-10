@@ -1,6 +1,7 @@
 #include <vector>
 #include <queue>
 
+#include "export.h"
 #include "Cluster.h"
 
 /* A BFS based ClusterTree class. 
@@ -24,7 +25,7 @@
  */
 namespace Terran {
 
-class ClusterTree {
+class TERRAN_EXPORT ClusterTree {
 
 public:
 

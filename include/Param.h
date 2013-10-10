@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <vector>
+#include "export.h"
 
 namespace Terran {
 

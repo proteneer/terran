@@ -6,7 +6,7 @@
 namespace Terran {
 
 // Canonical Expectation Maximization of Gaussian Mixture Models
-class EMGaussian : public EM {
+class TERRAN_EXPORT EMGaussian : public EM {
 public:
     EMGaussian(const std::vector<double> &data);
     EMGaussian(const std::vector<double> &data, const std::vector<Param> &params);

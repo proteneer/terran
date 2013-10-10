@@ -10,3 +10,4 @@
 #include "Param.h"
 #include "Partitioner.h"
 #include "PartitionerEM.h"
+#include "export.h"
