@@ -141,9 +141,7 @@ double EM::getLikelihood() const {
 
 bool EM::simpleRun(unsigned int numParams) {
     
-	cout << "entering simplerun()" << endl;
-
-    if(numParams > data_.size()) {
+	if(numParams > data_.size()) {
         throw(std::runtime_error("EM::simpleRun(), numParams > number of data points"));
     }
 
@@ -158,9 +156,7 @@ bool EM::simpleRun(unsigned int numParams) {
         params_[i].u = randomSample[i];
         params_[i].s = 0.1*domainLength();
     }
-    
-    // initialize pikn
-	cout << "initializing pikn()" << endl;
+
 	initializePink();
 	
 	int steps = 0;
@@ -169,16 +165,10 @@ bool EM::simpleRun(unsigned int numParams) {
     do {
         vector<Param> paramsOld = params_;
 		likelihoodOld = likelihood;
-		cout << "e" << endl;
 		EStep();
-		cout << "m" << endl;
 		MStep();
         steps++;
         likelihood = getLikelihood(); 
-
-		cout << params_ << endl;
-
-		cout << likelihoodOld << " -> " << likelihood << endl;
         if(steps >= maxSteps_) {
             break;
         }
