@@ -193,7 +193,6 @@ void testPeriodicMultiCluster() {
         for(int i=0 ; i < cc.getNumPoints(); i++) {
             clusterPoints.push_back(cc.getPoint(i));
         }
-        vector<int> assign = cc.cluster();
         ct.divideCurrentCluster();
         count++;
     }

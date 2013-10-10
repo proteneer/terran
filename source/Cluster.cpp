@@ -112,7 +112,7 @@ void Cluster::partition(int d) {
     }
 };
 
-vector<int> Cluster::cluster() {
+vector<int> Cluster::assign() {
     // assign each point to a bucket
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {

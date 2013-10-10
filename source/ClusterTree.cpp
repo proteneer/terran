@@ -113,7 +113,7 @@ void ClusterTree::partitionCurrentCluster(int d) {
 }
 
 void ClusterTree::divideCurrentCluster() {
-    vector<int> assignment = currentCluster_->cluster();
+    vector<int> assignment = currentCluster_->assign();
     int maxAssignmentId = *(max_element(assignment.begin(), assignment.end()));
     const vector<int> &indices = currentNode_->indices;
     if(maxAssignmentId > 0) {

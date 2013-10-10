@@ -43,6 +43,7 @@ public:
     // set the partition info explicitly for dimension d
     void setPartition(int d, const std::vector<double> &p);
 
+    // set the partition method. Currently supported: "EM", possible "KDE" in the future
     void setPartitionMethod(std::string method = "EM");
 
     // partition dimension d
@@ -51,7 +52,7 @@ public:
     // returns an assignment of points into clusters
     // each dimension must have been partitioned either by means of:
     // setPartitions() or invoking partition()
-    std::vector<int> cluster();
+    std::vector<int> assign();
 
     void setSubsampleCount(int count);
 
