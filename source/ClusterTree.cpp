@@ -78,10 +78,6 @@ vector<int> ClusterTree::assign() const {
     return assignment;
 }
 
-vector<double> ClusterTree::getPoint(int n) const {
-    return dataset_[n];
-}
-
 int ClusterTree::getNumClusters() const {
     return getLeaves().size();
 }

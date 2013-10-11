@@ -46,10 +46,10 @@ cdef extern from "../include/Cluster.h" namespace "Terran":
         vector[int] assign()
         void setSubsampleCount(int)
         int getSubsampleCount()
-        
+           
 cdef class PyCluster:
     
-    cdef Cluster *thisptr
+    cdef Cluster* thisptr
         
     def __cinit__(self, vector[vector[double]] data, vector[int] period):
         """
@@ -59,7 +59,13 @@ cdef class PyCluster:
                                   if period[d] is 1 then dimension d is periodic 
         """
         self.thisptr = new Cluster(data,period)
-
+        
+    def __cinit__(self):
+        """
+        Do not use this method. This constructor is mainly used to help out PyClusterTree
+        """
+        pass
+        
     def __dealloc__(self):
         del self.thisptr
      
@@ -100,16 +106,30 @@ cdef class PyCluster:
 
 cdef extern from "../include/ClusterTree.h" namespace "Terran":
     cdef cppclass ClusterTree:
-        Cluster(vector[vector[double]],vector[int]) except +
+        ClusterTree(vector[vector[double]],vector[int]) except +
         int getNumDimensions()
         int getNumPoints()
-
-            
-#cdef extern from "../include/EMGaussian.h" namespace "Terran":        
-#        
-#cdef extern from "../include/EM.h" namespace "Terran": 
-#    cdef cppclass EM:
-#        EM(vector[vector[double]]) except +
-#        void setParameters(vector[Param])
-#        vector[Param] getParameters()
-#        void setMaxSteps(int maxSteps
+        int getNumClusters()
+        vector[int] assign()
+        Cluster& getCurrentCluster()
+        
+cdef class PyClusterTree:
+    
+    cdef ClusterTree *thisptr
+    
+    def __cinit__(self, vector[vector[double]] data, vector[int] period):
+        """
+        data - shape (N,D) where N is the number of points, D is the number dimensions
+        period - array of size D, allowed values of period[d] are 0 and 1, where:
+                                  if period[d] is 0 then dimension d is not periodic
+                                  if period[d] is 1 then dimension d is periodic 
+        """
+        self.thisptr = new ClusterTree(data,period)
+                
+    def __dealloc__(self):
+        del self.thisptr
+        
+    def get_current_cluster(self):
+        cluster = PyCluster()
+        cluster.thisptr = &self.thisptr.getCurrentCluster();
+        return cluster

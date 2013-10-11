@@ -60,10 +60,7 @@ public:
 
     // get number of clusters found so far, equal to number of leaves 
     int getNumClusters() const;
-
-    // return point n
-    std::vector<double> getPoint(int n) const;
-
+	
     // get the current assignment of points into clusters
     std::vector<int> assign() const;
 
