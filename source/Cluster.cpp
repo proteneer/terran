@@ -25,6 +25,24 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<int> &period)
 		}
 	}
 
+	for(int n=1; n < data.size(); n++) {
+		if(data[n].size() != data[n-1].size()) {
+			throw(std::runtime_error("Cluster::Cluster() - not all points have the same dimensions"));
+		}
+	}
+
+	for(int n=0; n < data.size(); n++) {
+		for(int d=0; d < data[n].size(); d++) {
+			if(period[d]) {
+				if(data[n][d] < -PI || data[n][d] > PI) {
+					stringstream error;
+					error << "Cluster::Cluster() - dimension " << d << " is periodic, but the angles are not in the range [-PI, to PI]" << endl;
+					throw(std::runtime_error(error.str()));
+				}
+			}
+		}
+	}
+
     if(data.size() == 0) 
         throw(std::runtime_error("Cluster()::Cluster() - input data size cannot be 0"));
 

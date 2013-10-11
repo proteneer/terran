@@ -67,7 +67,7 @@ cdef class PyCluster:
     def getPartition(self, int d):
         return self.thisptr.getPartition(d)
         
-    def assign(self, int d):
+    def assign(self):
         return self.thisptr.assign()
         
 #cdef extern from "../include/EMGaussian.h" namespace "Terran":        

@@ -64,7 +64,7 @@ private:
     std::string partitionMethod_;
 
     // number of points used to subsample
-    double subsampleCount_;
+    int subsampleCount_;
 
     // points are stored in dataset, size N x D
     // change to array of array later for performance
