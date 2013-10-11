@@ -18,8 +18,7 @@ $> mkdir build; cd build;
 $> cmake -D CMAKE_BUILD_TYPE=RELEASE ../
 $> make -j4
 ```
-
-Python wrappers are now also available via:
+Python wrappers can also be built via cython and distutils. 
 ``` bash
 $> cd wrappers
 $> python setup.py build_ext
