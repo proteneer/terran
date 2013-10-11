@@ -136,6 +136,30 @@ void example() {
 }
 ```
 
+Currently the python API exposes the Cluster class:
+
+``` python
+from terran import PyCluster as cluster
+import numpy as np
+
+# load in an NxD dataset in radians
+data = np.loadtxt("dihedrals.txt")
+
+# declare each dimension as periodic
+period = np.ones(len(data[0]))
+
+c = cluster(data, period)
+
+# print results of the cluster
+for d in c.dimensions:
+    print d, c.partition(d)
+
+# get assignment
+c.assign()
+
+``` 
+
+
 <h2> Misc </h2>
 
 Terran is named after Yutong's Starcraft race.
