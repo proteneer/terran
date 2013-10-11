@@ -150,16 +150,14 @@ period = np.ones(len(data[0]))
 
 c = cluster(data, period)
 
-# print results of the cluster
+# print results of the partitioning each dimension
 for d in c.dimensions:
     print d, c.partition(d)
 
-# get assignment
+# get assignment of each point to a cluster
 c.assign()
-
 ``` 
 
 
 <h2> Misc </h2>
-
 Terran is named after Yutong's Starcraft race.
