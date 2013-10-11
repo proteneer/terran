@@ -31,7 +31,7 @@ vector<vector<double> > readData(string filename) {
 }
 
 void print_vector(const vector<double> &v, string filename) {
-	ofstream data(filename);
+	ofstream data(filename.c_str());
 	for(int i=0; i < v.size(); i++) {
 		data << v[i] << endl;
 	}

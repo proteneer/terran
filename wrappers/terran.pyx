@@ -46,30 +46,33 @@ cdef extern from "../include/Cluster.h" namespace "Terran":
         vector[int] assign()
         
 cdef class PyCluster:
+    
     cdef Cluster *thisptr
+    
     def __cinit__(self, vector[vector[double]] data, vector[int] period):
         self.thisptr = new Cluster(data,period)
+
     def __dealloc__(self):
         del self.thisptr
-        
-    def getNumDimensions(self):
-        return self.thisptr.getNumDimensions()
-    
-    def getNumPoints(self):
-        return self.thisptr.getNumPoints()
-    
-    def isPeriodic(self, int d):
-        return self.thisptr.isPeriodic(d)
-    
+     
     def partition(self, int d):
         self.thisptr.partition(d)
-        
-    def getPartition(self, int d):
         return self.thisptr.getPartition(d)
-        
+    
     def assign(self):
         return self.thisptr.assign()
-        
+
+    @property
+    def dimensions(self):
+        d = 0
+        while d < self.thisptr.getNumDimensions():
+            yield d
+            d += 1
+
+    @property  
+    def shape(self):
+        return self.thisptr.getNumPoints(), self.thisptr.getNumDimensions()
+
 #cdef extern from "../include/EMGaussian.h" namespace "Terran":        
 #        
 #cdef extern from "../include/EM.h" namespace "Terran": 
