@@ -98,6 +98,13 @@ cdef class PyCluster:
             yield d
             d += 1
 
+cdef extern from "../include/ClusterTree.h" namespace "Terran":
+    cdef cppclass ClusterTree:
+        Cluster(vector[vector[double]],vector[int]) except +
+        int getNumDimensions()
+        int getNumPoints()
+
+            
 #cdef extern from "../include/EMGaussian.h" namespace "Terran":        
 #        
 #cdef extern from "../include/EM.h" namespace "Terran": 

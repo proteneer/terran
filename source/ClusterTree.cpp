@@ -13,6 +13,7 @@ ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<in
     dataset_(dataset),
     period_(period),
     root_(NULL),
+	minPointsPerCluster_(3000),
     currentCluster_(NULL) {
 
 	for(int i=0; i < period.size(); i++) {
@@ -29,6 +30,8 @@ ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<in
     root_ = new Node;
     root_->indices = points;
     queue_.push(root_);
+
+	setCurrentCluster();
 }
 
 ClusterTree::~ClusterTree() {
@@ -38,14 +41,6 @@ ClusterTree::~ClusterTree() {
 
 int ClusterTree::getNumPoints() const {
     return dataset_.size();
-}
-
-bool ClusterTree::finished() const {
-    if(queue_.size() == 0) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 // traverse down the to the leaves
@@ -93,33 +88,40 @@ int ClusterTree::getNumClusters() const {
 
 void ClusterTree::setCurrentCluster() {
 
-    if(queue_.size() == 0) 
-        throw(std::runtime_error("ClusterTree::step - invoked setCluster() on an empty queue"));
-    if(currentCluster_ != NULL)
-        throw(std::runtime_error("ClusterTree::currentCluster_ is not set to NULL, has divideCluster() been called?"));
-    currentNode_ = queue_.front();
-    queue_.pop();
-
-    if(currentNode_->indices.size() == 0) 
-        throw(std::runtime_error("ClusterTree::step() - currentNode_ has no points"));
-    if(currentNode_->partitions.size() > 0)
-        throw(std::runtime_error("ClusterTree::step() - currentNode_ partition not empty"));
-    if(currentNode_->children.size() > 0)
-        throw(std::runtime_error("ClusterTree::step() - currentNode_ children not empty"));
+    if(queue_.size() > 0) {
+		if(currentCluster_ != NULL)
+			throw(std::runtime_error("ClusterTree::currentCluster_ is not set to NULL, has divideCluster() been called?"));
+		currentNode_ = queue_.front();
     
-    vector<vector<double> > subset;
-    const vector<int> &indices = currentNode_->indices;
-    for(int i=0; i<indices.size(); i++) {
-        subset.push_back(dataset_[indices[i]]);
-    }
-    currentCluster_ = new Cluster(subset, period_);
+		if(currentNode_->indices.size() == 0) 
+			throw(std::runtime_error("ClusterTree::step() - currentNode_ has no points"));
+		if(currentNode_->partitions.size() > 0)
+			throw(std::runtime_error("ClusterTree::step() - currentNode_ partition not empty"));
+		if(currentNode_->children.size() > 0)
+			throw(std::runtime_error("ClusterTree::step() - currentNode_ children not empty"));
+    
+		vector<vector<double> > subset;
+		const vector<int> &indices = currentNode_->indices;
+		for(int i=0; i<indices.size(); i++) {
+			subset.push_back(dataset_[indices[i]]);
+		}
+
+		currentCluster_ = new Cluster(subset, period_);
+	}
 }
 
+int ClusterTree::queueSize() const {
+	return queue_.size();
+}
+
+/*
 void ClusterTree::partitionCurrentCluster(int d) {
     currentCluster_->partition(d);
 }
+*/
 
 void ClusterTree::divideCurrentCluster() {
+	// get assignment of points from current cluster
     vector<int> assignment = currentCluster_->assign();
     int maxAssignmentId = *(max_element(assignment.begin(), assignment.end()));
     const vector<int> &indices = currentNode_->indices;
@@ -132,13 +134,21 @@ void ClusterTree::divideCurrentCluster() {
         for(int j=0; j < subsetIndices.size(); j++) {
             Node* newNode = new Node;
             newNode->indices = subsetIndices[j];
-            // set the children for this cluster
             currentNode_->children.push_back(newNode);
-            queue_.push(newNode);
+			
+			// add this new cluster to the todo list if it has more than 3500 points.
+			// (if there are less than 3500 points its hard to marginalize)
+			if(subsetIndices[j].size() > minPointsPerCluster_) {
+				queue_.push(newNode);
+			}
         }
     }
     delete currentCluster_;
     currentCluster_ = NULL;
+	// pop the queue
+	queue_.pop();
+	// set next cluster
+	setCurrentCluster();
 }
 
 std::vector<const ClusterTree::Node*> ClusterTree::getLeaves() const {
@@ -162,23 +172,23 @@ std::vector<const ClusterTree::Node*> ClusterTree::getLeaves() const {
 }
 
 void ClusterTree::step() {
-    if(finished()) 
+    if(queue_.size() == 0) 
         return;
-    setCurrentCluster();
-    if(currentCluster_->getNumPoints() < 500) {
-        delete currentCluster_;
-        return;
-    }
-    for(int d=0; d < getNumDimensions(); d++)
-        partitionCurrentCluster(d);
-    divideCurrentCluster();
+	for(int d=0; d < getNumDimensions(); d++) {
+		currentCluster_->partition(d);
+	}
+	divideCurrentCluster();
 }
+
 
 ClusterTree::Node& ClusterTree::getRoot() {
     return *root_;
 }
 
 Cluster& ClusterTree::getCurrentCluster() {
+	if(currentCluster_ == NULL) {
+		throw(std::runtime_error("ClusterTree::getCurrentCluster() - currentCluster_ is NULL"));
+	}
     return *currentCluster_;
 }
 

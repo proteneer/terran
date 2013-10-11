@@ -47,6 +47,9 @@ public:
     // partition dimension d
     void partition(int d);
 
+	// partition every dimension
+	void partitionAll();
+
     // returns an assignment of points into clusters
     // each dimension must have been partitioned either by means of:
     // setPartitions() or invoking partition()
@@ -57,7 +60,7 @@ public:
     int getSubsampleCount() const;
 
 private:
-
+	
     // assigns a given point to a bucket
     std::vector<short> findBucket(int point) const;
 
@@ -69,6 +72,11 @@ private:
     // points are stored in dataset, size N x D
     // change to array of array later for performance
     const std::vector<std::vector<double> > dataset_;
+
+	// of size d, partitionFlag_[d] is true if dimension d
+	// has been partitioned, false otherwise.
+	// all dimensions must have been partitioned at least once
+	std::vector<bool> partitionFlag_;
 
     // describes the domain of each dimension
     // period of 0 indicates the dimension is not periodic

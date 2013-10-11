@@ -64,9 +64,6 @@ public:
     // return point n
     std::vector<double> getPoint(int n) const;
 
-    // returns true if queue_ is empty, false otherwise
-    bool finished() const;
-
     // get the current assignment of points into clusters
     std::vector<int> getAssignment() const;
 
@@ -77,7 +74,10 @@ public:
     // Note: do not do something like Cluster cc = clustertree.getCurrentCluster()
     // The cluster class does not have a copy constructor.
     // instead, use references:
-    Cluster& getCurrentCluster();
+	Cluster& getCurrentCluster();
+
+	// return number of clusters left to process
+	int queueSize() const;
 
     // the step function is convenience function that does the following
     // 1. see if the queue is empty, if not, pop the head and set it as the currentCluster
@@ -87,17 +87,18 @@ public:
     // for fine tuned control, all four steps can be reconfigured as needed
     void step();
     
-    // pops the queue and assigns current cluster, this removes the head element
-    void setCurrentCluster();
-
     // find partitions in dimension d
+	/*
     void partitionCurrentCluster(int d);
+    */
+
+    // divide the current cluster into more clusters by looking at the assignments
     
-    // divide the current cluster possibly into more clusters if there are
-    // multiple points that can be assigned
-    void divideCurrentCluster();
+	void divideCurrentCluster();
 
 private:
+	// pops the queue and assigns current cluster, this removes the head element
+    void setCurrentCluster();
 
     // returns found leaves so far
     std::vector<const Node*> getLeaves() const;
@@ -107,10 +108,12 @@ private:
     std::vector<int> period_;
     std::queue<Node*> queue_;
     Node* root_;
-
     Cluster* currentCluster_;
     Node* currentNode_;
     
+	// minimum number of points needed per cluster to be added to the queue_;
+	int minPointsPerCluster_;
+
 };
 
 }

@@ -70,15 +70,15 @@ void testPeriodicSimpleCase() {
 
     vector<int> periodset(2, true);
     ClusterTree ct(dataset, periodset);
+	
+	cout << ct.queueSize() << endl;
 
-    while(!ct.finished()) {
-        ct.setCurrentCluster();
-        for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
-            ct.partitionCurrentCluster(i);
-            vector<double> partitions = ct.getCurrentCluster().getPartition(i);
-        }
-        ct.divideCurrentCluster();
-    }
+    while(ct.queueSize() > 0) {
+		cout << "before" << ct.queueSize() << endl;
+		ct.getCurrentCluster().partitionAll();
+		ct.divideCurrentCluster();
+		cout << "after:" << ct.queueSize() << endl;
+	}
 
     vector<int> assignment = ct.getAssignment();
 
@@ -173,23 +173,10 @@ void testPeriodicMultiCluster() {
     ClusterTree ct(dataset, periodset);
 
     int count = 0;
-
-    while(!ct.finished()) {
-        ct.setCurrentCluster();
-        for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
-            ct.partitionCurrentCluster(i);
-            vector<double> partitions = ct.getCurrentCluster().getPartition(i);
-        }
-
-        // if we use a non reference, and we do something like
-        // Cluster cc = ct.getCurrentCluster();
-        // we will end up with a segfault as the references members get destroyed
-        Cluster& cc = ct.getCurrentCluster();
-        vector<vector<double> > clusterPoints;
-        for(int i=0 ; i < cc.getNumPoints(); i++) {
-            clusterPoints.push_back(cc.getPoint(i));
-        }
-        ct.divideCurrentCluster();
+	
+    while(ct.queueSize() > 0) {
+		ct.getCurrentCluster().partitionAll();
+		ct.divideCurrentCluster();
         count++;
     }
 

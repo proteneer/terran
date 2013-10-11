@@ -50,25 +50,15 @@ int main() {
 	vector<int> period(data[0].size(), 1);
 
 	Cluster cc(data, period);
-	
-	/*
+
 	for(int d = 0; d < cc.getNumDimensions(); d++) {
         cc.partition(d);
         vector<double> partitions = cc.getPartition(d);
 		cout << d << " " << partitions.size() << endl;
-    }*/
-	ClusterTree ct(data, period);
-
-	ct.setCurrentCluster();
-    for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
-        ct.partitionCurrentCluster(i);
-        vector<double> partitions = ct.getCurrentCluster().getPartition(i);
-		cout << i << " " << partitions.size() << endl;
     }
-	ct.divideCurrentCluster();
 
 	ofstream log("assign.txt");
-	vector<int> out = ct.getAssignment();
+	vector<int> out = cc.assign();
 	for(int i=0; i < out.size(); i++) {
 		log << out[i] << endl;
 	}

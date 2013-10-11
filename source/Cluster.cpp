@@ -17,6 +17,7 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<int> &period)
     period_(period),
     partitions_(period.size()),
     partitionMethod_("EM"),
+	partitionFlag_(period.size(), 0),
     subsampleCount_(min(3000,(int)data.size())) {
 
 	for(int i=0; i < period.size(); i++) {
@@ -68,7 +69,10 @@ bool Cluster::isPeriodic(int d) const {
 }
 
 void Cluster::setSubsampleCount(int count) {
-    subsampleCount_ = count;
+    if(count < getNumPoints()) {
+		throw(std::runtime_error("Cluster::setSubsampleCount() - subsample count can not be less than number of points")); 
+	}
+	subsampleCount_ = count;
 }
 
 int Cluster::getSubsampleCount() const {
@@ -113,7 +117,7 @@ void Cluster::setPartitionMethod(string type) {
     if(type.compare("EM") == 0) {
         partitionMethod_ = type;
     } else {
-        throw std::runtime_error("Cluster::setPartitionMethod() - unknown partition method");
+        throw(std::runtime_error("Cluster::setPartitionMethod() - unknown partition method"));
     }
 }
 
@@ -122,9 +126,25 @@ void Cluster::partition(int d) {
         PartitionerEM pem(getDimension(d), period_[d]);
         partitions_[d] = pem.partition();
     }
+	partitionFlag_[d] = true;
 };
 
+void Cluster::partitionAll() {
+	for(int d=0; d < getNumDimensions(); d++) {
+		partition(d);
+	}
+}
+
 vector<int> Cluster::assign() {
+
+	for(int d=0; d < getNumDimensions(); d++) {
+		if(partitionFlag_[d] == false) {
+			stringstream errmsg;
+			errmsg << "Cluster::assign() - dimension " << d << " has not been partitioned yet!";
+			throw(std::runtime_error(errmsg.str()));
+		}
+	}
+
     // assign each point to a bucket
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {
