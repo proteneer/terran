@@ -71,16 +71,12 @@ void testPeriodicSimpleCase() {
     vector<int> periodset(2, true);
     ClusterTree ct(dataset, periodset);
 	
-	cout << ct.queueSize() << endl;
-
     while(ct.queueSize() > 0) {
-		cout << "before" << ct.queueSize() << endl;
 		ct.getCurrentCluster().partitionAll();
 		ct.divideCurrentCluster();
-		cout << "after:" << ct.queueSize() << endl;
 	}
 
-    vector<int> assignment = ct.getAssignment();
+    vector<int> assignment = ct.assign();
 
     int numClusters = *(max_element(assignment.begin(), assignment.end()))+1;
 
@@ -180,7 +176,7 @@ void testPeriodicMultiCluster() {
         count++;
     }
 
-    vector<int> assignment = ct.getAssignment();
+    vector<int> assignment = ct.assign();
 
     int numClusters = *(max_element(assignment.begin(), assignment.end()))+1;
 
@@ -345,7 +341,7 @@ void testNonPeriodicMultiCluster() {
         count++;
     }
 
-    vector<int> assignment = ct.getAssignment();
+    vector<int> assignment = ct.assign();
 
     for(int i=0; i < ct.getNumPoints(); i++) {
         stringstream filename;

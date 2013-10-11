@@ -65,15 +65,9 @@ public:
     std::vector<double> getPoint(int n) const;
 
     // get the current assignment of points into clusters
-    std::vector<int> getAssignment() const;
+    std::vector<int> assign() const;
 
-    // returns a reference to the root of the BFS tree
-    Node& getRoot();
-
-    // returns a reference to the currently processed cluster
-    // Note: do not do something like Cluster cc = clustertree.getCurrentCluster()
-    // The cluster class does not have a copy constructor.
-    // instead, use references:
+    // get a reference to the currently processed cluster
 	Cluster& getCurrentCluster();
 
 	// return number of clusters left to process
@@ -87,16 +81,19 @@ public:
     // for fine tuned control, all four steps can be reconfigured as needed
     void step();
     
-    // find partitions in dimension d
-	/*
-    void partitionCurrentCluster(int d);
-    */
+	// set the minimum number of points needed per cluster
+	void setMinPointsPerCluster(int count);
 
-    // divide the current cluster into more clusters by looking at the assignments
-    
+	int getMinPointsPerCluster() const;
+
+	// divide the current cluster into more clusters by looking at the assignments
 	void divideCurrentCluster();
 
 private:
+	
+    // returns a reference to the root of the BFS tree
+    Node& getRoot();
+
 	// pops the queue and assigns current cluster, this removes the head element
     void setCurrentCluster();
 

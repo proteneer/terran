@@ -44,7 +44,7 @@ int ClusterTree::getNumPoints() const {
 }
 
 // traverse down the to the leaves
-vector<int> ClusterTree::getAssignment() const {
+vector<int> ClusterTree::assign() const {
 
     vector<vector<int> > clusters;
     vector<const Node*> leaves = getLeaves();
@@ -194,4 +194,12 @@ Cluster& ClusterTree::getCurrentCluster() {
 
 int ClusterTree::getNumDimensions() const {
     return dataset_[0].size();
+}
+
+void ClusterTree::setMinPointsPerCluster(int count) {
+	minPointsPerCluster_ = count;
+}
+
+int ClusterTree::getMinPointsPerCluster() const {
+	return minPointsPerCluster_;
 }
