@@ -247,15 +247,17 @@ Define the log likelihood function for periodic gaussians for some 1D dataset \t
 \begin{equation}
 \lambda(X; \theta) = \sum_{n=1}^{N} \log \sum_{k=1}^{K} p_k g_p(x;u_k, s_k)
 \end{equation}
-In addition, define the membership probability expressed as the condititional probability,
+In addition, define the membership probability expressed as the conditional probability,
 \begin{equation}
-p(k|n) = \dfrac{p_k g_p(x_n; u_k, s_k)}{\sum\limits^{K}_{m=1} p_m g_p(x_n; u_k, s_k)}
+p(k|n) = \dfrac{p_k g_p(x_n; u_k, s_k)}{\sum\limits^{K}_{m=1} g_{pm} (x_n; \theta)}
 \end{equation}
 it can then be shown that
 \begin{equation}
 \sum_{k=1}^{K} p(k|n) = 1
 \end{equation}
-The next step in EM is to derive the derivatives of the likelihood with respect to the parameters, for notational convenience, define
+There are two ways to implement the EM algorithm for periodic gaussians. The first and slightly more difficult way is to differentiate the likelihood function explicitly, and subsequently solving for the roots. The second and more simple way, developed by Agiomyrgiannakis et. a, is to consider the wrapped images themselves an auxiliary component.
+\subsubsection{The hard way}
+First we compute the derivatives of the likelihood with respect to the parameters, for notational convenience, define
 \begin{align*}
 g & \equiv g(x_n; u_k+rD, s_k) \\
 g_p & \equiv g_p(x_n; u_k+rD, s_k)
@@ -269,9 +271,19 @@ and,
 &\left. -\dfrac{2(x_n-u_k)D\sum\limits^{\infty}_{r=-\infty}rg}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} + \dfrac{D^2 \sum\limits^{\infty}_{r=-\infty}r^2g}{s_k^3 \sum\limits^{\infty}_{r=-\infty}g} \right)
 \end{split}
 \end{align}
-What we are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maxium  and minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
-
-VJ, SW: Not sure what to do here, introduce another set of data? Large protein data? (Don't think CS conf will care as much)
+We are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maximum  and minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
+\subsubsection{The simpler way}
+Define the membership probability as
+\begin{equation}
+p(k,r|n) = \dfrac{ p_k g(x_n; u_k-rD, s_k) } { g_{pm} (x_n; \theta) }
+\end{equation}
+The update equations are:
+\begin{align}
+Q_k &= \sum\limits^{N}_{n=1} \sum\limits^{\infty}_{r=-\infty} p(k,r|n) \\
+p_k &= \dfrac{Q_k}{N} \\
+u_k &= \dfrac{1}{Q_k}\sum\limits^{N}_{n=1} \sum\limits^{\infty}_{r=-\infty} p(k,r|n)(x_n-rD) \\
+s_k & = \sqrt{ \dfrac{1}{Q_k} \sum\limits^{N}_{n=1} \sum\limits^{\infty}_{r=-\infty} p(k,r|n)(x_n-u_k-rD)^2 }
+\end{align} 
 
 \section{Optimizing EM}
 The EM algorithm suffers from three well known problems. The first problem is that of initialization, as we do not even know how many initial components to use, let alone each the component's parameters. Ideally, we'd like to have starting parameters be initialized near the dense regions of the underlying data. There have been attempts to optimize the initial starting parameters even further by either running many EM cycles and picking the best one ({\it randEM}), or by running small EM batches on the initial points themselves ({\it emEM}). The second problem is that of convergence, too large of a $K$ will result in many empty membership probabilities, leading to artifacts and poor convergence. The last problem is that of speed, as the time it takes for both $E$ and $M$ steps is directly proportional to the number of components $K$. So we are stuck between a rock and a hard place: picking too few initial parameters will resulting in underfitting and missing features, too many parameters results in empty membership and poor performance.
