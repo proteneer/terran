@@ -19,6 +19,12 @@ $> cmake -D CMAKE_BUILD_TYPE=RELEASE ../
 $> make -j4
 ```
 
+Python wrappers are now also available via:
+``` bash
+$> cd wrappers
+$> python setup.py build_ext
+```
+
 <h2>Methodology</h2>
 
 Given a collection of points in D dimensional space, Terran first marginalizes each dimension, takes a constant subset (about 2500 points) of the resulting marginalized data, and fits a gaussian like mixture model (GMM) to the data via the Expectation Maximization algorithm. Once a sufficient model is obtained, the minima of the model is found. Of the minima, it makes cuts depending on the value of each minimum.
@@ -133,4 +139,4 @@ void example() {
 
 <h2> Misc </h2>
 
-Terran is named after Yutong's favorite Starcraft race.
+Terran is named after Yutong's Starcraft race.
