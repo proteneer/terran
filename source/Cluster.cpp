@@ -128,7 +128,7 @@ vector<int> Cluster::assign() {
     // assign each point to a bucket
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {
-        vector<short> bucket = assign(n);
+        vector<short> bucket = findBucket(n);
         clusters[bucket].push_back(n);
     }
 
@@ -146,7 +146,7 @@ vector<int> Cluster::assign() {
     return assignment;
 }
 
-vector<short> Cluster::assign(int pointIndex) const {
+vector<short> Cluster::findBucket(int pointIndex) const {
     // the initialization to zero for each dimension in the bucket is important
     // as it takes care of the case when no partitions exist for that dimension
     vector<short> bucket(getNumDimensions(), 0);

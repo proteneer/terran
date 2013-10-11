@@ -59,7 +59,7 @@ public:
 private:
 
     // assigns a given point to a bucket
-    std::vector<short> assign(int point) const;
+    std::vector<short> findBucket(int point) const;
 
     std::string partitionMethod_;
 
