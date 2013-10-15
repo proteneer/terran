@@ -28,9 +28,6 @@ public:
 	// From base-class
 	void setDataAndPeriod(const std::vector<double> &data, bool isPeriodic);
 
-    // Executes EM::simpleRun()
-    void optimizeParameters();
-
     // invokes optimizeParameters and findLowMinima
     std::vector<double> partition();
     
@@ -45,7 +42,9 @@ public:
 	int getInitialK() const;
 
 private:
-	    
+	// Executes EM::simpleRun()
+    void optimizeParameters();
+
     std::vector<double> findLowMinima() const;
 
 	bool isPeriodic_;

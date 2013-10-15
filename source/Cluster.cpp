@@ -72,6 +72,9 @@ void Cluster::initialize() {
 }
 
 Cluster::~Cluster() {
+	// does this result in a double delete?
+	if(partitioner_ == NULL)
+		throw(std::runtime_error("Cluster::~Cluster() - bad destructor, partitioner_ is already NULL!"));
 	delete partitioner_;
 }
 
@@ -133,6 +136,7 @@ void Cluster::setPartition(int d, const vector<double> &p) {
 }
 
 void Cluster::partition(int d) {
+	cout << "Cluster::partition() invoked on " << d << endl;
 	partitioner_->setDataAndPeriod(getDimension(d), period_[d]);
 	partitions_[d] = partitioner_->partition();
 	partitionFlag_[d] = true;

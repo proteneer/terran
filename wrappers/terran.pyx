@@ -7,10 +7,66 @@
 
 from libcpp cimport bool
 from libcpp.vector cimport vector
+
+# Abstract Class
+cdef extern from "../include/Partitioner.h" namespace "Terran":
+    cdef cppclass Partitioner:
+        Partitioner() except +
         
+# EM-based Partitioner class        
+cdef extern from "../include/PartitionerEM.h" namespace "Terran":
+    cdef cppclass PartitionerEM(Partitioner):
+        PartitionerEM() except +
+        void setDataAndPeriod(vector[double], bool)
+        vector[double] partition()
+        void setPartitionCutoff(double val)
+        double getPartitionCutoff()
+        void setInitialK(int count)
+        int getInitialK()
+        
+cdef class PyPartitionerEM:
+    
+    cdef PartitionerEM* __thisptr
+    cdef int __delete
+    
+    def __cinit__(self):
+        print('PyPartitioner __cinit__()')
+        self.__thisptr = new PartitionerEM()
+        self.__delete = 1
+    
+    def __dealloc__(self):
+        print('PyPartitioner __dealloc__()')
+        if self.__delete:
+            del self.__thisptr 
+    
+    def setDataAndPeriod(self, vector[double] data, bool periodic):
+        """
+        Set the data and period information.
+        """
+        self.__thisptr.setDataAndPeriod(data, periodic)
+        
+    def partition(self):
+        return self.__thisptr.partition()
+    
+    property cutoff:
+        """ 
+        Mutable: minima point must be be lower than cutoff in order to be cut 
+        """
+        def __get__(self): return self.__thisptr.getPartitionCutoff()
+        def __set__(self, int c): self.__thisptr.setPartitionCutoff(c) 
+    
+    property initial_k:
+        """ 
+        Mutable: the number of clusters to use initially when optimizing
+        """
+        def __get__(self): return self.__thisptr.getInitialK()
+        def __set__(self, int k): self.__thisptr.setInitialK(k)
+    
+    
 cdef extern from "../include/Cluster.h" namespace "Terran":
     cdef cppclass Cluster:
         Cluster(vector[vector[double]],vector[int]) except +
+        Cluster(vector[vector[double]],vector[int], Partitioner* partitioner) except +
         int getNumDimensions()
         int getNumPoints()
         void partition(int)
@@ -34,13 +90,25 @@ cdef class PyCluster:
                   N is the number of points, D is the number dimensions
         Arg[1] -- a 1D boolean array of size D where,
                   1 denotes the domain is periodic, and 0 denotes not periodic
+        Arg[2] -- Optional: a PyPartitionerEM object. Note that PyCluster takes ownership
+                  of the PyPartitionerEM object. 
         """
+        
+        print('Calling PyCluster() __cinit__')
+
         if len(args) == 2:
             data = <vector[vector[double]]?> args[0]
             period = <vector[int]?> args[1]
             self.__thisptr = new Cluster(data, period)
             self.__delete = 1
-        
+        if len(args) == 3:
+            data = <vector[vector[double]]?> args[0]
+            period = <vector[int]?> args[1]   
+            pyPartitioner = <PyPartitionerEM?>args[2]
+            pyPartitioner.__delete = 0
+            self.__thisptr = new Cluster(data, period, pyPartitioner.__thisptr)
+            self.__delete = 1
+            
     cdef __initFromRawPointer(self, Cluster* cptr):
         self.__thisptr = cptr
         self.__delete = 0
@@ -55,7 +123,6 @@ cdef class PyCluster:
 
         Returns a list of cutting point(s)
         """
-        
         self.__thisptr.partition(d)
         return self.__thisptr.getPartition(d)
     
