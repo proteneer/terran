@@ -96,8 +96,10 @@ cdef extern from "../include/ClusterTree.h" namespace "Terran":
         int getNumDimensions()
         int getNumPoints()
         int getNumClusters()
+        int queueSize()
         vector[int] assign()
         Cluster& getCurrentCluster()
+        void divideCurrentCluster(int)
         
 cdef class PyClusterTree:
     
@@ -117,7 +119,7 @@ cdef class PyClusterTree:
                 
     def __dealloc__(self):
         del self.__thisptr
-              
+
     def get_current_cluster(self):
         """
         Returns a reference to the cluster object currently being investigated.
@@ -129,4 +131,34 @@ cdef class PyClusterTree:
         cdef Cluster* ptr = &(self.__thisptr.getCurrentCluster())
         pyc.__initFromRawPointer(ptr)
         return pyc
+
+    def divide_current_cluster(self, int cutoff):
+        """
+        Divide the currently assigned cluster into more clusters, appending it into the queue
+        """
+        self.__thisptr.divideCurrentCluster(cutoff)
+
+    property clusters_found:
+        """
+        Immutable: return number of clusters found so far
+        """
+        def __get__(self): return self.__thisptr.getNumClusters()
+
+    property queue_size:
+        """
+        Immutable: return number of clusters to be processed in the queue
+        """
+        def __get__(self): return self.__thisptr.queueSize()
+
+    property shape:
+        """
+        Immutable: returns the shape of the underlying data
+        """
+        def __get__(self): return self.__thisptr.getNumPoints(), self.__thisptr.getNumDimensions()   
+
+    def assign(self):
+        """
+        Assign points to a given cluster (0-indexed) by scanning the leaves of the ClusterTree 
+        """
+        return self.__thisptr.assign()
         

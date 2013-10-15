@@ -125,6 +125,7 @@ void Cluster::partition(int d) {
 	if(partitionMethod_.compare("EM") == 0) {
         PartitionerEM pem(getDimension(d), period_[d]);
         partitions_[d] = pem.partition();
+        pem.setPartitionCutoff(0.05);
     }
 	partitionFlag_[d] = true;
 };

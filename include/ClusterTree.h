@@ -77,14 +77,9 @@ public:
     // 4. it divides the current cluster into subcluster
     // for fine tuned control, all four steps can be reconfigured as needed
     void step();
-    
-	// set the minimum number of points needed per cluster
-	void setMinPointsPerCluster(int count);
-
-	int getMinPointsPerCluster() const;
 
 	// divide the current cluster into more clusters by looking at the assignments
-	void divideCurrentCluster();
+	void divideCurrentCluster(int count);
 
 private:
 	
@@ -105,9 +100,6 @@ private:
     Cluster* currentCluster_;
     Node* currentNode_;
     
-	// minimum number of points needed per cluster to be added to the queue_;
-	int minPointsPerCluster_;
-
 };
 
 }

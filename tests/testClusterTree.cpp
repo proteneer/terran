@@ -73,7 +73,7 @@ void testPeriodicSimpleCase() {
 	
     while(ct.queueSize() > 0) {
 		ct.getCurrentCluster().partitionAll();
-		ct.divideCurrentCluster();
+		ct.divideCurrentCluster(3000);
 	}
 
     vector<int> assignment = ct.assign();
@@ -172,7 +172,7 @@ void testPeriodicMultiCluster() {
 	
     while(ct.queueSize() > 0) {
 		ct.getCurrentCluster().partitionAll();
-		ct.divideCurrentCluster();
+		ct.divideCurrentCluster(3000);
         count++;
     }
 

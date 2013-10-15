@@ -11,7 +11,7 @@ using namespace Terran;
 
 PartitionerEM::PartitionerEM(const vector<double> &dataset, bool isPeriodic) : 
     Partitioner(dataset, isPeriodic),
-    partitionCutoff_(0.02),
+    partitionCutoff_(0.05),
     em_(NULL) {
 
     if(isPeriodic_) {
@@ -65,6 +65,10 @@ vector<double> PartitionerEM::findLowMinima() const {
 
     sort(partition.begin(), partition.end());
     return partition;
+}
+
+void PartitionerEM::setPartitionCutoff(double cutoff) {
+    partitionCutoff_ = cutoff;
 }
 
 // this can be used to manipulate the underlying EM object if desired

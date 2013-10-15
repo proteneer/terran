@@ -13,7 +13,6 @@ ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<in
     dataset_(dataset),
     period_(period),
     root_(NULL),
-	minPointsPerCluster_(3000),
     currentCluster_(NULL) {
 
 	for(int i=0; i < period.size(); i++) {
@@ -116,7 +115,7 @@ void ClusterTree::partitionCurrentCluster(int d) {
 }
 */
 
-void ClusterTree::divideCurrentCluster() {
+void ClusterTree::divideCurrentCluster(int count) {
 	// get assignment of points from current cluster
     vector<int> assignment = currentCluster_->assign();
     int maxAssignmentId = *(max_element(assignment.begin(), assignment.end()));
@@ -134,7 +133,7 @@ void ClusterTree::divideCurrentCluster() {
 			
 			// add this new cluster to the todo list if it has more than 3500 points.
 			// (if there are less than 3500 points its hard to marginalize)
-			if(subsetIndices[j].size() > minPointsPerCluster_) {
+			if(subsetIndices[j].size() > count) {
 				queue_.push(newNode);
 			}
         }
@@ -173,7 +172,7 @@ void ClusterTree::step() {
 	for(int d=0; d < getNumDimensions(); d++) {
 		currentCluster_->partition(d);
 	}
-	divideCurrentCluster();
+	divideCurrentCluster(3000);
 }
 
 
@@ -190,12 +189,4 @@ Cluster& ClusterTree::getCurrentCluster() {
 
 int ClusterTree::getNumDimensions() const {
     return dataset_[0].size();
-}
-
-void ClusterTree::setMinPointsPerCluster(int count) {
-	minPointsPerCluster_ = count;
-}
-
-int ClusterTree::getMinPointsPerCluster() const {
-	return minPointsPerCluster_;
 }
