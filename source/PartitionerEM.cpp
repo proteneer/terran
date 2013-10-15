@@ -11,7 +11,7 @@ using namespace Terran;
 
 PartitionerEM::PartitionerEM(const vector<double> &dataset, bool isPeriodic) : 
     Partitioner(dataset, isPeriodic),
-    partitionCutoff_(0.05),
+    partitionCutoff_(0.02),
     em_(NULL) {
 
     if(isPeriodic_) {
