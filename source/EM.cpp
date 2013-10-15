@@ -157,8 +157,6 @@ bool EM::simpleRun(unsigned int numParams) {
         params_[i].s = 0.1*domainLength();
     }
 
-	cout << data_[0] << endl;
-
 	initializePink();
 	int steps = 0;
     double likelihood = getLikelihood();

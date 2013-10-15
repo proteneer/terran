@@ -31,6 +31,9 @@ public:
     // invokes optimizeParameters and findLowMinima
     std::vector<double> partition();
     
+	// get a curve of the model approximating the data in the range [left, right]
+	void evaluateModel(std::vector<double> &x, std::vector<double> &y, int nsamples);
+
     EM& getEM();
 
     void setPartitionCutoff(double val);
@@ -47,6 +50,7 @@ private:
 
     std::vector<double> findLowMinima() const;
 
+	// if this dataset is periodic
 	bool isPeriodic_;
 
 	// Num of components to use in simple run

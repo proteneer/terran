@@ -4,6 +4,7 @@
 #include "MethodsPeriodicGaussian.h"
 #include "MethodsGaussian.h"
 
+#include <sstream>
 #include <algorithm>
 
 using namespace std;
@@ -30,6 +31,16 @@ void PartitionerEM::setDataAndPeriod(const vector<double> &data, bool isPeriodic
 	
 	isPeriodic_ = isPeriodic;
 	
+	if(isPeriodic) {
+		for(int i=0; i < data.size(); i++) {
+			if( data[i] < -PI || data[i] > PI ) {
+				stringstream msg;
+				msg << "PartitionerEM::setDataAndPeriod - point " << i << " not in the periodic interval [-PI, PI]";
+				throw(std::runtime_error(msg.str()));
+			}
+		}
+	}
+
 	// delete the old em_ object
 	if(em_ != NULL) {
 		delete em_;
@@ -50,7 +61,8 @@ std::vector<double> PartitionerEM::partition() {
 		throw(std::runtime_error("PartitionEM::findLowMinima() - dataset_ has not been initialized"));
 	}
     optimizeParameters();
-    return findLowMinima();
+	vector<double> points = findLowMinima();
+	return points;
 }
 
 vector<double> PartitionerEM::findLowMinima() const {
@@ -99,6 +111,53 @@ void PartitionerEM::setInitialK(int count) {
 
 int PartitionerEM::getInitialK() const {
 	return initialK_;
+}
+
+static bool compMean(const Param &a, const Param&b) {
+	return a.u < b.u;
+}
+
+static bool compSig(const Param &a, const Param&b) {
+	return a.s < b.s;
+}
+
+// get a curve of the model approximating the data
+// if periodic, left and right are ignored.
+void PartitionerEM::evaluateModel(vector<double> &xvals, vector<double> &yvals, int nsamples) {
+
+	vector<Param> params = em_->getParams();
+
+	double left;
+	double right;
+
+	if(isPeriodic_) {
+		left = -PI;
+		right = PI;
+	} else {
+		vector<Param>::const_iterator min_mean = min_element(params.begin(), params.end(), compMean);
+		vector<Param>::const_iterator max_mean = max_element(params.begin(), params.end(), compMean);
+		vector<Param>::const_iterator max_sig  = max_element(params.begin(), params.end(), compSig);
+
+		double left = min_mean->u;
+		while(gaussianMixture(params, left) > 1e-2) {
+			left -= 3 * max_sig->s;
+		}
+		double right = max_mean->u;
+		while(gaussianMixture(params, right) > 1e-2) {
+			right += 3* max_sig->s;
+		}
+
+	}
+	xvals.resize(0);
+	yvals.resize(0);
+	for(double x=left; x<right; x += (right-left)/ nsamples) {
+		xvals.push_back(x);
+		if( isPeriodic_ ) {
+			yvals.push_back(periodicGaussianMixture(params, x, 2*PI));
+		} else {
+			yvals.push_back(gaussianMixture(params, x));
+		}
+	}
 }
 
 // this can be used to manipulate the underlying EM object if desired

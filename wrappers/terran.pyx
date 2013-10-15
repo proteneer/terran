@@ -13,32 +13,38 @@ cdef extern from "../include/Partitioner.h" namespace "Terran":
     cdef cppclass Partitioner:
         Partitioner() except +
         
-# EM-based Partitioner class        
+# Concrete EM-based Partitioner class        
 cdef extern from "../include/PartitionerEM.h" namespace "Terran":
     cdef cppclass PartitionerEM(Partitioner):
         PartitionerEM() except +
         void setDataAndPeriod(vector[double], bool)
         vector[double] partition()
+        void evaluateModel(vector[double]&, vector[double]&, int)
         void setPartitionCutoff(double val)
         double getPartitionCutoff()
         void setInitialK(int count)
         int getInitialK()
-        
+
 cdef class PyPartitionerEM:
     
     cdef PartitionerEM* __thisptr
     cdef int __delete
     
     def __cinit__(self):
-        print('PyPartitioner __cinit__()')
         self.__thisptr = new PartitionerEM()
         self.__delete = 1
     
     def __dealloc__(self):
-        print('PyPartitioner __dealloc__()')
         if self.__delete:
             del self.__thisptr 
     
+    def model(self, int nsamples):
+        """ Generate a curve using the underlying data model """
+        cdef vector[double] xvals
+        cdef vector[double] yvals
+        self.__thisptr.evaluateModel(xvals, yvals, nsamples)
+        return (xvals, yvals)
+        
     def setDataAndPeriod(self, vector[double] data, bool periodic):
         """
         Set the data and period information.
@@ -69,11 +75,12 @@ cdef extern from "../include/Cluster.h" namespace "Terran":
         Cluster(vector[vector[double]],vector[int], Partitioner* partitioner) except +
         int getNumDimensions()
         int getNumPoints()
-        void partition(int)
+        void partition(int) except+
         vector[double] getPartition(int)
-        vector[int] assign()
+        vector[int] assign() except+
         void setSubsampleCount(int)
         int getSubsampleCount()
+        Partitioner& getPartitioner()
            
 cdef class PyCluster:
 
@@ -109,10 +116,6 @@ cdef class PyCluster:
             self.__thisptr = new Cluster(data, period, pyPartitioner.__thisptr)
             self.__delete = 1
             
-    cdef __initFromRawPointer(self, Cluster* cptr):
-        self.__thisptr = cptr
-        self.__delete = 0
-
     def __dealloc__(self):
         if self.__delete:
             del self.__thisptr
@@ -133,7 +136,21 @@ cdef class PyCluster:
         Must be called after partition(d) has been invoked on each dimension
         """
         return self.__thisptr.assign()
-                
+              
+    def get_partitioner(self):
+        """
+        Returns a reference to the cluster object currently being investigated.
+
+        Note: The ownership of the object returned by this function belongs to the ClusterTree class.
+              You cannot take ownership of it and/or try to delete it.
+        """
+        #equivalent of a dynamic-cast, next in try catch for more types of partition classes
+        cdef PartitionerEM *pem = <PartitionerEM*?>&(self.__thisptr.getPartitioner())
+        partem = PyPartitionerEM()
+        partem.__thisptr = pem
+        partem.__delete = 0
+        return partem
+              
     property subsample:
         """ 
         Mutable: the number of points to subsample when partitioning each dimension
@@ -196,7 +213,8 @@ cdef class PyClusterTree:
         """
         pyc = PyCluster()
         cdef Cluster* ptr = &(self.__thisptr.getCurrentCluster())
-        pyc.__initFromRawPointer(ptr)
+        pyc.__thisptr = ptr
+        pyc.__delete = 0
         return pyc
 
     def divide_current_cluster(self, int cutoff):

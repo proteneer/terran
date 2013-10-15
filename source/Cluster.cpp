@@ -201,4 +201,8 @@ vector<short> Cluster::findBucket(int pointIndex) const {
     return bucket;
 }
 
+Partitioner& Cluster::getPartitioner() {
+	return *partitioner_;
+}
+
 } // namespace Terran

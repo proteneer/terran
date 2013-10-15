@@ -60,6 +60,8 @@ public:
 
     int getSubsampleCount() const;
 
+	Partitioner& getPartitioner();
+
 private:
 	
 	void initialize();
@@ -91,6 +93,8 @@ private:
     std::vector<std::vector<double> > partitions_;  
 
 	Partitioner* partitioner_;
+
+
 
 };
 

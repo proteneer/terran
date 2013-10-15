@@ -31,11 +31,11 @@ void Util::plotPeriodicGaussian(const vector<Param> &params, double period, stri
 	
 }
 
-bool compMean(const Param &a, const Param&b) {
+static bool compMean(const Param &a, const Param&b) {
 	return a.u < b.u;
 }
 
-bool compSig(const Param &a, const Param&b) {
+static bool compSig(const Param &a, const Param&b) {
 	return a.s < b.s;
 }
 
