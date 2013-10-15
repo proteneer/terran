@@ -1,11 +1,9 @@
-# distutils: language = c++
-# on windows, execute "set VS90COMNTOOLS=%VS100COMNTOOLS%"
-
 # classes and methods exposed:
 # EM
 # EMGaussian
 # EMPeriodicGaussian
 # Cluster
+# ClusterTree
 
 from libcpp cimport bool
 from libcpp.vector cimport vector
@@ -15,7 +13,6 @@ cdef extern from "../include/Cluster.h" namespace "Terran":
         Cluster(vector[vector[double]],vector[int]) except +
         int getNumDimensions()
         int getNumPoints()
-        bool isPeriodic(int)
         void partition(int)
         vector[double] getPartition(int)
         vector[int] assign()
@@ -24,7 +21,7 @@ cdef extern from "../include/Cluster.h" namespace "Terran":
            
 cdef class PyCluster:
 
-    # these are instance variables
+    # Note: these are instance variables
     cdef Cluster* __thisptr
     cdef int __delete
     
