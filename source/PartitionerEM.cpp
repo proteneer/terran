@@ -9,28 +9,46 @@
 using namespace std;
 using namespace Terran;
 
-PartitionerEM::PartitionerEM(const vector<double> &dataset, bool isPeriodic) : 
-    Partitioner(dataset, isPeriodic),
-    partitionCutoff_(0.05),
-    em_(NULL) {
-
-    if(isPeriodic_) {
-        em_ = new EMPeriodicGaussian(dataset_, 2*PI);
-    } else {
-        em_ = new EMGaussian(dataset_);
-    }
+PartitionerEM::PartitionerEM() :
+	Partitioner(),
+	partitionCutoff_(0.05),
+	em_(NULL),
+	initialK_(25) {
 
 }
 
 PartitionerEM::~PartitionerEM() {
-    delete em_;
+    if(em_ != NULL)
+		delete em_;
 }
 
 void PartitionerEM::optimizeParameters() {
-    em_->simpleRun(25);
+    em_->simpleRun(initialK_);
+}
+
+void PartitionerEM::setDataAndPeriod(const vector<double> &data, bool isPeriodic) {
+	
+	isPeriodic_ = isPeriodic;
+	
+	// delete the old em_ object
+	if(em_ != NULL) {
+		delete em_;
+		em_ = NULL;
+	}
+
+	// instantiate a new em_ object
+    if(isPeriodic) {
+        em_ = new EMPeriodicGaussian(data, 2*PI);
+    } else {
+        em_ = new EMGaussian(data);
+    }
+
 }
 
 std::vector<double> PartitionerEM::partition() {
+	if(em_ == NULL) {
+		throw(std::runtime_error("PartitionEM::findLowMinima() - dataset_ has not been initialized"));
+	}
     optimizeParameters();
     return findLowMinima();
 }
@@ -71,7 +89,22 @@ void PartitionerEM::setPartitionCutoff(double cutoff) {
     partitionCutoff_ = cutoff;
 }
 
+double PartitionerEM::getPartitionCutoff() const {
+	return partitionCutoff_;
+}
+
+void PartitionerEM::setInitialK(int count) {
+	initialK_ = count;
+}
+
+int PartitionerEM::getInitialK() const {
+	return initialK_;
+}
+
 // this can be used to manipulate the underlying EM object if desired
 EM& PartitionerEM::getEM() {
+	if(em_ == NULL) {
+		throw(std::runtime_error("PartitionerEM::getEM() - em_ is NULL"));
+	}
     return *em_;   
 };

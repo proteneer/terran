@@ -76,7 +76,8 @@ class TERRAN_EXPORT EM {
 
     protected:
 		       
-        const std::vector<double> &data_;
+		// This is OK as it generally uses a tiny amount of space.
+        const std::vector<double> data_;
         std::vector<Param> params_;
 
     private:

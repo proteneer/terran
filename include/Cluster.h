@@ -7,7 +7,6 @@
 #include "export.h"
 #include "Param.h"
 #include "Partitioner.h"
-#include "PartitionerEM.h"
 
 namespace Terran {
     
@@ -15,7 +14,9 @@ class TERRAN_EXPORT Cluster {
 
 public:
 
-    Cluster(const std::vector<std::vector<double> > &data, const std::vector<int> &period);
+	Cluster(const std::vector<std::vector<double> > &data, const std::vector<int> &period, Partitioner* partitioner); 
+    
+	Cluster(const std::vector<std::vector<double> > &data, const std::vector<int> &period);
 
     // todo: delete partitions!
     ~Cluster();
@@ -61,6 +62,8 @@ public:
 
 private:
 	
+	void initialize();
+
     // assigns a given point to a bucket
     std::vector<short> findBucket(int point) const;
 
@@ -86,6 +89,8 @@ private:
 
     // disjoint partitions of each domain
     std::vector<std::vector<double> > partitions_;  
+
+	Partitioner* partitioner_;
 
 };
 

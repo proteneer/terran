@@ -273,10 +273,6 @@ void testEasyCase2D() {
     for(int d = 0; d < cc.getNumDimensions(); d++) {
         cc.partition(d);
         vector<double> partitions = cc.getPartition(d);
-        cout << d << " ";
-        for(int i=0; i < partitions.size(); i++) {
-            cout << partitions[i] << endl;
-        }
         testPartitions.push_back(partitions);
     }
 

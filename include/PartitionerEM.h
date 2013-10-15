@@ -21,10 +21,14 @@ class TERRAN_EXPORT PartitionerEM : public Partitioner {
 
 public:
     
-    PartitionerEM(const std::vector<double> &dataset, bool isPeriodic);
-    ~PartitionerEM();
+	PartitionerEM();
+    
+	~PartitionerEM();
 
-    // Executes EM::multiAdaptiveRun()
+	// From base-class
+	void setDataAndPeriod(const std::vector<double> &data, bool isPeriodic);
+
+    // Executes EM::simpleRun()
     void optimizeParameters();
 
     // invokes optimizeParameters and findLowMinima
@@ -36,9 +40,18 @@ public:
 
     double getPartitionCutoff() const;
 
+	void setInitialK(int count);
+
+	int getInitialK() const;
+
 private:
 	    
     std::vector<double> findLowMinima() const;
+
+	bool isPeriodic_;
+
+	// Num of components to use in simple run
+	int initialK_;
 
     // Minima whose value is less than partitionCutoff_ is 
     // considered to be a partition point

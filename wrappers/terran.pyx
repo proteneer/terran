@@ -134,7 +134,10 @@ cdef class PyClusterTree:
 
     def divide_current_cluster(self, int cutoff):
         """
-        Divide the currently assigned cluster into more clusters, appending it into the queue
+        Divide the currently assigned cluster into more clusters, appending it into the queue.
+        
+        Note: cutoff is recommended to be 2000 or more, as lack of points
+              makes EM and subsequent marginalization difficult
         """
         self.__thisptr.divideCurrentCluster(cutoff)
 

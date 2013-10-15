@@ -19,10 +19,14 @@ class TERRAN_EXPORT Partitioner {
 
 public:
 
-    Partitioner(const std::vector<double> dataset, bool isPeriodic) : dataset_(dataset), isPeriodic_(isPeriodic) {};
+	Partitioner() {};
+    // Partitioner(const std::vector<double> &dataset, bool isPeriodic) : dataset_(dataset), isPeriodic_(isPeriodic) {};
     virtual ~Partitioner() {};
 
     virtual std::vector<double> partition() = 0;
+
+	// reset the data and periodicity information
+	virtual void setDataAndPeriod(const std::vector<double> &data, bool isPeriodic) = 0;
     
 protected:
 
@@ -34,8 +38,10 @@ protected:
     //   for a nonperiodic system, the returned vector of size n
     //   is a partition into n+1 parts, _0_|__1__|_2_
     //   where | denote the partition element
-    const std::vector<double> dataset_;
-    bool isPeriodic_;
+    
+	// Partitioner never needs to hold dataset_ or isPeriodic!
+	// std::vector<double> dataset_;
+    // bool isPeriodic_;
 
 };
 

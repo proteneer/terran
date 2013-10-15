@@ -7,6 +7,7 @@
 #include "MethodsPeriodicGaussian.h"
 #include "EMPeriodicGaussian.h"
 #include "EMGaussian.h"
+#include "PartitionerEM.h"
 
 using namespace std;
 
@@ -16,26 +17,45 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<int> &period)
     dataset_(data),
     period_(period),
     partitions_(period.size()),
-    partitionMethod_("EM"),
 	partitionFlag_(period.size(), 0),
     subsampleCount_(min(3000,(int)data.size())) {
 
-	for(int i=0; i < period.size(); i++) {
-		if(period[i] != 1 && period[i] != 0) {
+	partitioner_ = new PartitionerEM();
+
+	initialize();
+
+}
+
+Cluster::Cluster(const vector<vector<double> > &data, const vector<int> &period, Partitioner* partitioner) :
+    dataset_(data),
+    period_(period),
+    partitions_(period.size()),
+	partitionFlag_(period.size(), 0),
+    subsampleCount_(min(3000,(int)data.size())),
+	partitioner_(partitioner) {
+	
+	initialize();
+
+}
+
+void Cluster::initialize() {
+	
+	for(int i=0; i < period_.size(); i++) {
+		if(period_[i] != 1 && period_[i] != 0) {
 			throw(std::runtime_error("period must either be zero (false), or one (true)"));
 		}
 	}
 
-	for(int n=1; n < data.size(); n++) {
-		if(data[n].size() != data[n-1].size()) {
+	for(int n=1; n < dataset_.size(); n++) {
+		if(dataset_[n].size() != dataset_[n-1].size()) {
 			throw(std::runtime_error("Cluster::Cluster() - not all points have the same dimensions"));
 		}
 	}
 
-	for(int n=0; n < data.size(); n++) {
-		for(int d=0; d < data[n].size(); d++) {
-			if(period[d]) {
-				if(data[n][d] < -PI || data[n][d] > PI) {
+	for(int n=0; n < dataset_.size(); n++) {
+		for(int d=0; d < dataset_[n].size(); d++) {
+			if(period_[d]) {
+				if(dataset_[n][d] < -PI || dataset_[n][d] > PI) {
 					stringstream error;
 					error << "Cluster::Cluster() - dimension " << d << " is periodic, but the angles are not in the range [-PI, to PI]" << endl;
 					throw(std::runtime_error(error.str()));
@@ -43,17 +63,16 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<int> &period)
 			}
 		}
 	}
-
-    if(data.size() == 0) 
+		
+    if(dataset_.size() == 0) 
         throw(std::runtime_error("Cluster()::Cluster() - input data size cannot be 0"));
 
-    if(data[0].size() != period.size())
+    if(dataset_[0].size() != period_.size())
         throw(std::runtime_error("Cluster()::Cluster() - period size does not match data dimension"));
-
 }
 
 Cluster::~Cluster() {
-
+	delete partitioner_;
 }
 
 int Cluster::getNumDimensions() const {
@@ -113,20 +132,9 @@ void Cluster::setPartition(int d, const vector<double> &p) {
     partitions_[d] = p;
 }
 
-void Cluster::setPartitionMethod(string type) {
-    if(type.compare("EM") == 0) {
-        partitionMethod_ = type;
-    } else {
-        throw(std::runtime_error("Cluster::setPartitionMethod() - unknown partition method"));
-    }
-}
-
 void Cluster::partition(int d) {
-	if(partitionMethod_.compare("EM") == 0) {
-        PartitionerEM pem(getDimension(d), period_[d]);
-        partitions_[d] = pem.partition();
-        pem.setPartitionCutoff(0.05);
-    }
+	partitioner_->setDataAndPeriod(getDimension(d), period_[d]);
+	partitions_[d] = partitioner_->partition();
 	partitionFlag_[d] = true;
 };
 

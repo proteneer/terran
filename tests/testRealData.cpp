@@ -49,7 +49,9 @@ int main() {
 	
 	vector<int> period(data[0].size(), 1);
 
-	Cluster cc(data, period);
+	PartitionerEM* pem = new PartitionerEM;
+
+	Cluster cc(data, period, pem);
 
 	for(int d = 0; d < cc.getNumDimensions(); d++) {
         cc.partition(d);
