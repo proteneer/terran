@@ -72,6 +72,7 @@ void testPeriodicSimpleCase() {
     ClusterTree ct(dataset, periodset);
 	
     while(ct.queueSize() > 0) {
+        ct.setCurrentCluster();
 		ct.getCurrentCluster().partitionAll();
 		ct.divideCurrentCluster(3000);
 	}
@@ -171,6 +172,7 @@ void testPeriodicMultiCluster() {
     int count = 0;
 	
     while(ct.queueSize() > 0) {
+        ct.setCurrentCluster();
 		ct.getCurrentCluster().partitionAll();
 		ct.divideCurrentCluster(3000);
         count++;

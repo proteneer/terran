@@ -29,8 +29,6 @@ ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<in
     root_ = new Node;
     root_->indices = points;
     queue_.push(root_);
-
-	setCurrentCluster();
 }
 
 ClusterTree::~ClusterTree() {
@@ -81,28 +79,32 @@ int ClusterTree::getNumClusters() const {
     return getLeaves().size();
 }
 
-void ClusterTree::setCurrentCluster() {
+void ClusterTree::setCurrentCluster(Partitioner* partitioner) {
 
     if(queue_.size() > 0) {
-		if(currentCluster_ != NULL)
-			throw(std::runtime_error("ClusterTree::currentCluster_ is not set to NULL, has divideCluster() been called?"));
-		currentNode_ = queue_.front();
+        if(currentCluster_ != NULL)
+            throw(std::runtime_error("ClusterTree::currentCluster_ is not set to NULL, has divideCluster() been called?"));
+        currentNode_ = queue_.front();
     
-		if(currentNode_->indices.size() == 0) 
-			throw(std::runtime_error("ClusterTree::step() - currentNode_ has no points"));
-		if(currentNode_->partitions.size() > 0)
-			throw(std::runtime_error("ClusterTree::step() - currentNode_ partition not empty"));
-		if(currentNode_->children.size() > 0)
-			throw(std::runtime_error("ClusterTree::step() - currentNode_ children not empty"));
+        if(currentNode_->indices.size() == 0) 
+            throw(std::runtime_error("ClusterTree::step() - currentNode_ has no points"));
+        if(currentNode_->partitions.size() > 0)
+            throw(std::runtime_error("ClusterTree::step() - currentNode_ partition not empty"));
+        if(currentNode_->children.size() > 0)
+            throw(std::runtime_error("ClusterTree::step() - currentNode_ children not empty"));
     
-		vector<vector<double> > subset;
-		const vector<int> &indices = currentNode_->indices;
-		for(int i=0; i<indices.size(); i++) {
-			subset.push_back(dataset_[indices[i]]);
-		}
+        vector<vector<double> > subset;
+        const vector<int> &indices = currentNode_->indices;
+        for(int i=0; i<indices.size(); i++) {
+            subset.push_back(dataset_[indices[i]]);
+        }
 
-		currentCluster_ = new Cluster(subset, period_);
-	}
+        if(partitioner != NULL) 
+            currentCluster_ = new Cluster(subset, period_, partitioner);
+        else
+            currentCluster_ = new Cluster(subset, period_);
+        
+    }
 }
 
 int ClusterTree::queueSize() const {
@@ -143,7 +145,6 @@ void ClusterTree::divideCurrentCluster(int count) {
 	// pop the queue
 	queue_.pop();
 	// set next cluster
-	setCurrentCluster();
 }
 
 std::vector<const ClusterTree::Node*> ClusterTree::getLeaves() const {
@@ -167,6 +168,7 @@ std::vector<const ClusterTree::Node*> ClusterTree::getLeaves() const {
 }
 
 void ClusterTree::step() {
+    setCurrentCluster();
     if(queue_.size() == 0) 
         return;
 	for(int d=0; d < getNumDimensions(); d++) {

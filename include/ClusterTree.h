@@ -81,13 +81,18 @@ public:
 	// divide the current cluster into more clusters by looking at the assignments
 	void divideCurrentCluster(int count);
 
+    // set the current cluster, overloaded variant allowing 
+    void setCurrentCluster(Partitioner* partitioner = NULL);
+
 private:
 	
     // returns a reference to the root of the BFS tree
     Node& getRoot();
 
+    void validateData();
+
 	// pops the queue and assigns current cluster, this removes the head element
-    void setCurrentCluster();
+
 
     // returns found leaves so far
     std::vector<const Node*> getLeaves() const;

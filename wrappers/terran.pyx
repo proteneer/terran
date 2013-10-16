@@ -59,7 +59,7 @@ cdef class PyPartitionerEM:
         Mutable: minima point must be be lower than cutoff in order to be cut 
         """
         def __get__(self): return self.__thisptr.getPartitionCutoff()
-        def __set__(self, int c): self.__thisptr.setPartitionCutoff(c) 
+        def __set__(self, double c): self.__thisptr.setPartitionCutoff(c) 
     
     property initial_k:
         """ 
