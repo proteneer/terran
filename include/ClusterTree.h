@@ -79,21 +79,23 @@ public:
     void step();
 
 	// divide the current cluster into more clusters by looking at the assignments
+	// cannot be called twice in a row
 	void divideCurrentCluster(int count);
 
-    // set the current cluster, overloaded variant allowing 
+    // set the current cluster, can pass in optional partitioner 
+	// cannot be called twice in a row
     void setCurrentCluster(Partitioner* partitioner = NULL);
 
 private:
 	
+	enum CalledFunction { NONE, SET_CURRENT_CLUSTER, DIVIDE_CURRENT_CLUSTER };
+	CalledFunction lastCalledFunction_;
+
     // returns a reference to the root of the BFS tree
     Node& getRoot();
 
     void validateData();
-
-	// pops the queue and assigns current cluster, this removes the head element
-
-
+	
     // returns found leaves so far
     std::vector<const Node*> getLeaves() const;
 

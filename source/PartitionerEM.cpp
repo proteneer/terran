@@ -19,8 +19,7 @@ PartitionerEM::PartitionerEM() :
 }
 
 PartitionerEM::~PartitionerEM() {
-    if(em_ != NULL)
-		delete em_;
+	delete em_;
 }
 
 void PartitionerEM::optimizeParameters() {

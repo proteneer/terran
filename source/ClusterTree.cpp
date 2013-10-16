@@ -13,7 +13,8 @@ ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<in
     dataset_(dataset),
     period_(period),
     root_(NULL),
-    currentCluster_(NULL) {
+    currentCluster_(NULL),
+	lastCalledFunction_(NONE) {
 
 	for(int i=0; i < period.size(); i++) {
 		if(period[i] != 1 && period[i] != 0) {
@@ -33,7 +34,7 @@ ClusterTree::ClusterTree(const vector<vector<double> > &dataset, const vector<in
 
 ClusterTree::~ClusterTree() {
     delete root_;
-    delete currentCluster_;
+	delete currentCluster_;
 }
 
 int ClusterTree::getNumPoints() const {
@@ -83,6 +84,10 @@ int ClusterTree::getNumClusters() const {
 
 void ClusterTree::setCurrentCluster(Partitioner* partitioner) {
 
+	if(lastCalledFunction_ == SET_CURRENT_CLUSTER) {
+		throw(std::runtime_error("ClusterTree::setCurrentCluster - called lastCalledFunction twice"));
+	}
+
     if(queue_.size() > 0) {
         if(currentCluster_ != NULL)
             throw(std::runtime_error("ClusterTree::currentCluster_ is not set to NULL, has divideCluster() been called?"));
@@ -107,19 +112,21 @@ void ClusterTree::setCurrentCluster(Partitioner* partitioner) {
             currentCluster_ = new Cluster(subset, period_);
         
     }
+
+	lastCalledFunction_ = SET_CURRENT_CLUSTER;
+
 }
 
 int ClusterTree::queueSize() const {
 	return queue_.size();
 }
 
-/*
-void ClusterTree::partitionCurrentCluster(int d) {
-    currentCluster_->partition(d);
-}
-*/
-
 void ClusterTree::divideCurrentCluster(int count) {
+
+	if(lastCalledFunction_ == DIVIDE_CURRENT_CLUSTER) {
+		throw(std::runtime_error("ClusterTree::setCurrentCluster - called divideCurrenCluster twice"));
+	}
+
 	// get assignment of points from current cluster
     vector<int> assignment = currentCluster_->assign();
     int maxAssignmentId = *(max_element(assignment.begin(), assignment.end()));
@@ -146,7 +153,9 @@ void ClusterTree::divideCurrentCluster(int count) {
     currentCluster_ = NULL;
 	// pop the queue
 	queue_.pop();
-	// set next cluster
+
+	lastCalledFunction_ = DIVIDE_CURRENT_CLUSTER;
+
 }
 
 std::vector<const ClusterTree::Node*> ClusterTree::getLeaves() const {
@@ -185,6 +194,9 @@ ClusterTree::Node& ClusterTree::getRoot() {
 }
 
 Cluster& ClusterTree::getCurrentCluster() {
+	if(lastCalledFunction_ != SET_CURRENT_CLUSTER) {
+		throw(std::runtime_error("ClusterTree::getCurrentCluster() - setCurrentCluster() not called yet!"));
+	}
 	if(currentCluster_ == NULL) {
 		throw(std::runtime_error("ClusterTree::getCurrentCluster() - currentCluster_ is NULL"));
 	}

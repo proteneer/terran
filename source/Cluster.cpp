@@ -34,6 +34,10 @@ Cluster::Cluster(const vector<vector<double> > &data, const vector<int> &period,
     subsampleCount_(min(3000,(int)data.size())),
 	partitioner_(partitioner) {
 	
+	if(partitioner == NULL) {
+		throw(std::runtime_error("Cluster::Cluster() - NULL partitioner passed into constructor"));
+	}
+
 	initialize();
 
 }
@@ -72,9 +76,6 @@ void Cluster::initialize() {
 }
 
 Cluster::~Cluster() {
-	// does this result in a double delete?
-	if(partitioner_ == NULL)
-		throw(std::runtime_error("Cluster::~Cluster() - bad destructor, partitioner_ is already NULL!"));
 	delete partitioner_;
 }
 
@@ -123,8 +124,15 @@ vector<double> Cluster::getDimension(int d) const {
 
 vector<double> Cluster::getPartition(int d) const {
     if(d > getNumDimensions() || d < 0) {
-        throw(std::runtime_error("Cluster::getPartitions() - invalid dimension"));
+        stringstream msg;
+		msg << "Cluster::getPartition() - invalid dimension: " << d;
+		throw(std::runtime_error(msg.str()));
     }
+	if(!partitionFlag_[d]) {
+		stringstream msg;
+		msg << "Cluster::getPartition() - dimension has not: " << d;
+		throw(std::runtime_error(msg.str()));
+	}
     return partitions_[d];
 }
 

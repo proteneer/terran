@@ -75,9 +75,10 @@ cdef extern from "../include/Cluster.h" namespace "Terran":
         Cluster(vector[vector[double]],vector[int], Partitioner* partitioner) except +
         int getNumDimensions()
         int getNumPoints()
-        void partition(int) except+
-        vector[double] getPartition(int)
-        vector[int] assign() except+
+        void partition(int) except +
+        void partitionAll() except +
+        vector[double] getPartition(int) except + 
+        vector[int] assign() except +
         void setSubsampleCount(int)
         int getSubsampleCount()
         Partitioner& getPartitioner()
@@ -127,6 +128,20 @@ cdef class PyCluster:
         Returns a list of cutting point(s)
         """
         self.__thisptr.partition(d)
+        return self.__thisptr.getPartition(d)
+    
+    def partition_all(self):
+        """
+        Calls partition on every dimension. Future: multi-threaded.
+        """
+        self.__thisptr.partitionAll()
+        
+    def get_partition(self, int d):
+        """ Retrieve the result of partitioning on dimensinon d.
+        
+        Notes:
+        -Dimension d must have been partitioned either via partition() or partition_all()
+        """
         return self.__thisptr.getPartition(d)
     
     def assign(self):
@@ -181,12 +196,13 @@ cdef extern from "../include/ClusterTree.h" namespace "Terran":
         int getNumPoints()
         int getNumClusters()
         int queueSize()
-        vector[int] assign()
-        void setCurrentCluster()
-        void setCurrentCluster(Partitioner* partitioner)
+        vector[int] assign() except +
+        void setCurrentCluster() except +
+        void setCurrentCluster(Partitioner* partitioner) except +
+        # exceptions temporarily disabled for getCurrentCluster due to cython bug
         Cluster& getCurrentCluster()
-        void divideCurrentCluster(int)
-        
+        void divideCurrentCluster(int) except +
+         
 cdef class PyClusterTree:
     
     cdef ClusterTree *__thisptr
@@ -231,13 +247,15 @@ cdef class PyClusterTree:
     def divide_current_cluster(self, int cutoff):
         """
         Divide the currently assigned cluster into more clusters, appending it into the queue. Destroys
-        current_cluster
+        current_cluster. Clusters with less than cutoff points are not appended to the queue.
         
         Note: cutoff is recommended to be 2000 or more, as lack of points
               makes EM and subsequent marginalization difficult
+              A cluster cannot be divided any further if all of its DOFs have unimodal distributions 
         """
-        self.__thisptr.divideCurrentCluster(cutoff)
 
+        self.__thisptr.divideCurrentCluster(cutoff)
+        
     property clusters_found:
         """
         Immutable: return number of clusters found so far
