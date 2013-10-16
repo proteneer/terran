@@ -79,6 +79,8 @@ int ClusterTree::getNumClusters() const {
     return getLeaves().size();
 }
 
+// setCurrentCluster must be called exactly once. 
+
 void ClusterTree::setCurrentCluster(Partitioner* partitioner) {
 
     if(queue_.size() > 0) {

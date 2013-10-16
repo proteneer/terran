@@ -182,6 +182,8 @@ cdef extern from "../include/ClusterTree.h" namespace "Terran":
         int getNumClusters()
         int queueSize()
         vector[int] assign()
+        void setCurrentCluster()
+        void setCurrentCluster(Partitioner* partitioner)
         Cluster& getCurrentCluster()
         void divideCurrentCluster(int)
         
@@ -204,9 +206,18 @@ cdef class PyClusterTree:
     def __dealloc__(self):
         del self.__thisptr
 
+    def set_current_cluster(self, pyPartitioner=None):
+        if pyPartitioner is not None:
+            partEM = <PyPartitionerEM?>pyPartitioner
+            partEM.__delete = 0
+            self.__thisptr.setCurrentCluster(partEM.__thisptr)
+        else:
+            self.__thisptr.setCurrentCluster()
+
     def get_current_cluster(self):
         """
-        Returns a reference to the cluster object currently being investigated.
+        Returns a reference to the cluster object currently being investigated. set_current_cluster 
+        must be the last function called, not divide_current_cluster
 
         Note: The ownership of the object returned by this function belongs to the ClusterTree class.
               You cannot take ownership of it and/or try to delete it.
@@ -219,7 +230,8 @@ cdef class PyClusterTree:
 
     def divide_current_cluster(self, int cutoff):
         """
-        Divide the currently assigned cluster into more clusters, appending it into the queue.
+        Divide the currently assigned cluster into more clusters, appending it into the queue. Destroys
+        current_cluster
         
         Note: cutoff is recommended to be 2000 or more, as lack of points
               makes EM and subsequent marginalization difficult
