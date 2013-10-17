@@ -9,6 +9,14 @@ file(GLOB HeaderFiles "include/*.h")
 
 set(STATIC_LIBRARY OFF CACHE BOOL "Build static as opposed to shared library")
 
+if(WIN32)
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /openmp" )
+endif(WIN32)
+
+if(UNIX)
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fopenmp" )
+endif(UNIX)
+
 if(STATIC_LIBRARY)
     add_definitions(-DTERRAN_BUILDING_STATIC_LIBRARY)
     add_library(Terran STATIC ${CoreFiles} ${HeaderFiles})
