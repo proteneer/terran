@@ -13,15 +13,18 @@ sources.append('terran.pyx')
 
 if new_compiler().compiler_type == 'msvc':
     compile_args = ['/openmp']
+    link_args = ['']
 else:
     compile_args = ['-fopenmp']
-
+    link_args = ['-lgomp']
+    
 ext_modules = [Extension('terran',
                         include_dirs = ['../include'],
                         language = 'c++',
                         sources = sources,
                         define_macros = [('TERRAN_BUILDING_SHARED_LIBRARY', '1')],
-                        extra_compile_args=compile_args,
+                        extra_compile_args = compile_args,
+                        extra_link_args = link_args,
                         )]
                         
 setup(
