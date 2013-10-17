@@ -139,6 +139,8 @@ double EM::getLikelihood() const {
     return lambda;
 }
 
+#include "omp.h"
+
 bool EM::simpleRun(unsigned int numParams) {
     
 	if(numParams > data_.size()) {

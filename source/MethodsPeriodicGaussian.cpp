@@ -4,8 +4,13 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>  
+#include <sstream>
 
 using namespace std;
+
+
+#include "omp.h"
+
 
 namespace Terran {
 
@@ -26,7 +31,6 @@ static bool compare_by_x(double2 a, double2 b) {
 
 MethodsPeriodicGaussian::MethodsPeriodicGaussian(const vector<Param> &params, 
     double period) : Methods(params), period_(period) {
-		
 	// sample from the distribution directly
 	vector<double2> samples;
 	for(int i=0; i <2500; i++) {

@@ -101,8 +101,6 @@ cdef class PyCluster:
         Arg[2] -- Optional: a PyPartitionerEM object. Note that PyCluster takes ownership
                   of the PyPartitionerEM object. 
         """
-        
-        print('Calling PyCluster() __cinit__')
 
         if len(args) == 2:
             data = <vector[vector[double]]?> args[0]

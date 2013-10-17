@@ -27,7 +27,7 @@ public:
 
 	// From base-class
 	void setDataAndPeriod(const std::vector<double> &data, bool isPeriodic);
-
+	
     // invokes optimizeParameters and findLowMinima
     std::vector<double> partition();
     
@@ -44,7 +44,10 @@ public:
 
 	int getInitialK() const;
 
+	Partitioner* clone(const std::vector<double> &data, bool isPeriodic);
+
 private:
+
 	// Executes EM::simpleRun()
     void optimizeParameters();
 
@@ -60,6 +63,7 @@ private:
     // considered to be a partition point
     double partitionCutoff_;
     EM* em_; 
+
 
 };
 

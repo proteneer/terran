@@ -55,6 +55,15 @@ void PartitionerEM::setDataAndPeriod(const vector<double> &data, bool isPeriodic
 
 }
 
+Partitioner* PartitionerEM::clone(const std::vector<double> &data, bool isPeriodic) {
+	PartitionerEM *pem = new PartitionerEM;
+	pem->setDataAndPeriod(data, isPeriodic);
+	pem->isPeriodic_ = isPeriodic;
+	pem->initialK_ = this->initialK_;
+	pem->partitionCutoff_ = this->partitionCutoff_;
+	return pem;
+}
+
 std::vector<double> PartitionerEM::partition() {
 	if(em_ == NULL) {
 		throw(std::runtime_error("PartitionEM::findLowMinima() - dataset_ has not been initialized"));
@@ -69,7 +78,7 @@ vector<double> PartitionerEM::findLowMinima() const {
     if(params.size() == 0) {
         throw(std::runtime_error("PartitionEM::findLowMinima() - Parameters do not exist!"));
     }
-
+	
     vector<double> partition;
     if(isPeriodic_) {
         const double period = 2*PI;

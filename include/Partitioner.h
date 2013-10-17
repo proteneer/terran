@@ -28,6 +28,9 @@ public:
 	// reset the data and periodicity information
 	virtual void setDataAndPeriod(const std::vector<double> &data, bool isPeriodic) = 0;
     
+	// return an unbound Partitioner
+	virtual Partitioner* clone(const std::vector<double> &data, bool isPeriodic) = 0;
+
 protected:
 
     // The returned vector is defined as follows:

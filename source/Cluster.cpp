@@ -9,6 +9,10 @@
 #include "EMGaussian.h"
 #include "PartitionerEM.h"
 
+
+#include "omp.h"
+
+
 using namespace std;
 
 namespace Terran {
@@ -144,20 +148,36 @@ void Cluster::setPartition(int d, const vector<double> &p) {
 }
 
 void Cluster::partition(int d) {
-	cout << "Cluster::partition() invoked on " << d << endl;
 	partitioner_->setDataAndPeriod(getDimension(d), period_[d]);
 	partitions_[d] = partitioner_->partition();
 	partitionFlag_[d] = true;
 };
 
+
 void Cluster::partitionAll() {
+#ifdef _OPENMP
+	#pragma omp parallel for
+	for(int d=0; d < getNumDimensions(); d++) {
+		// partitioner_ acts like a factory in this case.
+		vector<double> data = getDimension(d);
+		bool period = period_[d];
+		Partitioner* np = partitioner_->clone(data, period);
+		vector<double> d_part = np->partition();      
+		#pragma omp critical 
+		{
+			partitionFlag_[d] = true;
+		    partitions_[d] = d_part;
+		}
+		delete np; 
+	}
+#else
 	for(int d=0; d < getNumDimensions(); d++) {
 		partition(d);
 	}
+#endif
 }
 
 vector<int> Cluster::assign() {
-
 	for(int d=0; d < getNumDimensions(); d++) {
 		if(partitionFlag_[d] == false) {
 			stringstream errmsg;
@@ -165,7 +185,6 @@ vector<int> Cluster::assign() {
 			throw(std::runtime_error(errmsg.str()));
 		}
 	}
-
     // assign each point to a bucket
     map<vector<short>, vector<int> > clusters;
     for(int n = 0; n < getNumPoints(); n++) {
