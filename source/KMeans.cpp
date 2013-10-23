@@ -98,11 +98,8 @@ std::vector<int> KMeans::run(const std::vector<std::vector<double> > &initialCen
 
 	int steps = 0;
 
-    while(!converged) {
-
-		cout << steps << endl;
-
-        // partition N points into K groups of variable size
+    while(!converged && steps < 1e5) {
+		// partition N points into K groups of variable size
         vector<vector<int> > groups(initialCenters.size()); 
         for(int n=0; n < assignment.size(); n++) {
             groups[assignment[n]].push_back(n);
@@ -122,7 +119,7 @@ std::vector<int> KMeans::run(const std::vector<std::vector<double> > &initialCen
         } else {
             converged = true;
         }
-    
+		steps++;
     }
 
 	return assignment;
