@@ -5,6 +5,7 @@
 
 namespace Terran {
 
+/* Implementation of the KMeans algorithm for partially periodic spaces. */
 class KMeans {
 
     public:
@@ -15,7 +16,7 @@ class KMeans {
         KMeans(const std::vector<std::vector<double> > &dataset, const std::vector<bool> &isPeriodic);
         ~KMeans();
         
-        /* Run the k-means algorithm given centers and return assignments*/
+        /* Run the k-means algorithm given explicit centers and return assignments*/
         std::vector<int> run(const std::vector<std::vector<double> > &initialCenters) const;
        
     private:

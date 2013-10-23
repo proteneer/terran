@@ -76,7 +76,7 @@ double KMeans::distance(const vector<double> &p1, const vector<double> &p2) cons
     vector<int> assignment(dataset_.size());
     for(int n=0; n < dataset_.size(); n++) {
         double smallest_distance = numeric_limits<double>::max();
-        double smallest_index;
+        int smallest_index;
         for(int k = 0; k < centers.size(); k++) {
             double dist = distance(dataset_[n], centers[k]);
             if( dist < smallest_distance) {
