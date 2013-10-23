@@ -24,7 +24,7 @@ KMeans::~KMeans() {}
 // return a D sized mean vector given a list of point indices
 vector<double> KMeans::computeMean(const vector<int> &points) const {
 
-    vector<double> center;
+    vector<double> center(isPeriodic_.size());
     // for each dimension
     for(int d = 0; d < isPeriodic_.size(); d++) {
         double mean = 0;
@@ -93,13 +93,14 @@ double KMeans::distance(const vector<double> &p1, const vector<double> &p2) cons
 // of size K x D
 std::vector<int> KMeans::run(const std::vector<std::vector<double> > &initialCenters) const {
 
-    // coordinates of the centers
-
-    bool converged = false;
-        
+    bool converged = false;  
     vector<int> assignment = assignPointsToCenters(initialCenters);
-        
+
+	int steps = 0;
+
     while(!converged) {
+
+		cout << steps << endl;
 
         // partition N points into K groups of variable size
         vector<vector<int> > groups(initialCenters.size()); 
@@ -123,6 +124,8 @@ std::vector<int> KMeans::run(const std::vector<std::vector<double> > &initialCen
         }
     
     }
+
+	return assignment;
 }
 
 }

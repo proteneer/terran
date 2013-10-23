@@ -1,7 +1,6 @@
 #ifndef _KMEANS_H_
 #define _KMEANS_H_
 
-#include <iostream>
 #include <vector>
 
 namespace Terran {
