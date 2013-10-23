@@ -162,7 +162,7 @@ void EMPeriodicGaussian::mergeParams() {
                 candidates.push_back(params_[j]);
                 Param estimate = estimator(candidates);
                 double squaredError = squaredIntegratedError(candidates, estimate);
-                if(sqrt(squaredError) < 1e-2) {
+                if(sqrt(squaredError) < 5e-3) {
                     hasMergedOnce = true;
                     best = estimate;
                     // inclusive merge of all continuous indices
