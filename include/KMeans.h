@@ -1,3 +1,6 @@
+#ifndef _KMEANS_H_
+#define _KMEANS_H_
+
 #include <iostream>
 #include <vector>
 
@@ -14,13 +17,19 @@ class KMeans {
         ~KMeans();
         
         /* Run the k-means algorithm given centers and return assignments*/
-        vector<int> run(const vector<double> &centers);
+        std::vector<int> run(const std::vector<std::vector<double> > &initialCenters) const;
        
     private:
     
+        std::vector<double> computeMean(const std::vector<int> &points) const;
+        double distance(const std::vector<double> &p1, const std::vector<double> &p2) const;
+        std::vector<int> assignPointsToCenters(const std::vector<std::vector<double> > &centers) const;
+
         const std::vector<std::vector<double> > &dataset_;
         const std::vector<bool> isPeriodic_;
 
-}
+};
 
-}
+} // namespace Terran
+
+#endif // ifndef _KMEANS_H_

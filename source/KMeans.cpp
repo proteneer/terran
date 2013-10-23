@@ -1,57 +1,58 @@
 #include "KMeans.h"
+#include "MathFunctions.h"
 #include <complex>
 #include <limits>
 
 using namespace std;
 
+namespace Terran {
+
 KMeans::KMeans(const std::vector<std::vector<double> > &dataset, const std::vector<bool> &isPeriodic) :
     dataset_(dataset), isPeriodic_(isPeriodic) {
-
+    if(dataset_.size() == 0) {
+        throw(std::runtime_error("KMeans::KMeans() - Empty dataset!"));
+    }
+    for(int n = 0; n < dataset_.size(); n++) {
+        if(dataset_[n].size() != isPeriodic.size()) {
+            throw(std::runtime_error("KMeans::KMeans() - dataset size does not match isPeriodic size"));
+        }
+    }
 }
 
-// return a D sized vector given a set of point indices
-vector<double> KMeans::computeMean(const vector<int> &points, const vector<bool> &isPeriodic) {
+KMeans::~KMeans() {}
+
+// return a D sized mean vector given a list of point indices
+vector<double> KMeans::computeMean(const vector<int> &points) const {
 
     vector<double> center;
     // for each dimension
-    for(int d = 0; d < isPeriodic.size(); d++) {
-        // for each point
+    for(int d = 0; d < isPeriodic_.size(); d++) {
         double mean = 0;
-        if(isPeriodic[d]) {
+        // if the dimension is periodic we use directional statistics
+        // to compute the periodic mean
+        if(isPeriodic_[d]) {
             double real = 0;
             double imag = 0;
-            double coord = dataset_[points[n]][d];
             for(int n = 0; n < points.size(); n++) {
+                double coord = dataset_[points[n]][d];
                 real += cos(coord);
                 imag += sin(coord);
             }
-            complex z(real, imag);
-            z = z / points.size();
+            complex<double> z(real/points.size(), imag/points.size());
             mean = arg(z);
         } else {
             for(int n = 0; n < points.size(); n++) {
+                double coord = dataset_[points[n]][d];
                 mean += coord;
             }
             mean = mean / points.size();
         }
         center[d] = mean;
     }
-    
     return center;  
 }
 
-
-
-// compute the distance between two points
-
-// calculates the shortest distance between two points given a period
-inline double periodicDifference(double x1, double x2, double period) {
-    double diff = x1-x2;
-    diff -= floor(diff/period+0.5)*period;
-    return diff;
-}
-
-double KMeans::distance(const vector<double> &p1, const vector<double> &p2) {
+double KMeans::distance(const vector<double> &p1, const vector<double> &p2) const {
     double sum = 0;
     if(p1.size() != p2.size()) {
         throw(std::runtime_error("KMeans::distance() - p1.size() != p2.size() "));
@@ -70,35 +71,58 @@ double KMeans::distance(const vector<double> &p1, const vector<double> &p2) {
 
 // assign dataset into K groups based on current centers 
 // note: can be sped up using triangle inequality presumably (periodic triangle inequality)?
-vector<vector<int> > KMeans::assign(const vector<vector<double> > &centers) {
-    
-    vector<vector<int> > groups(centers.size());
-    
+ vector<int> KMeans::assignPointsToCenters(const vector<vector<double> > &centers) const {
+    // partition N points into K groups of variable length
+    vector<int> assignment(dataset_.size());
     for(int n=0; n < dataset_.size(); n++) {
-        double smallest_distance = numeric_limits<double>::max;
+        double smallest_distance = numeric_limits<double>::max();
         double smallest_index;
         for(int k = 0; k < centers.size(); k++) {
-            distance = distance(dataset_[n], centers[k]);
-            if( distance < smallest_distance) {
-                smallest_distance = distance;
+            double dist = distance(dataset_[n], centers[k]);
+            if( dist < smallest_distance) {
+                smallest_distance = dist;
                 smallest_index = k;
             }
         }
-        groups[k].push_back(n);
+        assignment[n] = smallest_index;
     }
-
-    return groups;
-    
+    return assignment;
 }
 
-// of size K x D
-vector<int> KMeans::run(const vector<const vector<double> > &initialCenters) {
 
-    vector<vector<double> > centers(initialCenters);
+// of size K x D
+std::vector<int> KMeans::run(const std::vector<std::vector<double> > &initialCenters) const {
+
+    // coordinates of the centers
+
+    bool converged = false;
         
+    vector<int> assignment = assignPointsToCenters(initialCenters);
+        
+    while(!converged) {
+
+        // partition N points into K groups of variable size
+        vector<vector<int> > groups(initialCenters.size()); 
+        for(int n=0; n < assignment.size(); n++) {
+            groups[assignment[n]].push_back(n);
+        }
     
-    for(int i=0; i < centers.size(); i++) {
-        
+        // compute centroid of each group of points
+        vector<vector<double> > centers(initialCenters);
+        for(int k = 0; k < groups.size(); k++) {
+            centers[k] = computeMean(groups[k]);
+        }
+
+        // compute new assignment based on these k groups
+        vector<int> newAssignment = assignPointsToCenters(centers);
+
+        if(newAssignment != assignment) {
+            assignment = newAssignment;
+        } else {
+            converged = true;
+        }
+    
     }
+}
 
 }
