@@ -170,7 +170,7 @@ while(tree.queue_size > 0):
     tree.divide_current_cluster(2000)
     print("writing best assignment found so far")	    
     assignment = tree.assign()
-    np.savetxt('muneeb_dataset'+str(count)+'.txt', assignment, fmt='%d')
+    np.savetxt('assign_loop_'+str(count)+'.txt', assignment, fmt='%d')
 ``` 
 
 <h2> Misc </h2>
