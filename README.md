@@ -139,25 +139,39 @@ void example() {
 Currently the python API exposes the Cluster class:
 
 ``` python
-from terran import PyCluster as cluster
+import sys
+import terran
 import numpy as np
+import random
 
-# load in an NxD dataset in radians
-data = np.loadtxt("dihedrals.txt")
+f = np.load('/home/yutong/shaw_ww_dihedrals.npz', 'r')
 
-# declare each dimension as periodic
-period = np.ones(len(data[0]))
+phi = f['phis']
+psi = f['psis']
 
-c = cluster(data, period)
+phis = np.loadtxt('phis.txt', dtype=float)
+psis = np.loadtxt('psis.txt', dtype=float)
 
-# print results of the partitioning each dimension
-for d in c.dimensions:
-    print d, c.partition(d)
+dihedrals = np.concatenate((phis,psis), axis=1)
 
-# get assignment of each point to a cluster
-c.assign()
+periods = np.ones(dihedrals.shape[1],dtype='int')
+tree = terran.PyClusterTree(dihedrals, periods)
+
+count = 0
+while(tree.queue_size > 0):
+    print("queue size: ", tree.queue_size)
+    print("clusters found: ", max(tree.assign())+1)
+    pem = terran.PyPartitionerEM()
+    pem.initial_k = 50
+    pem.cutoff = 0.01
+    tree.set_current_cluster(pem)
+    cluster = tree.get_current_cluster()
+    cluster.partition_all()
+    tree.divide_current_cluster(2000)
+    print("writing best assignment found so far")	    
+    assignment = tree.assign()
+    np.savetxt('muneeb_dataset'+str(count)+'.txt', assignment, fmt='%d')
 ``` 
-
 
 <h2> Misc </h2>
 Terran is named after Yutong's Starcraft race.
