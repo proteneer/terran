@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <stdexcept>
+#include <complex>
 
 using namespace std;
 using namespace Terran;
@@ -39,6 +40,64 @@ ClusterTree::~ClusterTree() {
 
 int ClusterTree::getNumPoints() const {
     return dataset_.size();
+}
+
+
+static bool vvecSortByDescendingSize(const vector<int> &v1, const vector<int> &v2) {
+	return v1.size() > v2.size();
+}
+
+vector<vector<double> > ClusterTree::centroid(int k) {
+
+	vector<int> assignment = assign();
+	int maxAssignmentId = *(max_element(assignment.begin(), assignment.end()));
+	int numClusters = maxAssignmentId+1;
+
+	if(k > numClusters) {
+		throw(std::runtime_error("ClusterTree::centroid() - k > numClusters"));
+	}
+
+	vector<vector<int> > groups(numClusters);
+
+	for(int i=0; i < dataset_.size(); i++) {
+		groups[assignment[i]].push_back(i);
+	}
+	sort(groups.begin(), groups.end(), vvecSortByDescendingSize);
+	groups.resize(k);
+	
+	vector<vector<double> > centroids(groups.size());
+
+	for(int i=0; i < groups.size(); i++) {
+		vector<double> center(period_.size());
+		const vector<int> &points = groups[i];
+		// for each dimension
+		for(int d = 0; d < period_.size(); d++) {
+			double mean = 0;
+			// if the dimension is periodic we use directional statistics
+			// to compute the periodic mean
+			if(period_[d]) {
+				double real = 0;
+				double imag = 0;
+				for(int n = 0; n < points.size(); n++) {
+					double coord = dataset_[points[n]][d];
+					real += cos(coord);
+					imag += sin(coord);
+				}
+				complex<double> z(real/points.size(), imag/points.size());
+				mean = arg(z);
+			} else {
+				for(int n = 0; n < points.size(); n++) {
+					double coord = dataset_[points[n]][d];
+					mean += coord;
+				}
+				mean = mean / points.size();
+			}
+			center[d] = mean;
+		}
+		centroids[i] = center;
+	}
+
+	return centroids;
 }
 
 // traverse down the to the leaves
