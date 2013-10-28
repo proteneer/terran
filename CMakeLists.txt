@@ -21,6 +21,10 @@ if(UNIX)
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fopenmp" )
 endif(UNIX)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Valid Options: Debug, Release, RelWithDebIfno" FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
 if(STATIC_LIBRARY)
     add_definitions(-DTERRAN_BUILDING_STATIC_LIBRARY)
     add_library(Terran STATIC ${CoreFiles} ${HeaderFiles})

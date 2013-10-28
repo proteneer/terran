@@ -12,9 +12,9 @@ using namespace Terran;
 
 PartitionerEM::PartitionerEM() :
 	Partitioner(),
-	partitionCutoff_(0.05),
+	partitionCutoff_(0.01),
 	em_(NULL),
-	initialK_(25) {
+	initialK_(50) {
 
 }
 

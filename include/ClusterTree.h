@@ -52,8 +52,10 @@ public:
 
     ~ClusterTree();
 
-	// compute the centroid of the first k most populated clusters
+	// compute the centroid of the first k most populated cluster
+	/*
 	std::vector<std::vector<double> > centroid(int k);
+	*/
 
     // return number of points in the dataset
     int getNumPoints() const;

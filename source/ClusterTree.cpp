@@ -47,6 +47,7 @@ static bool vvecSortByDescendingSize(const vector<int> &v1, const vector<int> &v
 	return v1.size() > v2.size();
 }
 
+/*
 vector<vector<double> > ClusterTree::centroid(int k) {
 
 	vector<int> assignment = assign();
@@ -96,9 +97,9 @@ vector<vector<double> > ClusterTree::centroid(int k) {
 		}
 		centroids[i] = center;
 	}
-
 	return centroids;
 }
+*/
 
 // traverse down the to the leaves
 vector<int> ClusterTree::assign() const {

@@ -10,32 +10,33 @@
 using namespace Terran;
 using namespace std;
 
-// PI
-// |       *
-// |      ***
-// |     **0**
-// |      ***     *
-// |       *     ***
-// |            **2**
-// |       *     ***
-// |      ***     *
-// |     **1**
-// |      ***
-// |       *
-//-PI-------------------PI
-void testPeriodicSimpleCase() {
 
-    vector<vector<double> > dataset;
+void testPeriodicSimpleCase() {
+	// PI
+	// |       *
+	// |      ***
+	// |     **0**
+	// |      ***     *
+	// |       *     ***
+	// |            **2**
+	// |       *     ***
+	// |      ***     *
+	// |     **1**
+	// |      ***
+	// |       *
+	//-PI-------------------PI
+	vector<vector<double> > dataset;
     // setup 0th cluster;
     {
         double u1 = -PI/2;
         double u2 =  PI/2;
-        double s = 0.5;
+        double s1 = 0.3;
+		double s2 = 0.5;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
-            point[0] = periodicGaussianSample(u1, s, period);
-            point[1] = periodicGaussianSample(u2, s, period);
+            point[0] = periodicGaussianSample(u1, s1, period);
+            point[1] = periodicGaussianSample(u2, s2, period);
             dataset.push_back(point);
         }
     }
@@ -44,26 +45,28 @@ void testPeriodicSimpleCase() {
     {
         double u1 = -PI/2;
         double u2 = -PI/2;
-        double s = 0.5;
+        double s1 = 0.3;
+		double s2 = 0.5;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
-            point[0] = periodicGaussianSample(u1, s, period);
-            point[1] = periodicGaussianSample(u2, s, period);
+            point[0] = periodicGaussianSample(u1, s1, period);
+            point[1] = periodicGaussianSample(u2, s2, period);
             dataset.push_back(point);
         }
     }
 
     // setup 2nd cluster
     {
-        double u1 = PI/3;
+        double u1 = PI/2;
         double u2 = 0;
-        double s = 0.5;
+        double s1 = 0.3;
+		double s2 = 0.5;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
-            point[0] = periodicGaussianSample(u1, s, period);
-            point[1] = periodicGaussianSample(u2, s, period);
+            point[0] = periodicGaussianSample(u1, s1, period);
+            point[1] = periodicGaussianSample(u2, s2, period);
             dataset.push_back(point);
         }
     }
@@ -111,8 +114,8 @@ void testPeriodicMultiCluster() {
     {
         double u1 = -4*PI/5;
         double u2 =  PI/2;
-        double s1 = 0.4;
-        double s2 = 0.7;
+        double s1 = 0.3;
+        double s2 = 0.5;
         
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -126,8 +129,8 @@ void testPeriodicMultiCluster() {
     {
         double u1 = 7*PI/8;
         double u2 = -PI/2;
-        double s1 = 0.4;
-        double s2 = 0.6;
+        double s1 = 0.3;
+        double s2 = 0.5;
 
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -141,7 +144,7 @@ void testPeriodicMultiCluster() {
     {
         double u1 = PI/8;
         double u2 = -PI/9;
-        double s = 0.5;
+        double s = 0.4;
 
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -155,8 +158,8 @@ void testPeriodicMultiCluster() {
     {
         double u1 = 0;
         double u2 = 8*PI/9;
-        double s1 = 0.4;
-        double s2 = 0.7;
+        double s1 = 0.3;
+        double s2 = 0.5;
 
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
