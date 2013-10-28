@@ -249,7 +249,7 @@ Define the log likelihood function for periodic gaussians for some 1D dataset \t
 \end{equation}
 In addition, define the membership probability expressed as the conditional probability,
 \begin{equation}
-p(k|n) = \dfrac{p_k g_p(x_n; u_k, s_k)}{\sum\limits^{K}_{m=1} g_{pm} (x_n; \theta)}
+p(k|n) = \dfrac{p_k g_p(x_n; u_k, s_k)}{g_{pm} (x_n; \theta)}
 \end{equation}
 it can then be shown that
 \begin{equation}
@@ -272,7 +272,7 @@ and,
 \end{split}
 \end{align}
 We are interested in is finding the values of \textbf{$p_k, u_k, s_k$} such that the likelihood attains a local maxima. This is equivalent to finding the roots of the above equations. Solving for \(p_k\) is trivial, but \(u_k\) and \(s_k\) are a bit tricky.  The two latter derivatives are first simplified by multiplying \(s_k^2\) and \(s_k^3\) respectively. We first note that \(\partial \lambda \backslash \partial u_k \) is periodic with respect to \(u_k\), and has exactly two roots corresponding to a  maximum  and minimum in the likelihood function. The two points that bracket the maximum can be found easily by sampling the domain, and the subsequent maximum can be found by means of bisection. For \(\partial \lambda \backslash \partial s_k\), there is exactly one root in the interval \((0, D]\) for all practical purposes, which can be then isolated by bisection once again.
-\subsubsection{The simpler way}
+\subsubsection{The easy way}
 Define the membership probability as
 \begin{equation}
 p(k,r|n) = \dfrac{ p_k g(x_n; u_k-rD, s_k) } { g_{pm} (x_n; \theta) }
