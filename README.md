@@ -161,15 +161,11 @@ count = 0
 while(tree.queue_size > 0):
     print("queue size: ", tree.queue_size)
     print("clusters found: ", max(tree.assign())+1)
-    pem = terran.PyPartitionerEM()
-    pem.initial_k = 50
-    pem.cutoff = 0.01
-    tree.set_current_cluster(pem)
     cluster = tree.get_current_cluster()
     cluster.partition_all()
     tree.divide_current_cluster(2000)
-    print("writing best assignment found so far")	    
     assignment = tree.assign()
+    # write best assignment so far
     np.savetxt('assign_loop_'+str(count)+'.txt', assignment, fmt='%d')
 ``` 
 
