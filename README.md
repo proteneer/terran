@@ -121,7 +121,7 @@ void example() {
     while(!ct.finished()) {
         ct.setCurrentCluster();
         ct.getCurrentCluster().partitionAll();
-        ct.divideCurrentCluster();
+        ct.divideCurrentCluster(2000);
     }
 
     // find the point assignment
