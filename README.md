@@ -97,12 +97,8 @@ m|                           |                     m|       *                   
 
 The output is a hierarchical tree, whose leaves represent the found clusters.
 
-<h3> Code Example </h3>
-
-Here's the C++ code that accomplishes this. 
-
+<h3> C++ Example </h3>
 ```cpp
-
 #include <Terran.h>
 
 using namespace Terran;
@@ -128,13 +124,11 @@ void example() {
         ct.divideCurrentCluster();
     }
 
-    // find the pointassignment
+    // find the point assignment
     vector<int> assignment = ct.getAssignment();
 }
 ```
-
-Currently the python API exposes the Cluster class:
-
+<h3> Python Example </h3>
 ``` python
 import sys
 import terran
