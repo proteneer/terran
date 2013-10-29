@@ -117,7 +117,7 @@ void example() {
     // construct a clusterTree
     ClusterTree ct(dataset, periodset);
 
-    // each iteration pops the queue used to do the BFS search, partitions each dimension,
+    // each iteration pops the BFS queue, partitions each dimension,
     // and divides the data.
     while(!ct.finished()) {
         ct.setCurrentCluster();
