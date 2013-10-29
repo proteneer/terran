@@ -23,21 +23,18 @@ using namespace std;
  * the #ifdef below should change to compare _MSC_VER with a particular
  * version level.
  */
-
 #ifdef _MSC_VER
+
 /***************************
 *   erf.cpp
 *   author:  Steve Strand
 *   written: 29-Jan-04
 ***************************/
 #define M_PI 3.14159265358979323846264338327950288;
-
 static const double rel_error= 1E-12;        //calculate 12 significant figures
 //you can adjust rel_error to trade off between accuracy and speed
 //but don't ask for > 15 figures (assuming usual 52 bit mantissa in a double)
-
 static double erfc(double x);
-
 static double erf(double x)
 //erf(x) = 2/sqrt(pi)*integral(exp(-t^2),t,0,x)
 //       = 2/sqrt(pi)*[x - x^3/3 + x^5/5*2! - x^7/7*3! + ...]
@@ -59,7 +56,6 @@ static double erf(double x)
     } while (fabs(term)/sum > rel_error);
     return two_sqrtpi*sum;
 }
-
 
 static double erfc(double x)
 //erfc(x) = 2/sqrt(pi)*integral(exp(-t^2),t,x,inf)

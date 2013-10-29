@@ -145,10 +145,8 @@ void EMPeriodicGaussian::mergeParams() {
 
     sort(params_.begin(), params_.end(), paramComparator);
     vector<bool> skip(params_.size(), 0);
-
     // final set of parameters
     vector<Param> refined;
-
     for(int i=0; i < params_.size(); i++) {
         // if this parameter has not already been merged
         if(!skip[i]) {
@@ -158,7 +156,7 @@ void EMPeriodicGaussian::mergeParams() {
             vector<Param> candidates;
             Param best = params_[i]; 
             candidates.push_back(params_[i]);
-            for(int j=i+1; j != i; j = (j+1) % params_.size()) {
+            for(int j=(i+1) % params_.size(); j != i; j = (j+1) % params_.size()) {
                 candidates.push_back(params_[j]);
                 Param estimate = estimator(candidates);
                 double squaredError = squaredIntegratedError(candidates, estimate);
