@@ -31,7 +31,7 @@ void testPeriodicSimpleCase() {
         double u1 = -PI/2;
         double u2 =  PI/2;
         double s1 = 0.3;
-		double s2 = 0.5;
+	double s2 = 0.4;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -46,7 +46,7 @@ void testPeriodicSimpleCase() {
         double u1 = -PI/2;
         double u2 = -PI/2;
         double s1 = 0.3;
-		double s2 = 0.5;
+	double s2 = 0.4;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -61,7 +61,7 @@ void testPeriodicSimpleCase() {
         double u1 = PI/2;
         double u2 = 0;
         double s1 = 0.3;
-		double s2 = 0.5;
+	double s2 = 0.5;
         double period = 2*PI;
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -73,12 +73,13 @@ void testPeriodicSimpleCase() {
 
     vector<int> periodset(2, true);
     ClusterTree ct(dataset, periodset);
+
 	
     while(ct.queueSize() > 0) {
         ct.setCurrentCluster();
-		ct.getCurrentCluster().partitionAll();
-		ct.divideCurrentCluster(3000);
-	}
+	ct.getCurrentCluster().partitionAll();
+	ct.divideCurrentCluster(3000);
+    }
 
     vector<int> assignment = ct.assign();
 
@@ -115,7 +116,7 @@ void testPeriodicMultiCluster() {
         double u1 = -4*PI/5;
         double u2 =  PI/2;
         double s1 = 0.3;
-        double s2 = 0.5;
+        double s2 = 0.45;
         
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -130,7 +131,7 @@ void testPeriodicMultiCluster() {
         double u1 = 7*PI/8;
         double u2 = -PI/2;
         double s1 = 0.3;
-        double s2 = 0.5;
+        double s2 = 0.45;
 
         for(int i=0; i < 2000; i++) {
             vector<double> point(2);
@@ -172,13 +173,10 @@ void testPeriodicMultiCluster() {
     vector<int> periodset(2,true);
     ClusterTree ct(dataset, periodset);
 
-    int count = 0;
-	
     while(ct.queueSize() > 0) {
         ct.setCurrentCluster();
-		ct.getCurrentCluster().partitionAll();
-		ct.divideCurrentCluster(3000);
-        count++;
+	ct.getCurrentCluster().partitionAll();
+	ct.divideCurrentCluster(3000);
     }
 
     vector<int> assignment = ct.assign();
@@ -191,182 +189,10 @@ void testPeriodicMultiCluster() {
 
 }
 
-//+inf
-//  |         ***
-//  |        **3** 
-//  |         ***       *        
-//  |                  ***
-// d|                 **0** 
-// i|         ***      ***
-// m|        **2**      * 
-//  |        *****       
-// 1|         ***       *
-//  |                  ***
-//  |                  *1*
-//  |                   *  
-// -PI-------------------PI--+inf
-//  |
-//-inf       dim 0
-// used for the paper
-/*
-void testNonPeriodicMultiCluster() {
-
-    vector<vector<double> > dataset;
-    // setup 0th cluster;
-    {
-        double u1 =  4*PI/5;
-        double u2 =  PI/2;
-        double s1 = 0.4;
-        double s2 = 0.7;
-        
-        for(int i=0; i < 2000; i++) {
-            vector<double> point(2);
-            point[0] = gaussianSample(u1, s1);
-            point[1] = gaussianSample(u2, s2);
-            dataset.push_back(point);
-        }
-    }
-
-    // setup 1st cluster
-    {
-        double u1 = 7*PI/8;
-        double u2 = -PI/2;
-        double s1 = 0.4;
-        double s2 = 0.6;
-
-        for(int i=0; i < 2000; i++) {
-            vector<double> point(2);
-            point[0] = gaussianSample(u1, s1);
-            point[1] = gaussianSample(u2, s2);
-            dataset.push_back(point);
-        }
-    }
-
-    // setup 2nd cluster
-    {
-        double u1 = PI/8;
-        double u2 = -PI/9;
-        double s = 0.5;
-
-        for(int i=0; i < 2000; i++) {
-            vector<double> point(2);
-            point[0] = gaussianSample(u1, s);
-            point[1] = gaussianSample(u2, s);
-            dataset.push_back(point);
-        }
-    }
-
-    // setup 3rd cluster
-    {
-        double u1 = 0;
-        double u2 = 8*PI/9;
-        double s1 = 0.4;
-        double s2 = 0.7;
-
-        for(int i=0; i < 2000; i++) {
-            vector<double> point(2);
-            point[0] = gaussianSample(u1, s1);
-            point[1] = gaussianSample(u2, s2);
-            dataset.push_back(point);
-        }
-    }
-
-
-    ofstream datalog("cdata0.txt");
-    for(int i=0; i< dataset.size(); i++) {
-        datalog << dataset[i][0] << " " << dataset[i][1] << endl;
-    }
-
-    vector<double> periodset;
-    periodset.push_back(0);
-    periodset.push_back(0);
-    ClusterTree ct(dataset, periodset);
-
-    int count = 0;
-
-    //while(count < 2) {
-    while(!ct.finished()) {
-        ct.setCurrentCluster();
-
-        Cluster& cc = ct.getCurrentCluster();
-
-        for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
-            ct.partitionCurrentCluster(i);
-
-            cout << "dim " << i << " ";
-
-            // PLOTTING
-            cout << "gaussian components" << endl;
-            try {
-
-                PartitionerEM &pem = dynamic_cast<PartitionerEM&>(cc.getPartitioner(i));
-                vector<Param> params = pem.getEM().getParams();
-
-                stringstream filename;
-                filename << "curves" << count << i;
-
-                if(i == 0) {
-                    Util::plotGaussian(params, -2, 4.5, filename.str());
-                } else if (i == 1) {
-                    Util::plotGaussian(params, -3.9, 5, filename.str());
-                }
-
-            } catch(...) {} 
-            vector<double> partitions = ct.getCurrentCluster().getPartition(i);
-
-
-            for(int j=0; j < partitions.size(); j++) {
-                cout << partitions[j] << " ";
-            }
-            cout << endl;
-        }
-
-        // if we use a non reference, and we do something like
-        // Cluster cc = ct.getCurrentCluster();
-        // we will end up with a segfault as the references get destroyed
-
-
-        vector<vector<double> > clusterPoints;
-        for(int i=0 ; i < cc.getNumPoints(); i++) {
-            clusterPoints.push_back(cc.getPoint(i));
-        }
-        vector<int> assign = cc.cluster();
-
-        stringstream filename;
-        filename << "X" << count;
-        ofstream X(filename.str().c_str());
-
-        for(int i=0; i < cc.getNumPoints(); i++) {
- 
-            X << clusterPoints[i][0] << " " << clusterPoints[i][1] << endl;
-
-
-        }
-        ct.divideCurrentCluster();
-        count++;
-    }
-
-    vector<int> assignment = ct.assign();
-
-    for(int i=0; i < ct.getNumPoints(); i++) {
-        stringstream filename;
-        int j = assignment[i];
-        filename << "final" << count << j;
-        ofstream fname(filename.str().c_str(), ios::app);
-        fname << dataset[i][0] << " " << dataset[i][1] << endl;
-        fname.close();
-    }
-
-    ofstream assignmentFile("assignment.log");
-    for(int i=0; i< assignment.size() ;i++) {
-        assignmentFile << assignment[i] << endl;
-    }
-}
-*/
-
 int main() {
     try{
         cout << "testPeriodicSimpleCase()" << endl;
+	srand(1);
         testPeriodicSimpleCase();
         srand(1);
         cout << "testPeriodicMultiCluster()" << endl;
