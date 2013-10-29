@@ -124,10 +124,7 @@ void example() {
     // and divides the data.
     while(!ct.finished()) {
         ct.setCurrentCluster();
-        for(int i=0 ; i < ct.getCurrentCluster().getNumDimensions(); i++) {
-            ct.partitionCurrentCluster(i);
-            vector<double> partitions = ct.getCurrentCluster().getPartition(i);
-        }
+        ct.getCurrentCluster().partitionAll();
         ct.divideCurrentCluster();
     }
 
