@@ -33,4 +33,6 @@ else(STATIC_LIBRARY)
     add_library(Terran SHARED ${CoreFiles} ${HeaderFiles})
 endif(STATIC_LIBRARY)
 
+enable_testing()
+
 add_subdirectory(tests)
