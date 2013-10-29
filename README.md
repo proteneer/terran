@@ -17,6 +17,7 @@ Terran has no dependencies on external libraries. CMake is needed to prepare the
 $> mkdir build; cd build;
 $> cmake -D CMAKE_BUILD_TYPE=RELEASE ../
 $> make -j4
+$> make test
 ```
 Python wrappers can also be built via cython and distutils. 
 ``` bash
